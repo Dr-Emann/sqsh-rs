@@ -1,0 +1,27 @@
+---
+source: sqsh-rs/tests/example.rs
+expression: superblock
+---
+Superblock {
+    inode_count: 16,
+    id_count: 5,
+    fragment_entry_count: 1,
+    inode_table_start: 1309,
+    directory_table_start: 1514,
+    fragment_table_start: 1724,
+    export_table_start: 1786,
+    id_table_start: 1816,
+    xattr_id_table_start: 1906,
+    root_inode_ref: InodeRef(
+        501,
+    ),
+    has_fragments: true,
+    has_export_table: true,
+    has_xattr_table: true,
+    has_compression_options: false,
+    version_major: 4,
+    version_minor: 0,
+    block_size: 131072,
+    modification_time: 2000,
+    bytes_used: 1930,
+}

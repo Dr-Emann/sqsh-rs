@@ -1,87 +1,92 @@
 use sqsh_sys as ffi;
-use std::borrow::Cow;
 
+use bstr::BStr;
 use std::error::Error as StdError;
-use std::ffi::c_int;
+use std::ffi::{c_int, CStr};
 use std::fmt::{Debug, Display, Formatter};
 use std::io;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Error(pub(crate) ffi::SqshError);
 
+pub type Result<T, E = Error> = std::result::Result<T, E>;
+
+pub(crate) fn new(err: c_int) -> Error {
+    let err = err.unsigned_abs();
+    Error(ffi::SqshError(err))
+}
+
 impl Error {
-    pub(crate) fn new(err: c_int) -> io::Error {
-        let err = err.saturating_abs();
-        if err < ffi::SqshError::SQSH_ERROR_SECTION_START.0 as c_int {
-            io::Error::from_raw_os_error(err)
+    // Calls `f` with a string describing the error.
+    // Safety: `f` must not call `with_str` on any Errors, or call sqsh_error_str
+    // calls to `sqsh_error_str` will invalidate any previously returned pointer on that thread,
+    // so we cannot allow it to be called again while we're looking at the result.
+    unsafe fn with_str<F, O>(&self, f: F) -> O
+    where
+        // Rust lifetime rules ensure O cannot reference the CStr, which is good
+        F: FnOnce(&CStr) -> O,
+    {
+        let s = ffi::sqsh_error_str(self.0 .0 as c_int);
+
+        f(CStr::from_ptr(s))
+    }
+
+    pub fn io_error_kind(&self) -> io::ErrorKind {
+        let Self(err) = *self;
+        if err.0 < ffi::SqshError::SQSH_ERROR_SECTION_START.0 {
+            let io_err = io::Error::from_raw_os_error(err.0 as _);
+            return io_err.kind();
+        }
+        match err {
+            ffi::SqshError::SQSH_ERROR_UNKNOWN_FILE_TYPE
+            | ffi::SqshError::SQSH_ERROR_COMPRESSION_UNSUPPORTED
+            | ffi::SqshError::SQSH_ERROR_CORRUPTED_DIRECTORY_ENTRY
+            | ffi::SqshError::SQSH_ERROR_CORRUPTED_DIRECTORY_HEADER
+            | ffi::SqshError::SQSH_ERROR_CORRUPTED_INODE
+            | ffi::SqshError::SQSH_ERROR_BLOCKSIZE_MISMATCH
+            | ffi::SqshError::SQSH_ERROR_SIZE_MISMATCH
+            | ffi::SqshError::SQSH_ERROR_XATTR_SIZE_MISMATCH
+            | ffi::SqshError::SQSH_ERROR_INODE_MAP_IS_INCONSISTENT => io::ErrorKind::InvalidData,
+            ffi::SqshError::SQSH_ERROR_NO_SUCH_FILE | ffi::SqshError::SQSH_ERROR_NO_SUCH_XATTR => {
+                io::ErrorKind::NotFound
+            }
+            ffi::SqshError::SQSH_ERROR_INVALID_ARGUMENT => io::ErrorKind::InvalidInput,
+            _ => io::ErrorKind::Other,
+        }
+    }
+
+    pub fn as_io_error(&self) -> Option<io::Error> {
+        let Self(err) = *self;
+        if err.0 < ffi::SqshError::SQSH_ERROR_SECTION_START.0 {
+            Some(io::Error::from_raw_os_error(err.0 as _))
         } else {
-            io::Error::new(
-                io::ErrorKind::Other,
-                Self(ffi::SqshError(err.unsigned_abs())),
-            )
+            None
+        }
+    }
+
+    pub fn into_io_error(self) -> io::Error {
+        match self.as_io_error() {
+            Some(err) => err,
+            None => io::Error::new(self.io_error_kind(), self),
         }
     }
 }
 
-impl Error {
-    fn to_str(&self) -> Cow<'static, str> {
-        // sqsh_error_str is _not_ thread safe or reentrant
-        let s = match self.0 {
-            ffi::SqshError::SQSH_SUCCESS => "Success",
-            ffi::SqshError::SQSH_ERROR_NO_COMPRESSION_OPTIONS => "No compression options",
-            ffi::SqshError::SQSH_ERROR_SUPERBLOCK_TOO_SMALL => "Superblock too small",
-            ffi::SqshError::SQSH_ERROR_WRONG_MAGIC => "Wrong magic",
-            ffi::SqshError::SQSH_ERROR_BLOCKSIZE_MISMATCH => "Blocksize mismatch",
-            ffi::SqshError::SQSH_ERROR_SIZE_MISMATCH => "Size mismatch",
-            ffi::SqshError::SQSH_ERROR_COMPRESSION_INIT => "Compression init",
-            ffi::SqshError::SQSH_ERROR_COMPRESSION_DECOMPRESS => "Compression decompress",
-            ffi::SqshError::SQSH_ERROR_UNKOWN_FILE_TYPE => "Unknown file type",
-            ffi::SqshError::SQSH_ERROR_NOT_A_DIRECTORY => "Not a directory",
-            ffi::SqshError::SQSH_ERROR_NOT_A_FILE => "Not a file",
-            ffi::SqshError::SQSH_ERROR_MALLOC_FAILED => "Malloc Failed",
-            ffi::SqshError::SQSH_ERROR_MUTEX_INIT_FAILED => "Mutex init failed",
-            ffi::SqshError::SQSH_ERROR_MUTEX_LOCK_FAILED => "Mutex lock failed",
-            ffi::SqshError::SQSH_ERROR_MUTEX_DESTROY_FAILED => "Mutex destroy failed",
-            ffi::SqshError::SQSH_ERROR_OUT_OF_BOUNDS => "Out of bounds",
-            ffi::SqshError::SQSH_ERROR_INTEGER_OVERFLOW => "Integer overflow",
-            ffi::SqshError::SQSH_ERROR_NO_SUCH_FILE => "No such file or directory",
-            ffi::SqshError::SQSH_ERROR_NO_SUCH_XATTR => "No such xattr",
-            ffi::SqshError::SQSH_ERROR_NO_EXTENDED_DIRECTORY => "No extended directory",
-            ffi::SqshError::SQSH_ERROR_NO_FRAGMENT_TABLE => "No fragment table",
-            ffi::SqshError::SQSH_ERROR_NO_EXPORT_TABLE => "No export table",
-            ffi::SqshError::SQSH_ERROR_NO_XATTR_TABLE => "No xattr table",
-            ffi::SqshError::SQSH_ERROR_MAPPER_INIT => "Mapper init error",
-            ffi::SqshError::SQSH_ERROR_MAPPER_MAP => "Mapper mapping error",
-            ffi::SqshError::SQSH_ERROR_COMPRESSION_UNSUPPORTED => "Compression unknown",
-            ffi::SqshError::SQSH_ERROR_CURL_INVALID_RANGE_HEADER => "Invalid range header",
-            ffi::SqshError::SQSL_ERROR_ELEMENT_NOT_FOUND => "Element not found",
-            ffi::SqshError::SQSH_ERROR_INVALID_ARGUMENT => "Invalid argument",
-            ffi::SqshError::SQSH_ERROR_WALKER_CANNOT_GO_UP => "Walker cannot go up",
-            ffi::SqshError::SQSH_ERROR_WALKER_CANNOT_GO_DOWN => "Walker cannot go down",
-            ffi::SqshError::SQSH_ERROR_CORRUPTED_INODE => "Corrupted inode",
-            ffi::SqshError::SQSH_ERROR_CORRUPTED_DIRECTORY_ENTRY => "Corrupted directory entry",
-            ffi::SqshError::SQSH_ERROR_INTERNAL => "Internal error",
-            ffi::SqshError::SQSH_ERROR_INODE_MAP_IS_INCONSISTENT => "Inode map is inconsistent",
-            ffi::SqshError::SQSH_ERROR_XATTR_SIZE_MISMATCH => "Xattr size mismatch",
-            ffi::SqshError::SQSH_ERROR_UNSUPPORTED_VERSION => "Unsupported version",
-            ffi::SqshError::SQSH_ERROR_TOO_MANY_SYMLINKS_FOLLOWED => "Too many symlinks followed",
-            ffi::SqshError(other) => {
-                return Cow::Owned(io::Error::from_raw_os_error(other as i32).to_string());
-            }
-        };
-        Cow::Borrowed(s)
+impl From<std::ffi::NulError> for Error {
+    fn from(_: std::ffi::NulError) -> Self {
+        Self(ffi::SqshError::SQSH_ERROR_INVALID_ARGUMENT)
     }
 }
 
 impl Debug for Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&self.to_str())
+        unsafe { self.with_str(|s| Debug::fmt(s, f)) }
     }
 }
 
 impl Display for Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&self.to_str())
+        unsafe { self.with_str(|s| Display::fmt(BStr::new(s.to_bytes()), f)) }
     }
 }
 

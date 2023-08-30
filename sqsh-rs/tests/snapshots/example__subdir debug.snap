@@ -1,0 +1,26 @@
+---
+source: sqsh-rs/tests/example.rs
+expression: dir
+---
+File {
+    file_type: Some(
+        Directory,
+    ),
+    permissions: Permissions(
+        UserRead | UserWrite | UserExec | GroupRead | GroupExec | OtherRead | OtherExec,
+    ),
+    inode_ref: InodeRef(
+        469,
+    ),
+    is_extended: false,
+    hard_link_count: 2,
+    size: 49,
+    inode_number: 13,
+    parent_inode_number: 16,
+    modified_time: 1000,
+    symlink_path: None,
+    device_id: 0,
+    uid: 0,
+    gid: 0,
+    xattr_id: 4294967295,
+}

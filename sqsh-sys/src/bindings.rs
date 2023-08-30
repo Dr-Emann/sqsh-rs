@@ -3,6 +3,27 @@
 use libc::{FILE, mode_t, time_t};
 
 pub type sqsh_index_t = usize;
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct SqshSuperblockCompressionId(pub ::std::os::raw::c_uint);
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct SqshSuperblockFlags(pub ::std::os::raw::c_uint);
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct SqshGzipStrategies(pub ::std::os::raw::c_uint);
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct SqshXzFilters(pub ::std::os::raw::c_uint);
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct SqshLz4Flags(pub ::std::os::raw::c_uint);
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct SqshLzoAlgorithm(pub ::std::os::raw::c_uint);
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct SqshXattrType(pub ::std::os::raw::c_uint);
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct SqshInodeMap {
@@ -33,12 +54,6 @@ pub struct SqshFragmentTable {
 pub struct SqshTrailingContext {
     _unused: [u8; 0],
 }
-#[repr(transparent)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct SqshSuperblockCompressionId(pub ::std::os::raw::c_uint);
-#[repr(transparent)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct SqshSuperblockFlags(pub ::std::os::raw::c_uint);
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct SqshSuperblock {
@@ -66,18 +81,6 @@ pub struct SqshArchive {
 pub struct SqshMapManager {
     _unused: [u8; 0],
 }
-#[repr(transparent)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct SqshGzipStrategies(pub ::std::os::raw::c_uint);
-#[repr(transparent)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct SqshXzFilters(pub ::std::os::raw::c_uint);
-#[repr(transparent)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct SqshLz4Flags(pub ::std::os::raw::c_uint);
-#[repr(transparent)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct SqshLzoAlgorithm(pub ::std::os::raw::c_uint);
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct SqshCompressionOptions {
@@ -119,9 +122,6 @@ pub struct SqshTable {
 pub struct SqshTreeWalker {
     _unused: [u8; 0],
 }
-#[repr(transparent)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct SqshXattrType(pub ::std::os::raw::c_uint);
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct SqshXattrIterator {
@@ -247,6 +247,15 @@ impl SqshLzoAlgorithm {
 }
 impl SqshLzoAlgorithm {
     pub const SQSH_LZO_ALGORITHM_LZO1X_999: SqshLzoAlgorithm = SqshLzoAlgorithm(4);
+}
+impl SqshXattrType {
+    pub const SQSH_XATTR_USER: SqshXattrType = SqshXattrType(0);
+}
+impl SqshXattrType {
+    pub const SQSH_XATTR_TRUSTED: SqshXattrType = SqshXattrType(1);
+}
+impl SqshXattrType {
+    pub const SQSH_XATTR_SECURITY: SqshXattrType = SqshXattrType(2);
 }
 impl SqshFileType {
     pub const SQSH_FILE_TYPE_UNKNOWN: SqshFileType = SqshFileType(-1);
@@ -392,14 +401,14 @@ impl SqshError {
 impl SqshError {
     pub const SQSH_ERROR_TOO_MANY_SYMLINKS_FOLLOWED: SqshError = SqshError(293);
 }
-impl SqshXattrType {
-    pub const SQSH_XATTR_USER: SqshXattrType = SqshXattrType(0);
+impl SqshError {
+    pub const SQSH_ERROR_CORRUPTED_DIRECTORY_HEADER: SqshError = SqshError(294);
 }
-impl SqshXattrType {
-    pub const SQSH_XATTR_TRUSTED: SqshXattrType = SqshXattrType(1);
+impl SqshError {
+    pub const SQSH_ERROR_COMPRESSION_FINISHED: SqshError = SqshError(295);
 }
-impl SqshXattrType {
-    pub const SQSH_XATTR_SECURITY: SqshXattrType = SqshXattrType(2);
+impl SqshError {
+    pub const SQSH_ERROR_NO_SUCH_ELEMENT: SqshError = SqshError(296);
 }
 extern "C" {
     pub fn sqsh_trailing_size(context: *const SqshTrailingContext) -> usize;
@@ -413,9 +422,25 @@ extern "C" {
 }
 extern "C" {
     #[must_use]
+    pub fn sqsh_inode_map_get2(
+        map: *const SqshInodeMap,
+        inode_number: u32,
+        err: *mut ::std::os::raw::c_int,
+    ) -> u64;
+}
+extern "C" {
+    #[must_use]
     pub fn sqsh_inode_map_set(
         map: *mut SqshInodeMap,
         inode_number: u64,
+        inode_ref: u64,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    #[must_use]
+    pub fn sqsh_inode_map_set2(
+        map: *mut SqshInodeMap,
+        inode_number: u32,
         inode_ref: u64,
     ) -> ::std::os::raw::c_int;
 }
@@ -777,6 +802,9 @@ extern "C" {
     pub fn sqsh_directory_iterator_name_size(iterator: *const SqshDirectoryIterator) -> u16;
 }
 extern "C" {
+    pub fn sqsh_directory_iterator_inode(iterator: *const SqshDirectoryIterator) -> u32;
+}
+extern "C" {
     pub fn sqsh_directory_iterator_inode_number(iterator: *const SqshDirectoryIterator) -> u64;
 }
 extern "C" {
@@ -920,6 +948,13 @@ extern "C" {
 extern "C" {
     #[must_use]
     pub fn sqsh_tree_walker_next(walker: *mut SqshTreeWalker) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    #[must_use]
+    pub fn sqsh_tree_walker_next2(
+        walker: *mut SqshTreeWalker,
+        err: *mut ::std::os::raw::c_int,
+    ) -> bool;
 }
 extern "C" {
     pub fn sqsh_tree_walker_type(walker: *const SqshTreeWalker) -> SqshFileType;

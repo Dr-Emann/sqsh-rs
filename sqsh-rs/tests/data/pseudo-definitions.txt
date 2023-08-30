@@ -1,0 +1,27 @@
+empty.file f 644 0 0 true
+empty.file x user.empty=xattr-value
+empty.file x user.other=longlonglong value is long long long long long longer long
+
+one.file f 644 100 100 printf 'a'
+short.file f 400 100 100 printf 'abc\n'
+
+broken.link s 777 0 0 nonexistent
+short.link s 777 0 0 short.file
+
+1MiB.file f 000 0 0 head -c 1048576 /dev/zero | tr '\0' 'A'
+
+fifo i 644 0 0 f
+socket i 644 0 0 s
+
+socket2 L socket
+
+empty_dir d 755 0 0
+subdir d 755 0 0
+
+subdir/one.file f 644 100 100 printf 'a'
+subdir/short.file f 444 64000 64000 printf 'abc\n'
+
+dev d 755 0 0
+dev/block b 644 0 0 1 2
+dev/char c 644 0 0 3 4
+

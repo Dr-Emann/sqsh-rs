@@ -6,4 +6,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+bitflags = "2.3"
+bstr = "1.5"
+libc = "0.2"
 sqsh-sys = { path = "../sqsh-sys" }
+
+[dev-dependencies]
+insta = "1.30"
