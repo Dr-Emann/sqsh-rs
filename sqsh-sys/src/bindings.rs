@@ -300,6 +300,9 @@ impl SqshError {
     pub const SQSH_ERROR_COMPRESSION_DECOMPRESS: SqshError = SqshError(263);
 }
 impl SqshError {
+    pub const SQSH_ERROR_UNKNOWN_FILE_TYPE: SqshError = SqshError(264);
+}
+impl SqshError {
     pub const SQSH_ERROR_UNKOWN_FILE_TYPE: SqshError = SqshError(264);
 }
 impl SqshError {
