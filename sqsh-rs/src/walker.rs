@@ -5,6 +5,9 @@ use std::ffi::{c_char, CStr, CString};
 use std::fmt;
 use std::ptr::NonNull;
 
+/// A walker over the tree of entries in an archive.
+///
+/// This is a low-level interface to the archive, and is not recommended for general use.
 pub struct Walker<'a> {
     inner: NonNull<ffi::SqshTreeWalker>,
     _marker: std::marker::PhantomData<&'a Archive>,
@@ -113,14 +116,17 @@ impl<'a> Walker<'a> {
         }
     }
 
-    // TODO: Is this relative to the current directory or the root?
     /// Resolve a path with the tree walker.
+    ///
+    /// The path is resolved relative to the current directory.
     pub fn resolve_path(&mut self, path: &str, follow_symlinks: bool) -> error::Result<()> {
         let path = CString::new(path)?;
         self.resolve_path_raw(&path, follow_symlinks)
     }
 
     /// Resolve a path with the tree walker.
+    ///
+    /// The path is resolved relative to the current directory.
     pub fn resolve_path_raw(&mut self, path: &CStr, follow_symlinks: bool) -> error::Result<()> {
         let err = unsafe {
             ffi::sqsh_tree_walker_resolve(self.inner.as_ptr(), path.as_ptr(), follow_symlinks)
