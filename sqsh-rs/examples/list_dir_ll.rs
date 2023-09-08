@@ -9,8 +9,9 @@ fn main() {
     let file = archive.open_ref(superblock.root_inode_ref()).unwrap();
 
     let mut iterator = file.as_dir().unwrap();
-    while iterator.advance().unwrap() {
-        let name = iterator.current_name().unwrap();
+    while let Some(entry) = iterator.advance() {
+        let entry = entry.unwrap();
+        let name = entry.name();
         println!("{}", BStr::new(name));
     }
 }

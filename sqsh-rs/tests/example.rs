@@ -1,3 +1,4 @@
+use bstr::BString;
 use sqsh_rs::{Archive, DirectoryIterator, FileType, Permissions};
 use std::io::{BufRead, Read};
 
@@ -193,20 +194,20 @@ fn walk_whole_dir() {
 fn recursive_directory() {
     #[derive(Debug)]
     enum Tree {
-        File(String),
-        Directory(String, Vec<Tree>),
+        File(BString),
+        Directory(BString, Vec<Tree>),
     }
     fn visit_directory(mut iter: DirectoryIterator<'_>) -> Vec<Tree> {
         let mut trees = Vec::new();
-        while iter.advance().unwrap() {
-            let name = iter.current_name().unwrap();
-            let name = String::from_utf8(name.to_vec()).unwrap();
-            let tree = if iter.current_file_type().unwrap() == FileType::Directory {
-                let dir = iter.open().unwrap();
+        while let Some(entry) = iter.advance() {
+            let entry = entry.unwrap();
+            let name = entry.name();
+            let tree = if entry.file_type() == Some(FileType::Directory) {
+                let dir = entry.open().unwrap();
                 let children = visit_directory(dir.as_dir().unwrap());
-                Tree::Directory(name, children)
+                Tree::Directory(name.into(), children)
             } else {
-                Tree::File(name)
+                Tree::File(name.into())
             };
             trees.push(tree);
         }

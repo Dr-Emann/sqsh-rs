@@ -11,7 +11,7 @@ mod walker;
 mod xattr;
 
 pub use crate::directory::DirectoryIterator;
-pub use crate::error::Error;
+pub use crate::error::{Error, Result};
 pub use crate::export_table::ExportTable;
 pub use crate::file::File;
 pub use crate::id_table::IdTable;
