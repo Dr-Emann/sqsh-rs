@@ -199,8 +199,7 @@ fn recursive_directory() {
     }
     fn visit_directory(mut iter: DirectoryIterator) -> Vec<Tree> {
         let mut trees = Vec::new();
-        while let Some(entry) = iter.advance() {
-            let entry = entry.unwrap();
+        while let Some(entry) = iter.advance().unwrap() {
             let name = entry.name();
             let tree = if entry.file_type() == Some(FileType::Directory) {
                 let dir = entry.open().unwrap();

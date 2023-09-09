@@ -25,21 +25,17 @@ impl<'file, 'archive> DirectoryIterator<'file, 'archive> {
     /// Advances the iterator to the next entry.
     ///
     /// Returns `true` if the iterator was advanced, or `false` if the end of the directory was reached.
-    pub fn advance(&mut self) -> Option<error::Result<DirectoryEntry<'_, 'archive>>> {
+    pub fn advance(&mut self) -> error::Result<Option<DirectoryEntry<'_, 'archive>>> {
         let mut err = 0;
         let did_advance =
             unsafe { ffi::sqsh_directory_iterator_next(self.inner.as_ptr(), &mut err) };
         if err == 0 {
-            if did_advance {
-                Some(Ok(DirectoryEntry {
-                    inner: self.inner,
-                    _marker: std::marker::PhantomData,
-                }))
-            } else {
-                None
-            }
+            Ok(did_advance.then_some(DirectoryEntry {
+                inner: self.inner,
+                _marker: std::marker::PhantomData,
+            }))
         } else {
-            Some(Err(error::new(err)))
+            Err(error::new(err))
         }
     }
 
@@ -47,7 +43,7 @@ impl<'file, 'archive> DirectoryIterator<'file, 'archive> {
     pub fn advance_lookup(
         &mut self,
         name: &[u8],
-    ) -> Option<error::Result<DirectoryEntry<'_, 'archive>>> {
+    ) -> error::Result<Option<DirectoryEntry<'_, 'archive>>> {
         let err = unsafe {
             ffi::sqsh_directory_iterator_lookup(
                 self.inner.as_ptr(),
@@ -56,16 +52,16 @@ impl<'file, 'archive> DirectoryIterator<'file, 'archive> {
             )
         };
         if err == 0 {
-            Some(Ok(DirectoryEntry {
+            Ok(Some(DirectoryEntry {
                 inner: self.inner,
                 _marker: std::marker::PhantomData,
             }))
         } else {
             let err = error::new(err);
             if err == error::Error(ffi::SqshError::SQSH_ERROR_NO_SUCH_FILE) {
-                None
+                Ok(None)
             } else {
-                Some(Err(err))
+                Err(err)
             }
         }
     }

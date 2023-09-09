@@ -1,4 +1,3 @@
-use crate::error;
 use sqsh_sys as ffi;
 
 pub struct IdTable<'a> {

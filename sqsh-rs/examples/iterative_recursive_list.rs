@@ -19,8 +19,7 @@ fn main() {
 
         if file.file_type() == Some(sqsh_rs::FileType::Directory) {
             let mut iter = file.as_dir().unwrap();
-            while let Some(entry) = iter.advance() {
-                let entry = entry.unwrap();
+            while let Some(entry) = iter.advance().unwrap() {
                 let name = entry.name();
                 let mut path = path.clone();
                 if !path.is_empty() {
