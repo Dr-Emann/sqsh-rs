@@ -36,12 +36,12 @@ impl Archive {
     }
 }
 
-pub struct File<'a> {
+pub struct File<'archive> {
     inner: NonNull<ffi::SqshFile>,
-    _marker: std::marker::PhantomData<&'a Archive>,
+    _marker: std::marker::PhantomData<&'archive Archive>,
 }
 
-impl<'a> File<'a> {
+impl<'archive> File<'archive> {
     pub(crate) unsafe fn new(inner: NonNull<ffi::SqshFile>) -> Self {
         Self {
             inner,
@@ -134,7 +134,7 @@ impl<'a> File<'a> {
     }
 
     /// Returns an iterator over the directory entries of the file.
-    pub fn as_dir(&self) -> error::Result<DirectoryIterator<'_>> {
+    pub fn as_dir(&self) -> error::Result<DirectoryIterator<'_, 'archive>> {
         let mut err = 0;
         let dir_iter = unsafe { ffi::sqsh_directory_iterator_new(self.inner.as_ptr(), &mut err) };
         let dir_iter = match NonNull::new(dir_iter) {

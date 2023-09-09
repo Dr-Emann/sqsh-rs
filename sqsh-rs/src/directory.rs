@@ -4,17 +4,17 @@ use sqsh_sys as ffi;
 use std::ffi::c_char;
 use std::ptr::NonNull;
 
-pub struct DirectoryIterator<'a> {
+pub struct DirectoryIterator<'file, 'archive> {
     inner: NonNull<ffi::SqshDirectoryIterator>,
-    _marker: std::marker::PhantomData<&'a File<'a>>,
+    _marker: std::marker::PhantomData<&'file File<'archive>>,
 }
 
 pub struct DirectoryEntry<'dir, 'archive> {
     inner: NonNull<ffi::SqshDirectoryIterator>,
-    _marker: std::marker::PhantomData<&'dir mut DirectoryIterator<'archive>>,
+    _marker: std::marker::PhantomData<&'dir mut DirectoryIterator<'dir, 'archive>>,
 }
 
-impl<'a> DirectoryIterator<'a> {
+impl<'file, 'archive> DirectoryIterator<'file, 'archive> {
     pub(crate) unsafe fn new(inner: NonNull<ffi::SqshDirectoryIterator>) -> Self {
         Self {
             inner,
@@ -25,7 +25,7 @@ impl<'a> DirectoryIterator<'a> {
     /// Advances the iterator to the next entry.
     ///
     /// Returns `true` if the iterator was advanced, or `false` if the end of the directory was reached.
-    pub fn advance(&mut self) -> Option<error::Result<DirectoryEntry<'_, 'a>>> {
+    pub fn advance(&mut self) -> Option<error::Result<DirectoryEntry<'_, 'archive>>> {
         let mut err = 0;
         let did_advance =
             unsafe { ffi::sqsh_directory_iterator_next(self.inner.as_ptr(), &mut err) };
@@ -44,7 +44,10 @@ impl<'a> DirectoryIterator<'a> {
     }
 
     /// Looks up the given name in the current directory.
-    pub fn advance_lookup(&mut self, name: &[u8]) -> Option<error::Result<DirectoryEntry<'_, 'a>>> {
+    pub fn advance_lookup(
+        &mut self,
+        name: &[u8],
+    ) -> Option<error::Result<DirectoryEntry<'_, 'archive>>> {
         let err = unsafe {
             ffi::sqsh_directory_iterator_lookup(
                 self.inner.as_ptr(),
@@ -68,7 +71,7 @@ impl<'a> DirectoryIterator<'a> {
     }
 }
 
-impl<'a> Drop for DirectoryIterator<'a> {
+impl Drop for DirectoryIterator<'_, '_> {
     fn drop(&mut self) {
         unsafe {
             ffi::sqsh_directory_iterator_free(self.inner.as_ptr());
