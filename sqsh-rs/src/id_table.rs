@@ -1,3 +1,4 @@
+use crate::error;
 use sqsh_sys as ffi;
 
 pub struct IdTable<'a> {
@@ -12,8 +13,11 @@ impl<'a> IdTable<'a> {
 
     pub fn get(&self, index: usize) -> Option<u32> {
         let mut id = 0;
-        let res = unsafe { ffi::sqsh_id_table_get(self.inner, index, &mut id) };
-        dbg!(res, index, id);
-        todo!();
+        let err = unsafe { ffi::sqsh_id_table_get(self.inner, index, &mut id) };
+        if err == 0 {
+            Some(id)
+        } else {
+            None
+        }
     }
 }
