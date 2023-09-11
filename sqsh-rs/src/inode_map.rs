@@ -1,4 +1,4 @@
-use crate::{error, InodeRef};
+use crate::{error, Inode, InodeRef};
 use sqsh_sys as ffi;
 
 pub struct InodeMap<'a> {
@@ -12,9 +12,10 @@ impl<'a> InodeMap<'a> {
     }
 
     /// Gets the inode reference for a given inode number.
-    pub fn get(&self, inode_number: u32) -> error::Result<InodeRef> {
+    pub fn get(&self, inode_number: Inode) -> error::Result<InodeRef> {
         let mut err = 0;
-        let inode_ref = unsafe { ffi::sqsh_inode_map_get2(self.inner, inode_number, &mut err) };
+        let inode_ref =
+            unsafe { ffi::sqsh_inode_map_get2(self.inner, inode_number.0.get(), &mut err) };
         if err != 0 {
             return Err(error::new(err));
         }

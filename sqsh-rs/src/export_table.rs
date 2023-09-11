@@ -1,4 +1,4 @@
-use crate::{error, InodeRef};
+use crate::{error, Inode, InodeRef};
 use sqsh_sys as ffi;
 
 pub struct ExportTable<'a> {
@@ -12,10 +12,11 @@ impl<'a> ExportTable<'a> {
     }
 
     /// Retrieves an element from the export table.
-    pub fn resolve_inode(&self, inode: u64) -> error::Result<InodeRef> {
+    pub fn resolve_inode(&self, inode: Inode) -> error::Result<InodeRef> {
         let mut inode_ref = 0;
-        let res =
-            unsafe { ffi::sqsh_export_table_resolve_inode(self.inner, inode, &mut inode_ref) };
+        let res = unsafe {
+            ffi::sqsh_export_table_resolve_inode(self.inner, inode.get().into(), &mut inode_ref)
+        };
         if res != 0 {
             return Err(error::new(res));
         }

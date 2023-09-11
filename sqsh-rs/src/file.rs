@@ -1,5 +1,6 @@
 use crate::{
-    error, Archive, DirectoryIterator, FileType, InodeRef, Permissions, Reader, XattrIterator,
+    error, Archive, DirectoryIterator, FileType, Inode, InodeRef, Permissions, Reader,
+    XattrIterator,
 };
 use bstr::BStr;
 use sqsh_sys as ffi;
@@ -83,13 +84,15 @@ impl<'archive> File<'archive> {
     }
 
     /// Getter for the inode number.
-    pub fn inode_number(&self) -> u32 {
-        unsafe { ffi::sqsh_file_inode(self.inner.as_ptr()) }
+    pub fn inode(&self) -> Inode {
+        let inode_num = unsafe { ffi::sqsh_file_inode(self.inner.as_ptr()) };
+        inode_num.try_into().unwrap()
     }
 
     /// Getter for the inode number of the parent directory.
-    pub fn parent_inode_number(&self) -> u32 {
-        unsafe { ffi::sqsh_file_directory_parent_inode(self.inner.as_ptr()) }
+    pub fn parent_inode(&self) -> Inode {
+        let inode_num = unsafe { ffi::sqsh_file_directory_parent_inode(self.inner.as_ptr()) };
+        inode_num.try_into().unwrap()
     }
 
     /// Getter for the modification time.
@@ -175,8 +178,8 @@ impl<'a> fmt::Debug for File<'a> {
             .field("is_extended", &self.is_extended())
             .field("hard_link_count", &self.hard_link_count())
             .field("size", &self.size())
-            .field("inode_number", &self.inode_number())
-            .field("parent_inode_number", &self.parent_inode_number())
+            .field("inode", &self.inode())
+            .field("parent_inode", &self.parent_inode())
             .field("modified_time", &self.modified_time())
             .field("symlink_path", &self.symlink_path())
             .field("device_id", &self.device_id())

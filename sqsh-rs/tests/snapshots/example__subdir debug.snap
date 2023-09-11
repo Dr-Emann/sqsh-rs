@@ -10,13 +10,17 @@ File {
         UserRead | UserWrite | UserExec | GroupRead | GroupExec | OtherRead | OtherExec,
     ),
     inode_ref: InodeRef(
-        469,
+        0x0000_00000000_01D5,
     ),
     is_extended: false,
     hard_link_count: 2,
     size: 49,
-    inode_number: 13,
-    parent_inode_number: 16,
+    inode: Inode(
+        13,
+    ),
+    parent_inode: Inode(
+        16,
+    ),
     modified_time: 1000,
     symlink_path: None,
     device_id: 0,

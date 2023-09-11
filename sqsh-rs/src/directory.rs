@@ -1,4 +1,4 @@
-use crate::{error, File, FileType, InodeRef};
+use crate::{error, File, FileType, Inode, InodeRef};
 use bstr::BStr;
 use sqsh_sys as ffi;
 use std::ffi::c_char;
@@ -92,8 +92,9 @@ impl<'dir, 'archive> DirectoryEntry<'dir, 'archive> {
     }
 
     /// Retrieves the inode number of the current entry.
-    pub fn inode_number(&self) -> u32 {
-        unsafe { ffi::sqsh_directory_iterator_inode(self.inner.as_ptr()) }
+    pub fn inode(&self) -> Inode {
+        let inode_num = unsafe { ffi::sqsh_directory_iterator_inode(self.inner.as_ptr()) };
+        inode_num.try_into().unwrap()
     }
 
     /// Retrieves the inode ref of the current entry.

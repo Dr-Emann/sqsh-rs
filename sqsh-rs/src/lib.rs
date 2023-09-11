@@ -4,6 +4,7 @@ mod error;
 mod export_table;
 mod file;
 mod id_table;
+mod inode;
 mod inode_map;
 mod reader;
 mod superblock;
@@ -15,6 +16,7 @@ pub use crate::error::{Error, Result};
 pub use crate::export_table::ExportTable;
 pub use crate::file::File;
 pub use crate::id_table::IdTable;
+pub use crate::inode::{Inode, InodeRef, ZeroInode};
 pub use crate::inode_map::InodeMap;
 pub use crate::reader::Reader;
 pub use crate::superblock::Superblock;
@@ -29,9 +31,6 @@ use std::os::unix::ffi::OsStrExt;
 use std::path::Path;
 use std::ptr::NonNull;
 use std::{mem, ptr};
-
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct InodeRef(pub(crate) u64);
 
 #[derive(Debug)]
 pub struct Archive {

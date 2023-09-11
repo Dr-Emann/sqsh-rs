@@ -13,7 +13,7 @@ Superblock {
     id_table_start: 1816,
     xattr_id_table_start: 1906,
     root_inode_ref: InodeRef(
-        501,
+        0x0000_00000000_01F5,
     ),
     has_fragments: true,
     has_export_table: true,
