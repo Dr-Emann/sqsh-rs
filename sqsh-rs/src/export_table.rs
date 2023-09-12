@@ -1,11 +1,11 @@
 use crate::{error, Inode, InodeRef};
 use sqsh_sys as ffi;
 
-pub struct ExportTable<'a> {
-    inner: &'a ffi::SqshExportTable,
+pub struct ExportTable<'archive> {
+    inner: &'archive ffi::SqshExportTable,
 }
 
-impl<'a> ExportTable<'a> {
+impl<'archive> ExportTable<'archive> {
     pub(crate) unsafe fn new(inner: *const ffi::SqshExportTable) -> Self {
         let inner = unsafe { inner.as_ref().expect("null export table pointer") };
         Self { inner }

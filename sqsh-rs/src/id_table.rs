@@ -1,10 +1,10 @@
 use sqsh_sys as ffi;
 
-pub struct IdTable<'a> {
-    inner: &'a ffi::SqshIdTable,
+pub struct IdTable<'archive> {
+    inner: &'archive ffi::SqshIdTable,
 }
 
-impl<'a> IdTable<'a> {
+impl<'archive> IdTable<'archive> {
     pub(crate) unsafe fn new(inner: *const ffi::SqshIdTable) -> Self {
         let inner = unsafe { inner.as_ref().expect("null id table pointer") };
         Self { inner }

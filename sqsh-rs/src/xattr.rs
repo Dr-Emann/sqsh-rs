@@ -3,12 +3,12 @@ use bstr::BStr;
 use sqsh_sys as ffi;
 use std::ptr::NonNull;
 
-pub struct XattrIterator<'a> {
+pub struct XattrIterator<'file> {
     inner: NonNull<ffi::SqshXattrIterator>,
-    _marker: std::marker::PhantomData<&'a File<'a>>,
+    _marker: std::marker::PhantomData<&'file File<'file>>,
 }
 
-impl<'a> XattrIterator<'a> {
+impl<'file> XattrIterator<'file> {
     pub(crate) unsafe fn new(inner: NonNull<ffi::SqshXattrIterator>) -> Self {
         Self {
             inner,
@@ -66,7 +66,7 @@ impl<'a> XattrIterator<'a> {
     }
 }
 
-impl<'a> Drop for XattrIterator<'a> {
+impl<'file> Drop for XattrIterator<'file> {
     fn drop(&mut self) {
         unsafe {
             ffi::sqsh_xattr_iterator_free(self.inner.as_ptr());

@@ -169,7 +169,7 @@ impl<'archive> File<'archive> {
     }
 }
 
-impl<'a> fmt::Debug for File<'a> {
+impl<'archive> fmt::Debug for File<'archive> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("File")
             .field("file_type", &self.file_type())
@@ -190,11 +190,11 @@ impl<'a> fmt::Debug for File<'a> {
     }
 }
 
-impl<'a> Drop for File<'a> {
+impl<'archive> Drop for File<'archive> {
     fn drop(&mut self) {
         unsafe { ffi::sqsh_close(self.inner.as_ptr()) };
     }
 }
 
-unsafe impl<'a> Send for File<'a> {}
-unsafe impl<'a> Sync for File<'a> {}
+unsafe impl<'archive> Send for File<'archive> {}
+unsafe impl<'archive> Sync for File<'archive> {}

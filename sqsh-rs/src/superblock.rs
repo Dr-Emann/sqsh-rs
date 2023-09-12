@@ -3,11 +3,11 @@ use sqsh_sys as ffi;
 use std::fmt;
 
 #[derive(Copy, Clone)]
-pub struct Superblock<'a> {
-    inner: &'a ffi::SqshSuperblock,
+pub struct Superblock<'archive> {
+    inner: &'archive ffi::SqshSuperblock,
 }
 
-impl<'a> Superblock<'a> {
+impl<'archive> Superblock<'archive> {
     pub(crate) unsafe fn new(inner: *const ffi::SqshSuperblock) -> Self {
         let inner = inner.as_ref().expect("null superblock pointer");
         Self { inner }
@@ -110,7 +110,7 @@ impl<'a> Superblock<'a> {
     }
 }
 
-impl<'a> fmt::Debug for Superblock<'a> {
+impl<'archive> fmt::Debug for Superblock<'archive> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Superblock")
             .field("inode_count", &self.inode_count())

@@ -1,11 +1,11 @@
 use crate::{error, Inode, InodeRef};
 use sqsh_sys as ffi;
 
-pub struct InodeMap<'a> {
-    inner: &'a ffi::SqshInodeMap,
+pub struct InodeMap<'archive> {
+    inner: &'archive ffi::SqshInodeMap,
 }
 
-impl<'a> InodeMap<'a> {
+impl<'archive> InodeMap<'archive> {
     pub(crate) unsafe fn new(inner: *const ffi::SqshInodeMap) -> Self {
         let inner = unsafe { inner.as_ref().expect("null inode map pointer") };
         Self { inner }

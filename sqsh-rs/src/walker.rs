@@ -8,9 +8,9 @@ use std::ptr::NonNull;
 /// A walker over the tree of entries in an archive.
 ///
 /// This is a low-level interface to the archive, and is not recommended for general use.
-pub struct Walker<'a> {
+pub struct Walker<'archive> {
     inner: NonNull<ffi::SqshTreeWalker>,
-    _marker: std::marker::PhantomData<&'a Archive>,
+    _marker: std::marker::PhantomData<&'archive Archive>,
 }
 
 impl Archive {
@@ -28,7 +28,7 @@ impl Archive {
     }
 }
 
-impl<'a> Walker<'a> {
+impl<'archive> Walker<'archive> {
     pub(crate) unsafe fn new(inner: NonNull<ffi::SqshTreeWalker>) -> Self {
         Self {
             inner,
@@ -37,7 +37,7 @@ impl<'a> Walker<'a> {
     }
 
     /// Return a new File for the current entry.
-    pub fn open(&self) -> error::Result<File<'a>> {
+    pub fn open(&self) -> error::Result<File<'archive>> {
         let mut err = 0;
         let file = unsafe { ffi::sqsh_tree_walker_open_file(self.inner.as_ptr(), &mut err) };
         let file = match NonNull::new(file) {
@@ -180,8 +180,8 @@ impl fmt::Debug for Walker<'_> {
     }
 }
 
-unsafe impl<'a> Send for Walker<'a> {}
-unsafe impl<'a> Sync for Walker<'a> {}
+unsafe impl<'archive> Send for Walker<'archive> {}
+unsafe impl<'archive> Sync for Walker<'archive> {}
 
 impl Drop for Walker<'_> {
     fn drop(&mut self) {

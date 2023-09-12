@@ -11,7 +11,9 @@ pub struct DirectoryIterator<'file, 'archive> {
 
 pub struct DirectoryEntry<'dir, 'archive> {
     inner: NonNull<ffi::SqshDirectoryIterator>,
-    _marker: std::marker::PhantomData<&'dir mut DirectoryIterator<'dir, 'archive>>,
+    // Because 'dir is shorter (a subtype) of 'file, and we don't need 'file, we use
+    // 'dir as the first parameter to DirectoryIterator
+    _marker: std::marker::PhantomData<&'dir DirectoryIterator<'dir, 'archive>>,
 }
 
 impl<'file, 'archive> DirectoryIterator<'file, 'archive> {
