@@ -9,10 +9,10 @@ fn main() {
     let archive = Archive::new(archive_path).unwrap();
     let file = archive.open(&file_path).unwrap();
     let mut xattrs = file.xattrs().unwrap();
-    while xattrs.advance().unwrap() {
-        let prefix = xattrs.current_prefix();
-        let name = BStr::new(xattrs.current_name());
-        let value = BStr::new(xattrs.current_value());
+    while let Some(xattr) = xattrs.advance().unwrap() {
+        let prefix = xattr.prefix();
+        let name = BStr::new(xattr.name());
+        let value = BStr::new(xattr.value());
         println!("{prefix}{name}={value}");
     }
 }
