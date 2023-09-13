@@ -1,6 +1,8 @@
-use crate::InodeRef;
+use crate::{error, Archive, InodeRef};
+use bitflags::bitflags;
 use sqsh_sys as ffi;
 use std::fmt;
+use std::ptr::NonNull;
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Compression {
@@ -53,6 +55,179 @@ impl fmt::Debug for Compression {
             None => &self.id,
         };
         f.debug_tuple("Compression").field(value).finish()
+    }
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum CompressionOptions {
+    Gzip {
+        compression_level: u32,
+        window_size: u16,
+        strategies: GzipStrategies,
+    },
+    Xz {
+        dictionary_size: u32,
+        filters: XzFilters,
+    },
+    Lz4 {
+        version: u32,
+        flags: Lz4Flags,
+    },
+    Zstd {
+        compression_level: u32,
+    },
+    Lzo {
+        algorithm: LzoAlgorithm,
+        compression_level: u32,
+    },
+}
+
+bitflags! {
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+    pub struct GzipStrategies: u16 {
+        const DEFAULT = 1 << 0;
+        const FILTERED = 1 << 1;
+        const HUFFMAN_ONLY = 1 << 2;
+        const RLE = 1 << 3;
+        const FIXED = 1 << 4;
+
+        const _ = !0;
+    }
+
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+    pub struct XzFilters: u16 {
+        const X86 = 1 << 0;
+        const POWERPC = 1 << 1;
+        const IA64 = 1 << 2;
+        const ARM = 1 << 3;
+        const ARMTHUMB = 1 << 4;
+        const SPARC = 1 << 5;
+
+        const _ = !0;
+    }
+
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+    pub struct Lz4Flags: u32 {
+        const DEFAULT = 1 << 0;
+        const HC = 1 << 1;
+
+        const _ = !0;
+    }
+}
+
+#[derive(Copy, Clone, PartialEq, Eq, Hash)]
+pub struct LzoAlgorithm(u32);
+
+impl LzoAlgorithm {
+    const LZO1X_1: Self = Self(ffi::SqshLzoAlgorithm::SQSH_LZO_ALGORITHM_LZO1X_1.0);
+    const LZO1X_1_11: Self = Self(ffi::SqshLzoAlgorithm::SQSH_LZO_ALGORITHM_LZO1X_1_11.0);
+    const LZO1X_1_12: Self = Self(ffi::SqshLzoAlgorithm::SQSH_LZO_ALGORITHM_LZO1X_1_12.0);
+    const LZO1X_1_15: Self = Self(ffi::SqshLzoAlgorithm::SQSH_LZO_ALGORITHM_LZO1X_1_15.0);
+    const LZO1X_999: Self = Self(ffi::SqshLzoAlgorithm::SQSH_LZO_ALGORITHM_LZO1X_999.0);
+
+    fn as_str(&self) -> Option<&'static str> {
+        match *self {
+            Self::LZO1X_1 => Some("lzo1x_1"),
+            Self::LZO1X_1_11 => Some("lzo1x_1_11"),
+            Self::LZO1X_1_12 => Some("lzo1x_1_12"),
+            Self::LZO1X_1_15 => Some("lzo1x_1_15"),
+            Self::LZO1X_999 => Some("lzo1x_999"),
+            _ => None,
+        }
+    }
+}
+
+impl Default for LzoAlgorithm {
+    fn default() -> Self {
+        Self::LZO1X_999
+    }
+}
+
+impl fmt::Debug for LzoAlgorithm {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let name = self.as_str();
+        let value: &dyn fmt::Debug = match &name {
+            Some(name) => name,
+            None => &self.0,
+        };
+        f.debug_tuple("LzoAlgorithm").field(value).finish()
+    }
+}
+
+impl Archive {
+    pub fn compression_options(&self) -> error::Result<Option<CompressionOptions>> {
+        struct RawCompressionOptions(NonNull<ffi::SqshCompressionOptions>);
+        impl Drop for RawCompressionOptions {
+            fn drop(&mut self) {
+                unsafe { ffi::sqsh_compression_options_free(self.0.as_ptr()) };
+            }
+        }
+
+        let superblock = self.superblock();
+        if !superblock.has_compression_options() {
+            return Ok(None);
+        }
+        let compression_options = unsafe {
+            let mut err = 0;
+            let raw = ffi::sqsh_compression_options_new(self.inner.as_ptr(), &mut err);
+            let raw = match NonNull::new(raw) {
+                Some(raw) => raw,
+                None => return Err(error::new(err)),
+            };
+            RawCompressionOptions(raw)
+        };
+
+        Ok(Some(match superblock.compression_type() {
+            Compression::GZIP => CompressionOptions::Gzip {
+                compression_level: unsafe {
+                    ffi::sqsh_compression_options_gzip_compression_level(
+                        compression_options.0.as_ptr(),
+                    )
+                },
+                window_size: unsafe {
+                    ffi::sqsh_compression_options_gzip_window_size(compression_options.0.as_ptr())
+                },
+                strategies: GzipStrategies::from_bits_retain(unsafe {
+                    ffi::sqsh_compression_options_gzip_strategies(compression_options.0.as_ptr()).0
+                        as _
+                }),
+            },
+            Compression::XZ => CompressionOptions::Xz {
+                dictionary_size: unsafe {
+                    ffi::sqsh_compression_options_xz_dictionary_size(compression_options.0.as_ptr())
+                },
+                filters: XzFilters::from_bits_retain(unsafe {
+                    ffi::sqsh_compression_options_xz_filters(compression_options.0.as_ptr()).0 as _
+                }),
+            },
+            Compression::LZ4 => CompressionOptions::Lz4 {
+                version: unsafe {
+                    ffi::sqsh_compression_options_lz4_version(compression_options.0.as_ptr())
+                },
+                flags: Lz4Flags::from_bits_retain(unsafe {
+                    ffi::sqsh_compression_options_lz4_flags(compression_options.0.as_ptr())
+                } as _),
+            },
+            Compression::ZSTD => CompressionOptions::Zstd {
+                compression_level: unsafe {
+                    ffi::sqsh_compression_options_zstd_compression_level(
+                        compression_options.0.as_ptr(),
+                    )
+                },
+            },
+            Compression::LZO => CompressionOptions::Lzo {
+                algorithm: LzoAlgorithm(unsafe {
+                    ffi::sqsh_compression_options_lzo_algorithm(compression_options.0.as_ptr()).0
+                        as _
+                }),
+                compression_level: unsafe {
+                    ffi::sqsh_compression_options_lzo_compression_level(
+                        compression_options.0.as_ptr(),
+                    )
+                },
+            },
+            _ => return Ok(None),
+        }))
     }
 }
 
