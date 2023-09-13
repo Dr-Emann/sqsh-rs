@@ -3,6 +3,9 @@ source: sqsh-rs/tests/example.rs
 expression: superblock
 ---
 Superblock {
+    compression_type: Compression(
+        "gzip",
+    ),
     inode_count: 16,
     id_count: 5,
     fragment_entry_count: 1,

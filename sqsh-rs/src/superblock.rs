@@ -2,6 +2,60 @@ use crate::InodeRef;
 use sqsh_sys as ffi;
 use std::fmt;
 
+#[derive(Copy, Clone, PartialEq, Eq, Hash)]
+pub struct Compression {
+    id: ffi::SqshSuperblockCompressionId,
+}
+
+impl Compression {
+    pub const GZIP: Self = Self {
+        id: ffi::SqshSuperblockCompressionId::SQSH_COMPRESSION_GZIP,
+    };
+
+    pub const LZMA: Self = Self {
+        id: ffi::SqshSuperblockCompressionId::SQSH_COMPRESSION_LZMA,
+    };
+
+    pub const LZO: Self = Self {
+        id: ffi::SqshSuperblockCompressionId::SQSH_COMPRESSION_LZO,
+    };
+
+    pub const XZ: Self = Self {
+        id: ffi::SqshSuperblockCompressionId::SQSH_COMPRESSION_XZ,
+    };
+
+    pub const LZ4: Self = Self {
+        id: ffi::SqshSuperblockCompressionId::SQSH_COMPRESSION_LZ4,
+    };
+
+    pub const ZSTD: Self = Self {
+        id: ffi::SqshSuperblockCompressionId::SQSH_COMPRESSION_ZSTD,
+    };
+
+    pub fn name(&self) -> Option<&'static str> {
+        Some(match *self {
+            Self::GZIP => "gzip",
+            Self::LZMA => "lzma",
+            Self::LZO => "lzo",
+            Self::XZ => "xz",
+            Self::LZ4 => "lz4",
+            Self::ZSTD => "zstd",
+            _ => return None,
+        })
+    }
+}
+
+impl fmt::Debug for Compression {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let name = self.name();
+        let value: &dyn fmt::Debug = match &name {
+            Some(name) => name,
+            None => &self.id,
+        };
+        f.debug_tuple("Compression").field(value).finish()
+    }
+}
+
 #[derive(Copy, Clone)]
 pub struct Superblock<'archive> {
     inner: &'archive ffi::SqshSuperblock,
@@ -11,6 +65,11 @@ impl<'archive> Superblock<'archive> {
     pub(crate) unsafe fn new(inner: *const ffi::SqshSuperblock) -> Self {
         let inner = inner.as_ref().expect("null superblock pointer");
         Self { inner }
+    }
+
+    pub fn compression_type(&self) -> Compression {
+        let compression_id = unsafe { ffi::sqsh_superblock_compression_id(self.inner) };
+        Compression { id: compression_id }
     }
 
     /// Retrieves the number of inodes in an archive.
@@ -116,6 +175,7 @@ impl<'archive> Superblock<'archive> {
 impl<'archive> fmt::Debug for Superblock<'archive> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Superblock")
+            .field("compression_type", &self.compression_type())
             .field("inode_count", &self.inode_count())
             .field("id_count", &self.id_count())
             .field("fragment_entry_count", &self.fragment_entry_count())

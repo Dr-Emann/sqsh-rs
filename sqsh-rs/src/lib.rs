@@ -19,7 +19,7 @@ pub use crate::id_table::IdTable;
 pub use crate::inode::{Inode, InodeRef, ZeroInode};
 pub use crate::inode_map::InodeMap;
 pub use crate::reader::Reader;
-pub use crate::superblock::Superblock;
+pub use crate::superblock::{Compression, Superblock};
 pub use crate::walker::Walker;
 pub use crate::xattr::XattrIterator;
 
