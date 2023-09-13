@@ -39,13 +39,15 @@ impl<'archive> Superblock<'archive> {
     }
 
     /// Retrieves the start offset of the fragment table in a superblock context.
-    pub fn fragment_table_start(&self) -> u64 {
-        unsafe { ffi::sqsh_superblock_fragment_table_start(self.inner) }
+    pub fn fragment_table_start(&self) -> Option<u64> {
+        self.has_fragments()
+            .then(|| unsafe { ffi::sqsh_superblock_fragment_table_start(self.inner) })
     }
 
     /// Retrieves the start offset of the export table in a superblock context.
-    pub fn export_table_start(&self) -> u64 {
-        unsafe { ffi::sqsh_superblock_export_table_start(self.inner) }
+    pub fn export_table_start(&self) -> Option<u64> {
+        self.has_export_table()
+            .then(|| unsafe { ffi::sqsh_superblock_export_table_start(self.inner) })
     }
 
     /// Retrieves the start offset of the id table in a superblock context.
@@ -54,8 +56,9 @@ impl<'archive> Superblock<'archive> {
     }
 
     /// Retrieves the start offset of the xattr id table in a superblock context.
-    pub fn xattr_id_table_start(&self) -> u64 {
-        unsafe { ffi::sqsh_superblock_xattr_id_table_start(self.inner) }
+    pub fn xattr_id_table_start(&self) -> Option<u64> {
+        self.has_xattr_table()
+            .then(|| unsafe { ffi::sqsh_superblock_xattr_id_table_start(self.inner) })
     }
 
     /// Retrieves the reference of the root inode in a superblock context.

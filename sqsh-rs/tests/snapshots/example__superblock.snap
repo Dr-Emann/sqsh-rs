@@ -8,10 +8,16 @@ Superblock {
     fragment_entry_count: 1,
     inode_table_start: 1309,
     directory_table_start: 1514,
-    fragment_table_start: 1724,
-    export_table_start: 1786,
+    fragment_table_start: Some(
+        1724,
+    ),
+    export_table_start: Some(
+        1786,
+    ),
     id_table_start: 1816,
-    xattr_id_table_start: 1906,
+    xattr_id_table_start: Some(
+        1906,
+    ),
     root_inode_ref: InodeRef(
         0x0000_00000000_01F5,
     ),
