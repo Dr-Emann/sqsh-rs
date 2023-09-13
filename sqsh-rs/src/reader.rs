@@ -24,8 +24,38 @@ impl<'file> Reader<'file> {
         unsafe { ffi::sqsh_file_iterator_block_size(self.inner.as_ptr()) }
     }
 
+    /// Skip `n` bytes in the file.
+    pub fn skip(&mut self, mut n: u64) -> error::Result<()> {
+        // Offset is measured from the _start_ of the current block
+        n = n.saturating_add(self.consumed.try_into().unwrap());
+        self.consumed = 0;
+
+        // Loop because we want a 64 bit offset, but need to skip in usize chunks.
+        while n > 0 {
+            let n_usize: usize = n.try_into().unwrap_or(usize::MAX);
+            n -= n_usize as u64;
+
+            let mut offset_remaining = n_usize;
+            let err = unsafe {
+                ffi::sqsh_file_iterator_skip(self.inner.as_ptr(), &mut offset_remaining, usize::MAX)
+            };
+
+            if err != 0 {
+                return Err(error::new(err));
+            }
+            debug_assert!(self.current_chunk_size() >= offset_remaining);
+            self.consume(offset_remaining);
+        }
+
+        Ok(())
+    }
+
+    fn current_chunk_size(&self) -> usize {
+        unsafe { ffi::sqsh_file_iterator_size(self.inner.as_ptr()) }
+    }
+
     pub(crate) fn fill_buf_raw(&mut self) -> error::Result<&[u8]> {
-        let mut size = unsafe { ffi::sqsh_file_iterator_size(self.inner.as_ptr()) };
+        let mut size = self.current_chunk_size();
         if self.consumed >= size {
             self.consumed = 0;
             let mut err = 0;
@@ -38,7 +68,7 @@ impl<'file> Reader<'file> {
                     Err(error::new(err))
                 };
             }
-            size = unsafe { ffi::sqsh_file_iterator_size(self.inner.as_ptr()) };
+            size = self.current_chunk_size();
             debug_assert!(size > 0);
         }
         let data_ptr = unsafe { ffi::sqsh_file_iterator_data(self.inner.as_ptr()) };

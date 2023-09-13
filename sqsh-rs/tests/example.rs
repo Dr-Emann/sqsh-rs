@@ -217,3 +217,39 @@ fn recursive_directory() {
     let trees = visit_directory(root.as_dir().unwrap());
     insta::assert_debug_snapshot!(trees);
 }
+
+#[test]
+fn skip_to_last_byte() {
+    let archive = archive();
+    let file = archive.open("1MiB.file").unwrap();
+    assert_eq!(file.size(), 1024 * 1024);
+
+    let mut reader = file.reader().unwrap();
+    assert!(reader.block_size() < 1024 * 1024);
+
+    let mut buf = [0u8; 2];
+
+    // Read a partial block in the front
+    assert_eq!(reader.read(&mut buf).unwrap(), 2);
+    assert_eq!(buf, [b'A', b'A']);
+
+    // Then skip ahead to the last byte
+    reader.skip(1024 * 1024 - buf.len() as u64 - 1).unwrap();
+    let n = reader.read(&mut buf).unwrap();
+    assert_eq!(n, 1);
+    assert_eq!(buf[0], b'A');
+}
+
+#[test]
+fn skip_past_end() {
+    let archive = archive();
+    let file = archive.open("1MiB.file").unwrap();
+    assert_eq!(file.size(), 1024 * 1024);
+
+    let mut reader = file.reader().unwrap();
+
+    assert_eq!(
+        reader.skip(1024 * 1024 + 1).unwrap_err().to_string(),
+        "Out of bounds"
+    );
+}
