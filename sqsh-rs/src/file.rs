@@ -1,5 +1,5 @@
 use crate::{
-    error, Archive, DirectoryIterator, FileType, Inode, InodeRef, Permissions, Reader,
+    error, Archive, DirectoryIterator, FileType, Inode, InodeRef, Permissions, Reader, Source,
     XattrIterator,
 };
 use bstr::BStr;
@@ -9,7 +9,7 @@ use std::fmt;
 use std::ptr::NonNull;
 
 /// Methods for opening files on an archive.
-impl Archive {
+impl<S: Source + ?Sized> Archive<S> {
     pub fn open(&self, path: &str) -> error::Result<File<'_>> {
         let path = CString::new(path)?;
         self.open_raw(&path)

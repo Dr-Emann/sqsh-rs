@@ -3,10 +3,10 @@ use std::ffi::CString;
 use std::io::BufRead;
 use std::ptr;
 
-use crate::{error, Archive, Error, Permissions};
+use crate::{error, Archive, Error, Permissions, Source};
 
 /// High level "easy" methods for interacting with the archive.
-impl Archive {
+impl<S: Source + ?Sized> Archive<S> {
     /// Read the file at the given path
     pub fn read(&self, path: &str) -> error::Result<Vec<u8>> {
         let file = self.open(path)?;

@@ -27,36 +27,71 @@ use bitflags::bitflags;
 use sqsh_sys as ffi;
 use std::ffi::{c_void, CString};
 use std::fmt::Debug;
+use std::marker::PhantomData;
 use std::os::unix::ffi::OsStrExt;
 use std::path::Path;
 use std::ptr::NonNull;
 use std::{mem, ptr};
 
-#[derive(Debug)]
-pub struct Archive {
-    inner: NonNull<ffi::SqshArchive>,
+pub unsafe trait Source {
+    /// Represents the addressable size of the source in bytes
+    ///
+    /// Only really useful for slice-based sources, files know their own length
+    fn source_mapper() -> *const ffi::SqshMemoryMapperImpl;
+
+    fn size(&self) -> u64;
+
+    fn with_source_pointer<O, F>(&self, f: F) -> O
+    where
+        F: FnOnce(*const c_void) -> O;
 }
 
-// Safety: SqshArchive is uses a mutex internally for thread safety
-unsafe impl Send for Archive {}
-unsafe impl Sync for Archive {}
+unsafe impl<'a> Source for &'a [u8] {
+    fn source_mapper() -> *const ffi::SqshMemoryMapperImpl {
+        unsafe { ffi::sqsh_mapper_impl_static }
+    }
 
-#[derive(Debug)]
-#[repr(transparent)]
-pub struct MemArchive<'a> {
-    inner: NonNull<ffi::SqshArchive>,
-    _marker: std::marker::PhantomData<&'a [u8]>,
-}
+    fn size(&self) -> u64 {
+        self.len().try_into().unwrap()
+    }
 
-impl std::ops::Deref for MemArchive<'_> {
-    type Target = Archive;
-
-    fn deref(&self) -> &Self::Target {
-        unsafe { mem::transmute(self) }
+    fn with_source_pointer<O, F>(&self, f: F) -> O
+    where
+        F: FnOnce(*const c_void) -> O,
+    {
+        f(self.as_ptr().cast())
     }
 }
 
-impl Archive {
+unsafe impl Source for Path {
+    fn source_mapper() -> *const ffi::SqshMemoryMapperImpl {
+        unsafe { ffi::sqsh_mapper_impl_mmap }
+    }
+
+    fn size(&self) -> u64 {
+        0
+    }
+
+    fn with_source_pointer<O, F>(&self, f: F) -> O
+    where
+        F: FnOnce(*const c_void) -> O,
+    {
+        let path = CString::new(self.as_os_str().as_bytes()).unwrap();
+        f(path.as_ptr().cast())
+    }
+}
+
+#[derive(Debug)]
+pub struct Archive<S: Source + ?Sized = Path> {
+    inner: NonNull<ffi::SqshArchive>,
+    _marker: PhantomData<S>,
+}
+
+// Safety: SqshArchive is uses a mutex internally for thread safety
+unsafe impl<S: Source + ?Sized + Send> Send for Archive<S> {}
+unsafe impl<S: Source + ?Sized + Sync> Sync for Archive<S> {}
+
+impl Archive<Path> {
     pub fn new<P>(path: P) -> error::Result<Self>
     where
         P: AsRef<Path>,
@@ -65,13 +100,37 @@ impl Archive {
     }
 
     fn _new(path: &Path) -> error::Result<Self> {
-        let path_str = CString::new(path.as_os_str().as_bytes())?;
+        Self::with_source(path)
+    }
+}
+
+impl<'a> Archive<&'a [u8]> {
+    pub fn from_slice(data: &'a [u8]) -> error::Result<Self> {
+        Self::with_source(&data)
+    }
+}
+
+impl<S: Source + ?Sized> Archive<S> {
+    pub fn with_source(source: &S) -> error::Result<Self> {
         let mut err = 0;
-        let archive = unsafe {
-            ffi::sqsh_archive_open(path_str.as_ptr().cast::<c_void>(), ptr::null(), &mut err)
+        let config = ffi::SqshConfig {
+            archive_offset: 0,
+            source_size: source.size(),
+            source_mapper: S::source_mapper().cast_mut(),
+            mapper_block_size: 0,
+            mapper_lru_size: 0,
+            compression_lru_size: 0,
+            max_symlink_depth: 0,
+            _reserved: unsafe { mem::zeroed() },
         };
+        let archive = source.with_source_pointer(|source_ptr| unsafe {
+            ffi::sqsh_archive_open(source_ptr, &config, &mut err)
+        });
         match NonNull::new(archive) {
-            Some(archive) => Ok(Self { inner: archive }),
+            Some(archive) => Ok(Self {
+                inner: archive,
+                _marker: PhantomData,
+            }),
             None => Err(error::new(err)),
         }
     }
@@ -112,41 +171,9 @@ impl Archive {
         let inode_ref = superblock.root_inode_ref();
         self.open_ref(inode_ref)
     }
-
-    pub fn mem_new(data: &[u8]) -> error::Result<MemArchive<'_>> {
-        let mut err = 0;
-        let config = ffi::SqshConfig {
-            archive_offset: 0,
-            source_size: data.len() as u64,
-            source_mapper: unsafe { ffi::sqsh_mapper_impl_static.cast_mut() },
-            mapper_block_size: 0,
-            mapper_lru_size: 0,
-            compression_lru_size: 0,
-            max_symlink_depth: 0,
-            _reserved: unsafe { mem::zeroed() },
-        };
-        let archive =
-            unsafe { ffi::sqsh_archive_open(data.as_ptr().cast::<c_void>(), &config, &mut err) };
-
-        match NonNull::new(archive) {
-            Some(archive) => Ok(MemArchive {
-                inner: archive,
-                _marker: std::marker::PhantomData,
-            }),
-            None => Err(error::new(err)),
-        }
-    }
 }
 
-impl Drop for MemArchive<'_> {
-    fn drop(&mut self) {
-        unsafe {
-            ffi::sqsh_archive_close(self.inner.as_ptr());
-        }
-    }
-}
-
-impl Drop for Archive {
+impl<S: Source + ?Sized> Drop for Archive<S> {
     fn drop(&mut self) {
         unsafe {
             ffi::sqsh_archive_close(self.inner.as_ptr());

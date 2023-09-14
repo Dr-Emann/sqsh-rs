@@ -16,7 +16,7 @@ fn open_archive() {
 #[test]
 fn mem_open_archive() {
     let data = std::fs::read(ARCHIVE_PATH).unwrap();
-    let _archive = Archive::mem_new(&data).unwrap();
+    let _archive = Archive::from_slice(&data).unwrap();
 }
 
 #[test]
