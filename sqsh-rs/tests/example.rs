@@ -253,3 +253,9 @@ fn skip_past_end() {
         "Out of bounds"
     );
 }
+
+#[test]
+fn compression_options() {
+    let archive = archive();
+    insta::assert_debug_snapshot!(archive.compression_options());
+}

@@ -1,0 +1,15 @@
+---
+source: sqsh-rs/tests/example.rs
+expression: archive.compression_options()
+---
+Ok(
+    Some(
+        Gzip {
+            compression_level: 8,
+            window_size: 15,
+            strategies: GzipStrategies(
+                0x0,
+            ),
+        },
+    ),
+)

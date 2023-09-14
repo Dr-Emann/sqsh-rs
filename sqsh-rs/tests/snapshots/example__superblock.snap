@@ -9,17 +9,17 @@ Superblock {
     inode_count: 16,
     id_count: 5,
     fragment_entry_count: 1,
-    inode_table_start: 1309,
-    directory_table_start: 1514,
+    inode_table_start: 1319,
+    directory_table_start: 1524,
     fragment_table_start: Some(
-        1724,
+        1734,
     ),
     export_table_start: Some(
-        1786,
+        1796,
     ),
-    id_table_start: 1816,
+    id_table_start: 1826,
     xattr_id_table_start: Some(
-        1906,
+        1916,
     ),
     root_inode_ref: InodeRef(
         0x0000_00000000_01F5,
@@ -27,10 +27,10 @@ Superblock {
     has_fragments: true,
     has_export_table: true,
     has_xattr_table: true,
-    has_compression_options: false,
+    has_compression_options: true,
     version_major: 4,
     version_minor: 0,
     block_size: 131072,
     modification_time: 2000,
-    bytes_used: 1930,
+    bytes_used: 1940,
 }
