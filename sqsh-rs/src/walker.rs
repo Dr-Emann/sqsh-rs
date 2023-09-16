@@ -1,4 +1,5 @@
-use crate::{error, Archive, File, FileType};
+use crate::archive::Archive;
+use crate::{error, File, FileType};
 use bstr::BStr;
 use sqsh_sys as ffi;
 use std::ffi::{c_char, CStr, CString};
@@ -10,10 +11,10 @@ use std::ptr::NonNull;
 /// This is a low-level interface to the archive, and is not recommended for general use.
 pub struct Walker<'archive> {
     inner: NonNull<ffi::SqshTreeWalker>,
-    _marker: std::marker::PhantomData<&'archive Archive>,
+    _marker: std::marker::PhantomData<&'archive Archive<'archive>>,
 }
 
-impl Archive {
+impl Archive<'_> {
     /// Create a new walker for the archive.
     ///
     /// The walker starts at the root directory of the archive.

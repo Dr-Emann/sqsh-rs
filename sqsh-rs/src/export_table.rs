@@ -1,16 +1,26 @@
-use crate::{error, Inode, InodeRef};
+use crate::{error, Archive, Inode, InodeRef};
 use sqsh_sys as ffi;
+use std::ptr;
+
+impl Archive<'_> {
+    pub fn export_table(&self) -> error::Result<ExportTable<'_>> {
+        let mut dst = ptr::null_mut();
+        let err = unsafe { ffi::sqsh_archive_export_table(self.inner.as_ptr(), &mut dst) };
+        let inner = unsafe {
+            match dst.as_ref() {
+                Some(inner) => inner,
+                None => return Err(error::new(err)),
+            }
+        };
+        Ok(ExportTable { inner })
+    }
+}
 
 pub struct ExportTable<'archive> {
     inner: &'archive ffi::SqshExportTable,
 }
 
 impl<'archive> ExportTable<'archive> {
-    pub(crate) unsafe fn new(inner: *const ffi::SqshExportTable) -> Self {
-        let inner = unsafe { inner.as_ref().expect("null export table pointer") };
-        Self { inner }
-    }
-
     /// Retrieves an element from the export table.
     pub fn resolve_inode(&self, inode: Inode) -> error::Result<InodeRef> {
         let mut inode_ref = 0;

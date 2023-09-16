@@ -1,10 +1,11 @@
 use bstr::BString;
 use sqsh_rs::{Archive, DirectoryIterator, FileType, Permissions};
 use std::io::{BufRead, Read};
+use std::path::Path;
 
 const ARCHIVE_PATH: &str = "tests/data/test.sqsh";
 
-fn archive() -> Archive {
+fn archive() -> Archive<'static> {
     Archive::new(ARCHIVE_PATH).unwrap()
 }
 
@@ -17,6 +18,13 @@ fn open_archive() {
 fn mem_open_archive() {
     let data = std::fs::read(ARCHIVE_PATH).unwrap();
     let _archive = Archive::from_slice(&data).unwrap();
+}
+
+#[test]
+fn open_by_source() {
+    let _path_archive = Archive::with_source(Path::new(ARCHIVE_PATH)).unwrap();
+    let data = std::fs::read(ARCHIVE_PATH).unwrap();
+    let _mem_archive = Archive::with_source(&data[..]).unwrap();
 }
 
 #[test]

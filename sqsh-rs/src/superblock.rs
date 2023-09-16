@@ -154,7 +154,11 @@ impl fmt::Debug for LzoAlgorithm {
     }
 }
 
-impl Archive {
+impl Archive<'_> {
+    pub fn superblock(&self) -> Superblock<'_> {
+        unsafe { Superblock::new(ffi::sqsh_archive_superblock(self.inner.as_ptr())) }
+    }
+
     pub fn compression_options(&self) -> error::Result<Option<CompressionOptions>> {
         struct RawCompressionOptions(NonNull<ffi::SqshCompressionOptions>);
         impl Drop for RawCompressionOptions {

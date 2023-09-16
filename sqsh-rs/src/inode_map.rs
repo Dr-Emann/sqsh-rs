@@ -1,16 +1,26 @@
-use crate::{error, Inode, InodeRef};
+use crate::{error, Archive, Inode, InodeRef};
 use sqsh_sys as ffi;
+use std::ptr;
+
+impl Archive<'_> {
+    pub fn inode_map(&self) -> error::Result<InodeMap<'_>> {
+        let mut dst = ptr::null_mut();
+        let err = unsafe { ffi::sqsh_archive_inode_map(self.inner.as_ptr(), &mut dst) };
+        let inner = unsafe {
+            match dst.as_ref() {
+                Some(inner) => inner,
+                None => return Err(error::new(err)),
+            }
+        };
+        Ok(InodeMap { inner })
+    }
+}
 
 pub struct InodeMap<'archive> {
     inner: &'archive ffi::SqshInodeMap,
 }
 
 impl<'archive> InodeMap<'archive> {
-    pub(crate) unsafe fn new(inner: *const ffi::SqshInodeMap) -> Self {
-        let inner = unsafe { inner.as_ref().expect("null inode map pointer") };
-        Self { inner }
-    }
-
     /// Gets the inode reference for a given inode number.
     pub fn get(&self, inode_number: Inode) -> error::Result<InodeRef> {
         let mut err = 0;
