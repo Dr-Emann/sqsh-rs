@@ -72,13 +72,7 @@ impl<'archive> Walker<'archive> {
     ///
     /// Returns `true` if the walker was advanced, or `false` if the end of the directory was reached.
     pub fn advance(&mut self) -> error::Result<bool> {
-        let mut err = 0;
-        let did_advance = unsafe { ffi::sqsh_tree_walker_next2(self.inner.as_ptr(), &mut err) };
-        if err == 0 {
-            Ok(did_advance)
-        } else {
-            Err(error::new(err))
-        }
+        todo!("Need to use path-resolver instead")
     }
 
     /// Reverts the walker to the beginning of the current directory.

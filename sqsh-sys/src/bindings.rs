@@ -119,6 +119,11 @@ pub struct SqshTable {
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
+pub struct SqshPathResolver {
+    _unused: [u8; 0],
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
 pub struct SqshTreeWalker {
     _unused: [u8; 0],
 }
@@ -936,6 +941,78 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
+    pub fn sqsh_path_resolver_new(
+        archive: *mut SqshArchive,
+        err: *mut ::std::os::raw::c_int,
+    ) -> *mut SqshPathResolver;
+}
+extern "C" {
+    #[must_use]
+    pub fn sqsh_path_resolver_up(walker: *mut SqshPathResolver) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    #[must_use]
+    pub fn sqsh_path_resolver_next(
+        walker: *mut SqshPathResolver,
+        err: *mut ::std::os::raw::c_int,
+    ) -> bool;
+}
+extern "C" {
+    pub fn sqsh_path_resolver_type(walker: *const SqshPathResolver) -> SqshFileType;
+}
+extern "C" {
+    pub fn sqsh_path_resolver_name(
+        walker: *const SqshPathResolver,
+    ) -> *const ::std::os::raw::c_char;
+}
+extern "C" {
+    pub fn sqsh_path_resolver_name_size(walker: *const SqshPathResolver) -> u16;
+}
+extern "C" {
+    #[must_use]
+    pub fn sqsh_path_resolver_name_dup(
+        walker: *const SqshPathResolver,
+    ) -> *mut ::std::os::raw::c_char;
+}
+extern "C" {
+    #[must_use]
+    pub fn sqsh_path_resolver_revert(walker: *mut SqshPathResolver) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    #[must_use]
+    pub fn sqsh_path_resolver_lookup(
+        walker: *mut SqshPathResolver,
+        name: *const ::std::os::raw::c_char,
+        name_size: usize,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    #[must_use]
+    pub fn sqsh_path_resolver_down(walker: *mut SqshPathResolver) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    #[must_use]
+    pub fn sqsh_path_resolver_to_root(walker: *mut SqshPathResolver) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    #[must_use]
+    pub fn sqsh_path_resolver_open_file(
+        walker: *const SqshPathResolver,
+        err: *mut ::std::os::raw::c_int,
+    ) -> *mut SqshFile;
+}
+extern "C" {
+    #[must_use]
+    pub fn sqsh_path_resolver_resolve(
+        walker: *mut SqshPathResolver,
+        path: *const ::std::os::raw::c_char,
+        follow_symlinks: bool,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn sqsh_path_resolver_free(reader: *mut SqshPathResolver) -> ::std::os::raw::c_int;
+}
+extern "C" {
     pub fn sqsh_tree_walker_new(
         archive: *mut SqshArchive,
         err: *mut ::std::os::raw::c_int,
@@ -948,13 +1025,6 @@ extern "C" {
 extern "C" {
     #[must_use]
     pub fn sqsh_tree_walker_next(walker: *mut SqshTreeWalker) -> ::std::os::raw::c_int;
-}
-extern "C" {
-    #[must_use]
-    pub fn sqsh_tree_walker_next2(
-        walker: *mut SqshTreeWalker,
-        err: *mut ::std::os::raw::c_int,
-    ) -> bool;
 }
 extern "C" {
     pub fn sqsh_tree_walker_type(walker: *const SqshTreeWalker) -> SqshFileType;
