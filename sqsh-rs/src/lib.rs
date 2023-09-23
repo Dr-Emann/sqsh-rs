@@ -7,9 +7,9 @@ mod file;
 mod id_table;
 mod inode;
 mod inode_map;
+mod path_resolver;
 mod reader;
 mod superblock;
-mod walker;
 mod xattr;
 
 pub use crate::archive::Archive;
@@ -20,9 +20,9 @@ pub use crate::file::File;
 pub use crate::id_table::IdTable;
 pub use crate::inode::{Inode, InodeRef, ZeroInode};
 pub use crate::inode_map::InodeMap;
+pub use crate::path_resolver::PathResolver;
 pub use crate::reader::Reader;
 pub use crate::superblock::{Compression, Superblock};
-pub use crate::walker::Walker;
 pub use crate::xattr::XattrIterator;
 
 use bitflags::bitflags;

@@ -9,8 +9,8 @@ use std::ptr::NonNull;
 /// A walker over the tree of entries in an archive.
 ///
 /// This is a low-level interface to the archive, and is not recommended for general use.
-pub struct Walker<'archive> {
-    inner: NonNull<ffi::SqshTreeWalker>,
+pub struct PathResolver<'archive> {
+    inner: NonNull<ffi::SqshPathResolver>,
     _marker: std::marker::PhantomData<&'archive Archive<'archive>>,
 }
 
@@ -18,19 +18,19 @@ impl Archive<'_> {
     /// Create a new walker for the archive.
     ///
     /// The walker starts at the root directory of the archive.
-    pub fn walker(&self) -> error::Result<Walker<'_>> {
+    pub fn path_resolver(&self) -> error::Result<PathResolver<'_>> {
         let mut err = 0;
-        let walker = unsafe { ffi::sqsh_tree_walker_new(self.inner.as_ptr(), &mut err) };
+        let walker = unsafe { ffi::sqsh_path_resolver_new(self.inner.as_ptr(), &mut err) };
         let walker = match NonNull::new(walker) {
             Some(walker) => walker,
             None => return Err(error::new(err)),
         };
-        Ok(unsafe { Walker::new(walker) })
+        Ok(unsafe { PathResolver::new(walker) })
     }
 }
 
-impl<'archive> Walker<'archive> {
-    pub(crate) unsafe fn new(inner: NonNull<ffi::SqshTreeWalker>) -> Self {
+impl<'archive> PathResolver<'archive> {
+    pub(crate) unsafe fn new(inner: NonNull<ffi::SqshPathResolver>) -> Self {
         Self {
             inner,
             _marker: std::marker::PhantomData,
@@ -40,7 +40,7 @@ impl<'archive> Walker<'archive> {
     /// Return a new File for the current entry.
     pub fn open(&self) -> error::Result<File<'archive>> {
         let mut err = 0;
-        let file = unsafe { ffi::sqsh_tree_walker_open_file(self.inner.as_ptr(), &mut err) };
+        let file = unsafe { ffi::sqsh_path_resolver_open_file(self.inner.as_ptr(), &mut err) };
         let file = match NonNull::new(file) {
             Some(file) => file,
             None => return Err(error::new(err)),
@@ -48,9 +48,9 @@ impl<'archive> Walker<'archive> {
         Ok(unsafe { File::new(file) })
     }
 
-    /// Attempt to move the walker up to the parent directory.
+    /// Attempt to move the resolver up to the parent directory.
     pub fn up(&mut self) -> error::Result<()> {
-        let err = unsafe { ffi::sqsh_tree_walker_up(self.inner.as_ptr()) };
+        let err = unsafe { ffi::sqsh_path_resolver_up(self.inner.as_ptr()) };
         if err == 0 {
             Ok(())
         } else {
@@ -58,9 +58,9 @@ impl<'archive> Walker<'archive> {
         }
     }
 
-    /// Attempt to move the walker down into the current entry.
+    /// Attempt to move the resolver down into the current entry.
     pub fn down(&mut self) -> error::Result<()> {
-        let err = unsafe { ffi::sqsh_tree_walker_down(self.inner.as_ptr()) };
+        let err = unsafe { ffi::sqsh_path_resolver_down(self.inner.as_ptr()) };
         if err == 0 {
             Ok(())
         } else {
@@ -68,16 +68,22 @@ impl<'archive> Walker<'archive> {
         }
     }
 
-    /// Moves the walker to the next entry in the current directory.
+    /// Moves the resolver to the next entry in the current directory.
     ///
-    /// Returns `true` if the walker was advanced, or `false` if the end of the directory was reached.
+    /// Returns `true` if the resolver was advanced, or `false` if the end of the directory was reached.
     pub fn advance(&mut self) -> error::Result<bool> {
-        todo!("Need to use path-resolver instead")
+        let mut err = 0;
+        let did_advance = unsafe { ffi::sqsh_path_resolver_next(self.inner.as_ptr(), &mut err) };
+        if err == 0 {
+            Ok(did_advance)
+        } else {
+            Err(error::new(err))
+        }
     }
 
-    /// Reverts the walker to the beginning of the current directory.
+    /// Reverts the resolver to the beginning of the current directory.
     pub fn revert(&mut self) -> error::Result<()> {
-        let err = unsafe { ffi::sqsh_tree_walker_revert(self.inner.as_ptr()) };
+        let err = unsafe { ffi::sqsh_path_resolver_revert(self.inner.as_ptr()) };
         if err == 0 {
             Ok(())
         } else {
@@ -88,7 +94,7 @@ impl<'archive> Walker<'archive> {
     /// Looks up an entry in the current directory.
     pub fn advance_lookup(&mut self, name: &[u8]) -> error::Result<()> {
         let err = unsafe {
-            ffi::sqsh_tree_walker_lookup(
+            ffi::sqsh_path_resolver_lookup(
                 self.inner.as_ptr(),
                 name.as_ptr().cast::<c_char>(),
                 name.len(),
@@ -101,9 +107,9 @@ impl<'archive> Walker<'archive> {
         }
     }
 
-    /// Resets the walker to the root directory.
+    /// Resets the resolver to the root directory.
     pub fn reset_to_root(&mut self) -> error::Result<()> {
-        let err = unsafe { ffi::sqsh_tree_walker_to_root(self.inner.as_ptr()) };
+        let err = unsafe { ffi::sqsh_path_resolver_to_root(self.inner.as_ptr()) };
         if err == 0 {
             Ok(())
         } else {
@@ -111,7 +117,7 @@ impl<'archive> Walker<'archive> {
         }
     }
 
-    /// Resolve a path with the tree walker.
+    /// Resolve a path with the resolver.
     ///
     /// The path is resolved relative to the current directory.
     pub fn resolve_path(&mut self, path: &str, follow_symlinks: bool) -> error::Result<()> {
@@ -119,12 +125,12 @@ impl<'archive> Walker<'archive> {
         self.resolve_path_raw(&path, follow_symlinks)
     }
 
-    /// Resolve a path with the tree walker.
+    /// Resolve a path with the resolver.
     ///
     /// The path is resolved relative to the current directory.
     pub fn resolve_path_raw(&mut self, path: &CStr, follow_symlinks: bool) -> error::Result<()> {
         let err = unsafe {
-            ffi::sqsh_tree_walker_resolve(self.inner.as_ptr(), path.as_ptr(), follow_symlinks)
+            ffi::sqsh_path_resolver_resolve(self.inner.as_ptr(), path.as_ptr(), follow_symlinks)
         };
         if err == 0 {
             Ok(())
@@ -135,26 +141,26 @@ impl<'archive> Walker<'archive> {
 
     /// Returns the file type of the current entry.
     pub fn current_file_type(&self) -> Option<FileType> {
-        let raw_file_type = unsafe { ffi::sqsh_tree_walker_type(self.inner.as_ptr()) };
+        let raw_file_type = unsafe { ffi::sqsh_path_resolver_type(self.inner.as_ptr()) };
         FileType::try_from(raw_file_type).ok()
     }
 
     /// Get the name of the current entry.
     ///
-    /// This is borrows into the walker itself: the following will not compile:
+    /// This is borrows into the resolver itself: the following will not compile:
     ///
     /// ```compile_fail
     /// let archive = sqsh_rs::Archive::new("tests/data/test.sqsh").unwrap();
-    /// let mut walker = archive.walker().unwrap();
-    /// walker.advance().unwrap();
-    /// let name = walker.current_name().unwrap();
-    /// walker.advance().unwrap();
-    /// // Name is invalidated by moving the walker
+    /// let mut resolver = archive.path_resolver().unwrap();
+    /// resolver.advance().unwrap();
+    /// let name = resolver.current_name().unwrap();
+    /// resolver.advance().unwrap();
+    /// // Name is invalidated by moving the resolver
     /// println!("{:?}", name);
     /// ```
     pub fn current_name(&self) -> Option<&BStr> {
-        let size = unsafe { ffi::sqsh_tree_walker_name_size(self.inner.as_ptr()) };
-        let name = unsafe { ffi::sqsh_tree_walker_name(self.inner.as_ptr()) };
+        let size = unsafe { ffi::sqsh_path_resolver_name_size(self.inner.as_ptr()) };
+        let name = unsafe { ffi::sqsh_path_resolver_name(self.inner.as_ptr()) };
         if name.is_null() {
             None
         } else {
@@ -164,10 +170,10 @@ impl<'archive> Walker<'archive> {
     }
 }
 
-impl fmt::Debug for Walker<'_> {
+impl fmt::Debug for PathResolver<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let current = self.open();
-        f.debug_struct("Walker")
+        f.debug_struct("PathResolver")
             .field("current_name", &self.current_name())
             .field("current_file_type", &self.current_file_type())
             .field("current_file", &current)
@@ -175,11 +181,11 @@ impl fmt::Debug for Walker<'_> {
     }
 }
 
-unsafe impl<'archive> Send for Walker<'archive> {}
-unsafe impl<'archive> Sync for Walker<'archive> {}
+unsafe impl<'archive> Send for PathResolver<'archive> {}
+unsafe impl<'archive> Sync for PathResolver<'archive> {}
 
-impl Drop for Walker<'_> {
+impl Drop for PathResolver<'_> {
     fn drop(&mut self) {
-        unsafe { ffi::sqsh_tree_walker_free(self.inner.as_ptr()) };
+        unsafe { ffi::sqsh_path_resolver_free(self.inner.as_ptr()) };
     }
 }

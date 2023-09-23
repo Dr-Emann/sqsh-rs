@@ -147,30 +147,30 @@ fn reader_buf_read() {
 }
 
 #[test]
-fn walker() {
+fn resolver() {
     let archive = archive();
-    let mut walker = archive.walker().unwrap();
+    let mut resolver = archive.path_resolver().unwrap();
 
-    assert_eq!(walker.current_name(), None);
-    assert_eq!(walker.current_file_type(), Some(FileType::Directory));
+    assert_eq!(resolver.current_name(), None);
+    assert_eq!(resolver.current_file_type(), Some(FileType::Directory));
 
-    let current = walker.open().unwrap();
+    let current = resolver.open().unwrap();
     let root = archive.open("").unwrap();
     assert_eq!(format!("{current:?}"), format!("{root:?}"));
 
-    walker.advance().unwrap();
+    resolver.advance().unwrap();
 
-    assert_eq!(walker.current_name(), Some(bstr::BStr::new(b"1MiB.file")));
-    assert_eq!(walker.current_file_type(), Some(FileType::File));
+    assert_eq!(resolver.current_name(), Some(bstr::BStr::new(b"1MiB.file")));
+    assert_eq!(resolver.current_file_type(), Some(FileType::File));
 
-    let current = walker.open().unwrap();
+    let current = resolver.open().unwrap();
     assert_eq!(current.size(), 1024 * 1024);
 }
 
 #[test]
 fn walk_whole_dir() {
     let archive = archive();
-    let mut walker = archive.walker().unwrap();
+    let mut path_resolver = archive.path_resolver().unwrap();
     let expected_entries = [
         "1MiB.file",
         "broken.link",
@@ -187,9 +187,9 @@ fn walk_whole_dir() {
     ];
 
     let mut names = Vec::new();
-    while walker.advance().unwrap() {
+    while path_resolver.advance().unwrap() {
         names.push(
-            std::str::from_utf8(walker.current_name().unwrap())
+            std::str::from_utf8(path_resolver.current_name().unwrap())
                 .unwrap()
                 .to_owned(),
         );
