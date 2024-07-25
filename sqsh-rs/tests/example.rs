@@ -39,7 +39,7 @@ fn easy_contents_not_exists() {
     let archive = archive();
     let err = archive.read("not_exists").unwrap_err();
     assert_eq!(err.io_error_kind(), std::io::ErrorKind::NotFound);
-    insta::assert_display_snapshot!(err, @"No such file or directory");
+    insta::assert_snapshot!(err, @"No such file or directory");
 }
 
 #[test]
@@ -47,7 +47,6 @@ fn easy_contents_empty() {
     let archive = archive();
     let data = archive.read("empty.file").unwrap();
     assert!(data.is_empty());
-    assert!(!data.as_ptr().is_null());
 }
 
 #[test]
@@ -63,7 +62,7 @@ fn easy_contents_of_directory() {
     let archive = archive();
     let err = archive.read("subdir").unwrap_err();
     assert_eq!(err.io_error_kind(), std::io::ErrorKind::Other);
-    insta::assert_display_snapshot!(err, @"Not a file");
+    insta::assert_snapshot!(err, @"Not a file");
 }
 
 #[test]

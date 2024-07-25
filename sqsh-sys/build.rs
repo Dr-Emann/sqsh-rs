@@ -1,34 +1,34 @@
-use std::fs;
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 
+fn is_source_entry(entry: &walkdir::DirEntry) -> bool {
+    // Skip any codegen directories
+    entry.file_name() != "codegen"
+}
+
 fn main() {
-    let submodule = Path::new("src/libsqsh");
-    let mut roots = vec![submodule.join("common"), submodule.join("libsqsh")];
-    for subproject in fs::read_dir(submodule.join("subprojects")).unwrap() {
-        let subproject = subproject.unwrap();
-        if subproject.file_type().map_or(true, |t| !t.is_dir()) {
-            continue;
-        }
-        roots.push(subproject.path());
-    }
+    let submodules_dir = Path::new("submodules");
+    println!("cargo:rerun-if-changed={}", submodules_dir.display());
+    let sqsh_tools = submodules_dir.join("sqsh-tools");
+    let roots = [
+        submodules_dir.join("cextras"),
+        sqsh_tools.join("common"),
+        sqsh_tools.join("libsqsh"),
+    ];
     let c_files: Vec<PathBuf> = roots
         .iter()
         .flat_map(|p| [p.join("src"), p.join("lib")])
         .filter(|p| p.exists())
-        .flat_map(WalkDir::new)
+        .flat_map(|p| WalkDir::new(p).into_iter().filter_entry(is_source_entry))
         .map(Result::unwrap)
         .filter(|e| !e.file_type().is_dir() && e.path().extension().unwrap_or_default() == "c")
         .map(|e| e.into_path())
         .collect();
 
     let extra_includes = roots.iter().map(|p| p.join("include")).collect::<Vec<_>>();
-    for file in &c_files {
-        println!("cargo:rerun-if-changed={}", file.display());
-    }
 
     cc::Build::new()
-        .include(submodule.join("include"))
+        .include(sqsh_tools.join("include"))
         .includes(extra_includes)
         .files(c_files)
         .flag("-pthread")

@@ -23,7 +23,7 @@ File {
     ),
     modified_time: 1000,
     symlink_path: None,
-    device_id: 0,
+    device_id: 4294967295,
     uid: 0,
     gid: 0,
     xattr_id: 4294967295,

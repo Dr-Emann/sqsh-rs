@@ -9,7 +9,7 @@ edition = "2021"
 bitflags = "2.3"
 bstr = "1.5"
 libc = "0.2"
-sqsh-sys = { path = "../sqsh-sys" }
+sqsh-sys = { path = "../sqsh-sys", version = "0.2" }
 
 [dev-dependencies]
 insta = "1.30"

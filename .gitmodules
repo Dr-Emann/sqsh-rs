@@ -1,3 +1,6 @@
-[submodule "sqsh-sys/src/libsqsh"]
-	path = sqsh-sys/src/libsqsh
-	url = https://github.com/Gottox/libsqsh.git
+[submodule "sqsh-sys/submodules/sqsh-tools"]
+	path = sqsh-sys/submodules/sqsh-tools
+	url = https://github.com/Gottox/sqsh-tools.git
+[submodule "sqsh-sys/submodules/cextras"]
+	path = sqsh-sys/submodules/cextras
+	url = https://github.com/Gottox/cextras.git
