@@ -43,7 +43,7 @@ impl<'a> Archive<'a> {
         let config = ffi::SqshConfig {
             archive_offset: 0,
             source_size: source.size(),
-            source_mapper: source.source_mapper().cast_mut(),
+            source_mapper: source.source_mapper(),
             mapper_block_size: 0,
             mapper_lru_size: 0,
             compression_lru_size: 0,

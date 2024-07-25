@@ -1,0 +1,6 @@
+---
+source: sqsh-rs/tests/example.rs
+expression: traversal_str(&mut traversal)
+---
+/ Normal 0
+None

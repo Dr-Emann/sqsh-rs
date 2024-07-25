@@ -6,23 +6,23 @@ Superblock {
     compression_type: Compression(
         "gzip",
     ),
-    inode_count: 16,
-    id_count: 5,
+    inode_count: 23,
+    id_count: 6,
     fragment_entry_count: 1,
-    inode_table_start: 1319,
-    directory_table_start: 1524,
+    inode_table_start: 1329,
+    directory_table_start: 1603,
     fragment_table_start: Some(
-        1734,
+        1885,
     ),
     export_table_start: Some(
-        1796,
+        1968,
     ),
-    id_table_start: 1826,
+    id_table_start: 2002,
     xattr_id_table_start: Some(
-        1916,
+        2092,
     ),
     root_inode_ref: InodeRef(
-        0x0000_00000000_01F5,
+        0x0000_00000000_02D5,
     ),
     has_fragments: true,
     has_export_table: true,
@@ -32,5 +32,5 @@ Superblock {
     version_minor: 0,
     block_size: 131072,
     modification_time: 2000,
-    bytes_used: 1940,
+    bytes_used: 2116,
 }

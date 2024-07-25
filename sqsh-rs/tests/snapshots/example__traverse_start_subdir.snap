@@ -1,0 +1,12 @@
+---
+source: sqsh-rs/tests/example.rs
+expression: traversal_str(&mut traversal)
+---
+/ DirectoryFirst 0
+None
+/one.file Normal 1
+Some(DirectoryEntry { file_type: Some(File), name: "one.file", inode: Inode(21), inode_ref: InodeRef(0x0000_00000000_0275), .. })
+/short.file Normal 1
+Some(DirectoryEntry { file_type: Some(File), name: "short.file", inode: Inode(22), inode_ref: InodeRef(0x0000_00000000_0295), .. })
+/ DirectorySecond 0
+None

@@ -10,16 +10,16 @@ File {
         UserRead | UserWrite | UserExec | GroupRead | GroupExec | OtherRead | OtherExec,
     ),
     inode_ref: InodeRef(
-        0x0000_00000000_01D5,
+        0x0000_00000000_02B5,
     ),
     is_extended: false,
     hard_link_count: 2,
     size: 49,
     inode: Inode(
-        13,
+        20,
     ),
     parent_inode: Inode(
-        16,
+        23,
     ),
     modified_time: 1000,
     symlink_path: None,

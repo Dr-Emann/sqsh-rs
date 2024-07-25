@@ -25,3 +25,11 @@ dev d 755 0 0
 dev/block b 644 0 0 1 2
 dev/char c 644 0 0 3 4
 
+deep d 755 0 0
+deep/level1 d 755 0 0
+deep/level1/level2 d 755 0 0
+deep/level1/level2/level3 d 755 0 0
+deep/level1/level2/level3/level4 d 755 0 0
+deep/level1/level2/level3/level4/level5 d 755 0 0
+deep/level1/level2/level3/level4/level5/file f 400 101 101 printf 'deep file\n'
+

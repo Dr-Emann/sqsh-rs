@@ -10,6 +10,7 @@ mod inode_map;
 mod path_resolver;
 mod reader;
 mod superblock;
+pub mod traverse;
 mod xattr;
 
 pub use crate::archive::Archive;

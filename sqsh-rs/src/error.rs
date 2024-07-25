@@ -11,7 +11,7 @@ pub struct Error(pub(crate) ffi::SqshError);
 
 pub type Result<T, E = Error> = std::result::Result<T, E>;
 
-pub(crate) fn new(err: c_int) -> Error {
+pub(crate) const fn new(err: c_int) -> Error {
     let err = err.unsigned_abs();
     Error(ffi::SqshError(err))
 }
@@ -46,7 +46,10 @@ impl Error {
             | ffi::SqshError::SQSH_ERROR_BLOCKSIZE_MISMATCH
             | ffi::SqshError::SQSH_ERROR_SIZE_MISMATCH
             | ffi::SqshError::SQSH_ERROR_XATTR_SIZE_MISMATCH
-            | ffi::SqshError::SQSH_ERROR_INODE_MAP_IS_INCONSISTENT => io::ErrorKind::InvalidData,
+            | ffi::SqshError::SQSH_ERROR_INODE_MAP_IS_INCONSISTENT
+            | ffi::SqshError::SQSH_ERROR_INODE_PARENT_MISMATCH
+            | ffi::SqshError::SQSH_ERROR_INODE_PARENT_UNSET
+            | ffi::SqshError::SQSH_ERROR_NOT_A_SYMLINK => io::ErrorKind::InvalidData,
             ffi::SqshError::SQSH_ERROR_NO_SUCH_FILE | ffi::SqshError::SQSH_ERROR_NO_SUCH_XATTR => {
                 io::ErrorKind::NotFound
             }

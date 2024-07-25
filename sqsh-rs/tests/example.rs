@@ -1,5 +1,7 @@
-use bstr::BString;
+use bstr::{BString, ByteSlice};
+use sqsh_rs::traverse::Traversal;
 use sqsh_rs::{Archive, DirectoryIterator, FileType, Permissions};
+use std::fmt::Write;
 use std::io::{BufRead, Read};
 use std::path::Path;
 
@@ -170,20 +172,6 @@ fn resolver() {
 fn walk_whole_dir() {
     let archive = archive();
     let mut path_resolver = archive.path_resolver().unwrap();
-    let expected_entries = [
-        "1MiB.file",
-        "broken.link",
-        "dev",
-        "empty.file",
-        "empty_dir",
-        "fifo",
-        "one.file",
-        "short.file",
-        "short.link",
-        "socket",
-        "socket2",
-        "subdir",
-    ];
 
     let mut names = Vec::new();
     while path_resolver.advance().unwrap() {
@@ -194,7 +182,7 @@ fn walk_whole_dir() {
         );
     }
 
-    assert_eq!(names, expected_entries);
+    insta::assert_debug_snapshot!(names);
 }
 
 #[test]
@@ -265,4 +253,61 @@ fn skip_past_end() {
 fn compression_options() {
     let archive = archive();
     insta::assert_debug_snapshot!(archive.compression_options());
+}
+
+fn traversal_str(traversal: &mut Traversal) -> String {
+    let mut result = String::new();
+    while let Some(entry) = traversal.advance().unwrap() {
+        writeln!(
+            result,
+            "/{} {:?} {}\n{:?}",
+            entry.path(),
+            entry.state(),
+            entry.depth(),
+            entry.directory_entry(),
+        )
+        .unwrap();
+
+        assert_eq!(
+            entry.path().segments().next_back().unwrap_or_default(),
+            entry.name(),
+        );
+    }
+    result
+}
+
+#[test]
+fn traverse() {
+    let archive = archive();
+    let root = archive.root().unwrap();
+    let mut traversal = root.traversal().unwrap();
+    insta::assert_snapshot!(traversal_str(&mut traversal));
+}
+
+#[test]
+fn traverse_start_subdir() {
+    let archive = archive();
+    let subdir = archive.open("subdir").unwrap();
+
+    let mut traversal = subdir.traversal().unwrap();
+    insta::assert_snapshot!(traversal_str(&mut traversal));
+}
+
+#[test]
+fn traverse_start_file() {
+    let archive = archive();
+    let file = archive.open("/one.file").unwrap();
+
+    let mut traversal = file.traversal().unwrap();
+    insta::assert_snapshot!(traversal_str(&mut traversal));
+}
+
+#[test]
+fn traverse_max_depth() {
+    let archive = archive();
+    let root = archive.root().unwrap();
+    let mut traversal = root.traversal().unwrap();
+    traversal.set_max_depth(1);
+
+    insta::assert_snapshot!(traversal_str(&mut traversal));
 }

@@ -1,0 +1,34 @@
+---
+source: sqsh-rs/tests/example.rs
+expression: traversal_str(&mut traversal)
+---
+/ DirectoryFirst 0
+None
+/1MiB.file Normal 1
+Some(DirectoryEntry { file_type: Some(File), name: "1MiB.file", inode: Inode(1), inode_ref: InodeRef(0x0000_00000000_0000), .. })
+/broken.link Normal 1
+Some(DirectoryEntry { file_type: Some(Symlink), name: "broken.link", inode: Inode(2), inode_ref: InodeRef(0x0000_00000000_0040), .. })
+/deep Normal 1
+Some(DirectoryEntry { file_type: Some(Directory), name: "deep", inode: Inode(3), inode_ref: InodeRef(0x0000_00000000_0123), .. })
+/dev Normal 1
+Some(DirectoryEntry { file_type: Some(Directory), name: "dev", inode: Inode(10), inode_ref: InodeRef(0x0000_00000000_0173), .. })
+/empty.file Normal 1
+Some(DirectoryEntry { file_type: Some(File), name: "empty.file", inode: Inode(13), inode_ref: InodeRef(0x0000_00000000_0193), .. })
+/empty_dir Normal 1
+Some(DirectoryEntry { file_type: Some(Directory), name: "empty_dir", inode: Inode(14), inode_ref: InodeRef(0x0000_00000000_01CB), .. })
+/fifo Normal 1
+Some(DirectoryEntry { file_type: Some(Fifo), name: "fifo", inode: Inode(15), inode_ref: InodeRef(0x0000_00000000_01EB), .. })
+/one.file Normal 1
+Some(DirectoryEntry { file_type: Some(File), name: "one.file", inode: Inode(16), inode_ref: InodeRef(0x0000_00000000_01FF), .. })
+/short.file Normal 1
+Some(DirectoryEntry { file_type: Some(File), name: "short.file", inode: Inode(17), inode_ref: InodeRef(0x0000_00000000_021F), .. })
+/short.link Normal 1
+Some(DirectoryEntry { file_type: Some(Symlink), name: "short.link", inode: Inode(18), inode_ref: InodeRef(0x0000_00000000_023F), .. })
+/socket Normal 1
+Some(DirectoryEntry { file_type: Some(Socket), name: "socket", inode: Inode(19), inode_ref: InodeRef(0x0000_00000000_0261), .. })
+/socket2 Normal 1
+Some(DirectoryEntry { file_type: Some(Socket), name: "socket2", inode: Inode(19), inode_ref: InodeRef(0x0000_00000000_0261), .. })
+/subdir Normal 1
+Some(DirectoryEntry { file_type: Some(Directory), name: "subdir", inode: Inode(20), inode_ref: InodeRef(0x0000_00000000_02B5), .. })
+/ DirectorySecond 0
+None

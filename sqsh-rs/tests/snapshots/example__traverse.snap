@@ -1,0 +1,72 @@
+---
+source: sqsh-rs/tests/example.rs
+expression: traversal_str(&mut traversal)
+---
+/ DirectoryFirst 0
+None
+/1MiB.file Normal 1
+Some(DirectoryEntry { file_type: Some(File), name: "1MiB.file", inode: Inode(1), inode_ref: InodeRef(0x0000_00000000_0000), .. })
+/broken.link Normal 1
+Some(DirectoryEntry { file_type: Some(Symlink), name: "broken.link", inode: Inode(2), inode_ref: InodeRef(0x0000_00000000_0040), .. })
+/deep DirectoryFirst 1
+Some(DirectoryEntry { file_type: Some(Directory), name: "deep", inode: Inode(3), inode_ref: InodeRef(0x0000_00000000_0123), .. })
+/deep/level1 DirectoryFirst 2
+Some(DirectoryEntry { file_type: Some(Directory), name: "level1", inode: Inode(4), inode_ref: InodeRef(0x0000_00000000_0103), .. })
+/deep/level1/level2 DirectoryFirst 3
+Some(DirectoryEntry { file_type: Some(Directory), name: "level2", inode: Inode(5), inode_ref: InodeRef(0x0000_00000000_00E3), .. })
+/deep/level1/level2/level3 DirectoryFirst 4
+Some(DirectoryEntry { file_type: Some(Directory), name: "level3", inode: Inode(6), inode_ref: InodeRef(0x0000_00000000_00C3), .. })
+/deep/level1/level2/level3/level4 DirectoryFirst 5
+Some(DirectoryEntry { file_type: Some(Directory), name: "level4", inode: Inode(7), inode_ref: InodeRef(0x0000_00000000_00A3), .. })
+/deep/level1/level2/level3/level4/level5 DirectoryFirst 6
+Some(DirectoryEntry { file_type: Some(Directory), name: "level5", inode: Inode(8), inode_ref: InodeRef(0x0000_00000000_0083), .. })
+/deep/level1/level2/level3/level4/level5/file Normal 7
+Some(DirectoryEntry { file_type: Some(File), name: "file", inode: Inode(9), inode_ref: InodeRef(0x0000_00000000_0063), .. })
+/deep/level1/level2/level3/level4/level5 DirectorySecond 6
+Some(DirectoryEntry { file_type: Some(Directory), name: "level5", inode: Inode(8), inode_ref: InodeRef(0x0000_00000000_0083), .. })
+/deep/level1/level2/level3/level4 DirectorySecond 5
+Some(DirectoryEntry { file_type: Some(Directory), name: "level4", inode: Inode(7), inode_ref: InodeRef(0x0000_00000000_00A3), .. })
+/deep/level1/level2/level3 DirectorySecond 4
+Some(DirectoryEntry { file_type: Some(Directory), name: "level3", inode: Inode(6), inode_ref: InodeRef(0x0000_00000000_00C3), .. })
+/deep/level1/level2 DirectorySecond 3
+Some(DirectoryEntry { file_type: Some(Directory), name: "level2", inode: Inode(5), inode_ref: InodeRef(0x0000_00000000_00E3), .. })
+/deep/level1 DirectorySecond 2
+Some(DirectoryEntry { file_type: Some(Directory), name: "level1", inode: Inode(4), inode_ref: InodeRef(0x0000_00000000_0103), .. })
+/deep DirectorySecond 1
+Some(DirectoryEntry { file_type: Some(Directory), name: "deep", inode: Inode(3), inode_ref: InodeRef(0x0000_00000000_0123), .. })
+/dev DirectoryFirst 1
+Some(DirectoryEntry { file_type: Some(Directory), name: "dev", inode: Inode(10), inode_ref: InodeRef(0x0000_00000000_0173), .. })
+/dev/block Normal 2
+Some(DirectoryEntry { file_type: Some(BlockDevice), name: "block", inode: Inode(11), inode_ref: InodeRef(0x0000_00000000_0143), .. })
+/dev/char Normal 2
+Some(DirectoryEntry { file_type: Some(CharacterDevice), name: "char", inode: Inode(12), inode_ref: InodeRef(0x0000_00000000_015B), .. })
+/dev DirectorySecond 1
+Some(DirectoryEntry { file_type: Some(Directory), name: "dev", inode: Inode(10), inode_ref: InodeRef(0x0000_00000000_0173), .. })
+/empty.file Normal 1
+Some(DirectoryEntry { file_type: Some(File), name: "empty.file", inode: Inode(13), inode_ref: InodeRef(0x0000_00000000_0193), .. })
+/empty_dir DirectoryFirst 1
+Some(DirectoryEntry { file_type: Some(Directory), name: "empty_dir", inode: Inode(14), inode_ref: InodeRef(0x0000_00000000_01CB), .. })
+/empty_dir DirectorySecond 1
+Some(DirectoryEntry { file_type: Some(Directory), name: "empty_dir", inode: Inode(14), inode_ref: InodeRef(0x0000_00000000_01CB), .. })
+/fifo Normal 1
+Some(DirectoryEntry { file_type: Some(Fifo), name: "fifo", inode: Inode(15), inode_ref: InodeRef(0x0000_00000000_01EB), .. })
+/one.file Normal 1
+Some(DirectoryEntry { file_type: Some(File), name: "one.file", inode: Inode(16), inode_ref: InodeRef(0x0000_00000000_01FF), .. })
+/short.file Normal 1
+Some(DirectoryEntry { file_type: Some(File), name: "short.file", inode: Inode(17), inode_ref: InodeRef(0x0000_00000000_021F), .. })
+/short.link Normal 1
+Some(DirectoryEntry { file_type: Some(Symlink), name: "short.link", inode: Inode(18), inode_ref: InodeRef(0x0000_00000000_023F), .. })
+/socket Normal 1
+Some(DirectoryEntry { file_type: Some(Socket), name: "socket", inode: Inode(19), inode_ref: InodeRef(0x0000_00000000_0261), .. })
+/socket2 Normal 1
+Some(DirectoryEntry { file_type: Some(Socket), name: "socket2", inode: Inode(19), inode_ref: InodeRef(0x0000_00000000_0261), .. })
+/subdir DirectoryFirst 1
+Some(DirectoryEntry { file_type: Some(Directory), name: "subdir", inode: Inode(20), inode_ref: InodeRef(0x0000_00000000_02B5), .. })
+/subdir/one.file Normal 2
+Some(DirectoryEntry { file_type: Some(File), name: "one.file", inode: Inode(21), inode_ref: InodeRef(0x0000_00000000_0275), .. })
+/subdir/short.file Normal 2
+Some(DirectoryEntry { file_type: Some(File), name: "short.file", inode: Inode(22), inode_ref: InodeRef(0x0000_00000000_0295), .. })
+/subdir DirectorySecond 1
+Some(DirectoryEntry { file_type: Some(Directory), name: "subdir", inode: Inode(20), inode_ref: InodeRef(0x0000_00000000_02B5), .. })
+/ DirectorySecond 0
+None

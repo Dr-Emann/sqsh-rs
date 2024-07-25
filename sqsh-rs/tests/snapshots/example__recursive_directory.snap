@@ -10,6 +10,39 @@ expression: trees
         "broken.link",
     ),
     Directory(
+        "deep",
+        [
+            Directory(
+                "level1",
+                [
+                    Directory(
+                        "level2",
+                        [
+                            Directory(
+                                "level3",
+                                [
+                                    Directory(
+                                        "level4",
+                                        [
+                                            Directory(
+                                                "level5",
+                                                [
+                                                    File(
+                                                        "file",
+                                                    ),
+                                                ],
+                                            ),
+                                        ],
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    ),
+    Directory(
         "dev",
         [
             File(

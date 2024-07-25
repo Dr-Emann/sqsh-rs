@@ -1,0 +1,19 @@
+---
+source: sqsh-rs/tests/example.rs
+expression: names
+---
+[
+    "1MiB.file",
+    "broken.link",
+    "deep",
+    "dev",
+    "empty.file",
+    "empty_dir",
+    "fifo",
+    "one.file",
+    "short.file",
+    "short.link",
+    "socket",
+    "socket2",
+    "subdir",
+]

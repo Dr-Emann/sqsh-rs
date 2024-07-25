@@ -1,3 +1,4 @@
+use crate::traverse::Traversal;
 use crate::{
     error, Archive, DirectoryIterator, FileType, Inode, InodeRef, Permissions, Reader,
     XattrIterator,
@@ -15,9 +16,25 @@ impl Archive<'_> {
         self.open_raw(&path)
     }
 
+    pub fn open_nofollow(&self, path: &str) -> error::Result<File<'_>> {
+        let path = CString::new(path)?;
+        self.open_raw_nofollow(&path)
+    }
+
     pub fn open_raw(&self, path: &CStr) -> error::Result<File<'_>> {
         let mut err = 0;
         let file = unsafe { ffi::sqsh_open(self.inner.as_ptr(), path.as_ptr(), &mut err) };
+        let file = match NonNull::new(file) {
+            Some(file) => file,
+            None => return Err(error::new(err)),
+        };
+
+        Ok(unsafe { File::new(file) })
+    }
+
+    pub fn open_raw_nofollow(&self, path: &CStr) -> error::Result<File<'_>> {
+        let mut err = 0;
+        let file = unsafe { ffi::sqsh_lopen(self.inner.as_ptr(), path.as_ptr(), &mut err) };
         let file = match NonNull::new(file) {
             Some(file) => file,
             None => return Err(error::new(err)),
@@ -95,6 +112,31 @@ impl<'archive> File<'archive> {
         inode_num.try_into().unwrap()
     }
 
+    /// Follow a single symbolic link.
+    ///
+    /// After calling this function, the file is (in-place) changed to the target of the symlink.
+    pub fn follow_symlink(&mut self) -> error::Result<()> {
+        let err = unsafe { ffi::sqsh_file_symlink_resolve(self.inner.as_ptr()) };
+        if err != 0 {
+            return Err(error::new(err));
+        }
+        Ok(())
+    }
+
+    /// Follow symlink targets recursively until a non-symlink file is found.
+    ///
+    /// After calling this function, the file is (in-place) changed to the target of the symlink(s).
+    ///
+    /// This function performs recursion detection and will return an error if a
+    /// symlink loop is detected.
+    pub fn follow_all_symlinks(&mut self) -> error::Result<()> {
+        let err = unsafe { ffi::sqsh_file_symlink_resolve_all(self.inner.as_ptr()) };
+        if err != 0 {
+            return Err(error::new(err));
+        }
+        Ok(())
+    }
+
     /// Getter for the modification time.
     ///
     /// Returns the number of seconds since the Unix epoch.
@@ -166,6 +208,16 @@ impl<'archive> File<'archive> {
             None => return Err(error::new(err)),
         };
         Ok(unsafe { Reader::new(iterator) })
+    }
+
+    pub fn traversal(&self) -> error::Result<Traversal> {
+        let mut err = 0;
+        let traversal = unsafe { ffi::sqsh_tree_traversal_new(self.inner.as_ptr(), &mut err) };
+        let traversal = match NonNull::new(traversal) {
+            Some(traversal) => traversal,
+            None => return Err(error::new(err)),
+        };
+        Ok(unsafe { Traversal::new(traversal) })
     }
 }
 
