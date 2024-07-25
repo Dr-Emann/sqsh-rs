@@ -2,38 +2,48 @@
 
 use libc::{FILE, mode_t, time_t};
 
+#[doc = " @brief typedef used for indexing"]
 pub type sqsh_index_t = usize;
 #[repr(transparent)]
+#[doc = " @brief The compression used in the archive."]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct SqshSuperblockCompressionId(pub ::std::os::raw::c_uint);
+pub struct SqshSuperblockCompressionId(pub ::core::ffi::c_uint);
 #[repr(transparent)]
+#[doc = " @brief The flags used in the superblock."]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct SqshSuperblockFlags(pub ::std::os::raw::c_uint);
+pub struct SqshSuperblockFlags(pub ::core::ffi::c_uint);
 #[repr(transparent)]
+#[doc = " @brief definitions of gzip strategies"]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct SqshGzipStrategies(pub ::std::os::raw::c_uint);
+pub struct SqshGzipStrategies(pub ::core::ffi::c_uint);
 #[repr(transparent)]
+#[doc = " @brief definitions xz filters"]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct SqshXzFilters(pub ::std::os::raw::c_uint);
+pub struct SqshXzFilters(pub ::core::ffi::c_uint);
 #[repr(transparent)]
+#[doc = " @brief definitions of lz4 flags"]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct SqshLz4Flags(pub ::std::os::raw::c_uint);
+pub struct SqshLz4Flags(pub ::core::ffi::c_uint);
 #[repr(transparent)]
+#[doc = " @brief definitions of Lzo algorithms"]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct SqshLzoAlgorithm(pub ::std::os::raw::c_uint);
+pub struct SqshLzoAlgorithm(pub ::core::ffi::c_uint);
 #[repr(transparent)]
+#[doc = " @brief The type of an external attribute."]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct SqshXattrType(pub ::std::os::raw::c_uint);
+pub struct SqshXattrType(pub ::core::ffi::c_uint);
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct SqshInodeMap {
     _unused: [u8; 0],
 }
+#[doc = " table/id_table.c"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct SqshIdTable {
     _unused: [u8; 0],
 }
+#[doc = " table/export_table.c"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct SqshExportTable {
@@ -49,28 +59,40 @@ pub struct SqshXattrTable {
 pub struct SqshFragmentTable {
     _unused: [u8; 0],
 }
+#[doc = " archive/trailing_context.c"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct SqshTrailingContext {
     _unused: [u8; 0],
 }
+#[doc = " archive/superblock_context.c"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct SqshSuperblock {
     _unused: [u8; 0],
 }
+#[doc = " @brief The SqshConfig struct contains all the configuration options for\n a sqsh session."]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct SqshConfig {
+    #[doc = " @brief represents the offset in bytes where the sqsh_archive\n will start."]
     pub archive_offset: u64,
+    #[doc = " @brief represents the addressable size of the source in bytes.\n\n Please note that this is not the size of the archive, but the size of the\n source. So that the maximal size of the archive is `source_size -\n archive_offset`.\n\n This field is only used when the source_mapper is unable to determine the\n size of the source itself. This is the case for the following mappers:\n\n - `sqsh_mapper_impl_static`"]
     pub source_size: u64,
+    #[doc = " @brief source_mapper is the memory mapper implementation that will be\n used to map the archive.\n\n - `sqsh_mapper_impl_mmap`: the archive will be loaded from a file. The\n    source will be interpreted as a file path. this is the default.\n - `sqsh_mapper_impl_static`: the archive will be interpreted from a\n    static buffer.\n - `sqsh_mapper_impl_curl`: the archive will be loaded from a remote\n   location. The source will be interpreted as a URL."]
     pub source_mapper: *const SqshMemoryMapperImpl,
-    pub mapper_block_size: ::std::os::raw::c_int,
-    pub mapper_lru_size: ::std::os::raw::c_int,
-    pub compression_lru_size: ::std::os::raw::c_int,
+    #[doc = " @brief the block size used to retrieve chunks of data from the mapper.\n If unset or 0, the block size will be determined by the mapper."]
+    pub mapper_block_size: ::core::ffi::c_int,
+    #[doc = " @brief the size of the LRU cache used to cache chunks of data from the\n mapper. If unset or 0, the LRU defaults to 32. if set to -1, the LRU\n will be disabled."]
+    pub mapper_lru_size: ::core::ffi::c_int,
+    #[doc = " @brief the size of the LRU cache used to cache chunks of data from the\n compression algorithm. If unset or 0, the LRU defaults to 128. if set to\n -1, the LRU will be disabled."]
+    pub compression_lru_size: ::core::ffi::c_int,
+    #[doc = " @brief the maximum depth of symlinks that will be followed. If unset or\n 0, the max symlink depth will be 100."]
     pub max_symlink_depth: usize,
-    pub _reserved: [::std::os::raw::c_char; 128usize],
+    #[doc = " @privatesection"]
+    pub _reserved: [::core::ffi::c_char; 128usize],
 }
+#[doc = " @brief The Sqsh struct contains all information about the current\n sqsh session."]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct SqshArchive {
@@ -91,85 +113,101 @@ pub struct SqshCompressionOptions {
 pub struct SqshFile {
     _unused: [u8; 0],
 }
+#[doc = " @brief The file reader allows to read user defined byte ranges from a file\n inside of a SqshArchive."]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct SqshFileReader {
     _unused: [u8; 0],
 }
+#[doc = " file/file_iterator.c"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct SqshFileIterator {
     _unused: [u8; 0],
 }
 #[repr(transparent)]
+#[doc = " @brief enum that represents the file type."]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct SqshFileType(pub ::std::os::raw::c_int);
+pub struct SqshFileType(pub ::core::ffi::c_int);
+#[doc = " iterator/directory_iterator.c"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct SqshDirectoryIterator {
     _unused: [u8; 0],
 }
 #[repr(transparent)]
+#[doc = " @brief Error codes for sqsh."]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct SqshError(pub ::std::os::raw::c_uint);
+pub struct SqshError(pub ::core::ffi::c_uint);
+#[doc = " mapper/mapper.c"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct SqshMapper {
     _unused: [u8; 0],
 }
+#[doc = " @brief The implementation of a memory mapper."]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct SqshMemoryMapperImpl {
+    #[doc = " @brief A hint to libsqsh to use this block size if the user did not\n specify one."]
     pub block_size_hint: usize,
-    pub init: ::std::option::Option<
+    #[doc = " @brief The initialization function for the mapper. Use\n sqsh_mapper_set_user_data() to set custom user data."]
+    pub init: ::core::option::Option<
         unsafe extern "C" fn(
             mapper: *mut SqshMapper,
-            input: *const ::std::os::raw::c_void,
+            input: *const ::core::ffi::c_void,
             size: *mut usize,
-        ) -> ::std::os::raw::c_int,
+        ) -> ::core::ffi::c_int,
     >,
-    pub map: ::std::option::Option<
+    #[doc = " @brief The function that maps a block of data into memory."]
+    pub map: ::core::option::Option<
         unsafe extern "C" fn(
             mapper: *const SqshMapper,
             offset: sqsh_index_t,
             size: usize,
             data: *mut *mut u8,
-        ) -> ::std::os::raw::c_int,
+        ) -> ::core::ffi::c_int,
     >,
-    pub unmap: ::std::option::Option<
+    #[doc = " @brief The function that unmaps a block of data from memory."]
+    pub unmap: ::core::option::Option<
         unsafe extern "C" fn(
             mapper: *const SqshMapper,
             data: *mut u8,
             size: usize,
-        ) -> ::std::os::raw::c_int,
+        ) -> ::core::ffi::c_int,
     >,
-    pub cleanup: ::std::option::Option<
-        unsafe extern "C" fn(mapper: *mut SqshMapper) -> ::std::os::raw::c_int,
-    >,
+    #[doc = " @brief The cleanup function for the mapper."]
+    pub cleanup:
+        ::core::option::Option<unsafe extern "C" fn(mapper: *mut SqshMapper) -> ::core::ffi::c_int>,
 }
+#[doc = " table/table.c"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct SqshTable {
     _unused: [u8; 0],
 }
+#[doc = " tree/path_resolver.c"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct SqshPathResolver {
     _unused: [u8; 0],
 }
+#[doc = " tree/walker.c"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct SqshTreeWalker {
     _unused: [u8; 0],
 }
 #[repr(transparent)]
+#[doc = " @brief The state of the tree traversal."]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct SqshTreeTraversalState(pub ::std::os::raw::c_uint);
+pub struct SqshTreeTraversalState(pub ::core::ffi::c_uint);
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct SqshTreeTraversal {
     _unused: [u8; 0],
 }
+#[doc = " xattr/xattr_iterator.c"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct SqshXattrIterator {
@@ -355,988 +393,1210 @@ impl SqshError {
     pub const SQSH_ERROR_UNKNOWN_FILE_TYPE: SqshError = SqshError(264);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_UNKOWN_FILE_TYPE: SqshError = SqshError(264);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_NOT_A_DIRECTORY: SqshError = SqshError(265);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_NOT_A_FILE: SqshError = SqshError(266);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_MALLOC_FAILED: SqshError = SqshError(267);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_MUTEX_INIT_FAILED: SqshError = SqshError(268);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_MUTEX_LOCK_FAILED: SqshError = SqshError(269);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_MUTEX_DESTROY_FAILED: SqshError = SqshError(270);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_OUT_OF_BOUNDS: SqshError = SqshError(271);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_INTEGER_OVERFLOW: SqshError = SqshError(272);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_NO_SUCH_FILE: SqshError = SqshError(273);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_NO_SUCH_XATTR: SqshError = SqshError(274);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_NO_FRAGMENT_TABLE: SqshError = SqshError(275);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_NO_EXTENDED_DIRECTORY: SqshError = SqshError(276);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_NO_EXPORT_TABLE: SqshError = SqshError(277);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_NO_XATTR_TABLE: SqshError = SqshError(278);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_NO_COMPRESSION_OPTIONS: SqshError = SqshError(279);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_MAPPER_INIT: SqshError = SqshError(280);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_MAPPER_MAP: SqshError = SqshError(281);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_CURL_INVALID_RANGE_HEADER: SqshError = SqshError(282);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSL_ERROR_ELEMENT_NOT_FOUND: SqshError = SqshError(283);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_INVALID_ARGUMENT: SqshError = SqshError(284);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_WALKER_CANNOT_GO_UP: SqshError = SqshError(285);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_WALKER_CANNOT_GO_DOWN: SqshError = SqshError(286);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_CORRUPTED_INODE: SqshError = SqshError(287);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_CORRUPTED_DIRECTORY_ENTRY: SqshError = SqshError(288);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_INTERNAL: SqshError = SqshError(289);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_INODE_MAP_IS_INCONSISTENT: SqshError = SqshError(290);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_XATTR_SIZE_MISMATCH: SqshError = SqshError(291);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_UNSUPPORTED_VERSION: SqshError = SqshError(292);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_TOO_MANY_SYMLINKS_FOLLOWED: SqshError = SqshError(293);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_CORRUPTED_DIRECTORY_HEADER: SqshError = SqshError(294);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_COMPRESSION_FINISHED: SqshError = SqshError(295);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_NO_SUCH_ELEMENT: SqshError = SqshError(296);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_DIRECTORY_RECURSION: SqshError = SqshError(297);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_INODE_PARENT_MISMATCH: SqshError = SqshError(298);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_INODE_PARENT_UNSET: SqshError = SqshError(299);
 }
 impl SqshError {
+    #[doc = " @deprecated Since 1.1.0. Use SQSH_ERROR_UNKNOWN_FILE_TYPE instead."]
     pub const SQSH_ERROR_NOT_A_SYMLINK: SqshError = SqshError(300);
 }
 impl SqshTreeTraversalState {
+    #[doc = " The traversal is in the initial state, right after initialization."]
     pub const SQSH_TREE_TRAVERSAL_STATE_INIT: SqshTreeTraversalState = SqshTreeTraversalState(0);
 }
 impl SqshTreeTraversalState {
+    #[doc = " The traversal iterator is currently pointing at a file object. This\n includes special files like named pipes, symlinks, or devices but not\n directories."]
     pub const SQSH_TREE_TRAVERSAL_STATE_FILE: SqshTreeTraversalState = SqshTreeTraversalState(1);
 }
 impl SqshTreeTraversalState {
+    #[doc = " The traversal iterator is currently pointing at a directory object, right\n before SqshTreeTraversal is about to descend into it."]
     pub const SQSH_TREE_TRAVERSAL_STATE_DIRECTORY_BEGIN: SqshTreeTraversalState =
         SqshTreeTraversalState(2);
 }
 impl SqshTreeTraversalState {
+    #[doc = " The traversal iterator is currently pointing at a directory object, after\n SqshTreeTraversal has finised iterating over it."]
     pub const SQSH_TREE_TRAVERSAL_STATE_DIRECTORY_END: SqshTreeTraversalState =
         SqshTreeTraversalState(3);
 }
 extern "C" {
+    #[doc = " @memberof SqshTrailingContext\n @brief Retrieves the size of the trailing data in a context.\n\n @param[in] context The context to retrieve the size from.\n\n @return The size of the trailing data in the context."]
     pub fn sqsh_trailing_size(context: *const SqshTrailingContext) -> usize;
 }
 extern "C" {
+    #[doc = " @memberof SqshTrailingContext\n @brief Retrieves the trailing data in a context.\n\n @param[in] context The context to retrieve the data from.\n\n @return The trailing data in the context."]
     pub fn sqsh_trailing_data(context: *const SqshTrailingContext) -> *const u8;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @deprecated Since 1.2.0. Use sqsh_inode_map_get2() instead.\n @memberof SqshInodeMap\n @brief Gets the inode reference for a given inode number.\n\n @param[in] map The context to use.\n @param[in] inode_number The inode number to get the reference for.\n\n @return The inode reference on success, 0 on error."]
     pub fn sqsh_inode_map_get(map: *const SqshInodeMap, inode_number: u64) -> u64;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @memberof SqshInodeMap\n @brief Gets the inode reference for a given inode number.\n\n @param[in]  map           The context to use.\n @param[in]  inode_number  The inode number to get the reference for.\n @param[out] err           Pointer to an int where the error code will be\n stored.\n\n @return The inode reference on success, 0 on error."]
     pub fn sqsh_inode_map_get2(
         map: *const SqshInodeMap,
         inode_number: u32,
-        err: *mut ::std::os::raw::c_int,
+        err: *mut ::core::ffi::c_int,
     ) -> u64;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @deprecated Since 1.2.0. Use sqsh_inode_map_set2() instead.\n @memberof SqshInodeMap\n @brief Sets the inode reference for a given inode number.\n\n @param[in] map The context to use.\n @param[in] inode_number The inode number to set the reference for.\n @param[in] inode_ref The inode reference to set.\n\n @return 0 on success, a negative value on error."]
     pub fn sqsh_inode_map_set(
         map: *mut SqshInodeMap,
         inode_number: u64,
         inode_ref: u64,
-    ) -> ::std::os::raw::c_int;
+    ) -> ::core::ffi::c_int;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @memberof SqshInodeMap\n @brief Sets the inode reference for a given inode number.\n\n @param[in] map The context to use.\n @param[in] inode_number The inode number to set the reference for.\n @param[in] inode_ref The inode reference to set.\n\n @return 0 on success, a negative value on error."]
     pub fn sqsh_inode_map_set2(
         map: *mut SqshInodeMap,
         inode_number: u32,
         inode_ref: u64,
-    ) -> ::std::os::raw::c_int;
+    ) -> ::core::ffi::c_int;
 }
 extern "C" {
+    #[doc = " @memberof SqshSuperblock\n @brief Retrieves the compression id of a superblock context.\n\n @param[in] context The superblock context to retrieve the compression id\n from.\n\n @return The compression id of the superblock context."]
     pub fn sqsh_superblock_compression_id(
         context: *const SqshSuperblock,
     ) -> SqshSuperblockCompressionId;
 }
 extern "C" {
+    #[doc = " @memberof SqshSuperblock\n @brief Retrieves the start offset of the directory table in a superblock\n context.\n\n @param[in] context The superblock context to retrieve the directory table\n start offset from.\n\n @return The start offset of the directory table in the superblock context."]
     pub fn sqsh_superblock_directory_table_start(context: *const SqshSuperblock) -> u64;
 }
 extern "C" {
+    #[doc = " @memberof SqshSuperblock\n @brief Retrieves the start offset of the fragment table in a superblock\n context.\n\n @param[in] context The superblock context to retrieve the fragment table\n start offset from.\n\n @return The start offset of the fragment table in the superblock context."]
     pub fn sqsh_superblock_fragment_table_start(context: *const SqshSuperblock) -> u64;
 }
 extern "C" {
+    #[doc = " @memberof SqshSuperblock\n @brief Retrieves the number of inodes in an archive.\n\n @param[in] context The superblock context to retrieve the inode count from.\n\n @return The number of inodes in the superblock context."]
     pub fn sqsh_superblock_inode_count(context: *const SqshSuperblock) -> u32;
 }
 extern "C" {
+    #[doc = " @memberof SqshSuperblock\n @brief Retrieves the major version of an archive.\n\n @param[in] superblock The superblock context to retrieve the major version\n from.\n\n @return The major version of this archive."]
     pub fn sqsh_superblock_version_major(superblock: *const SqshSuperblock) -> u16;
 }
 extern "C" {
+    #[doc = " @memberof SqshSuperblock\n @brief Retrieves the minor version of an archive.\n\n @param[in] superblock The superblock context to retrieve the minor version\n from.\n\n @return The minor version of this archive."]
     pub fn sqsh_superblock_version_minor(superblock: *const SqshSuperblock) -> u16;
 }
 extern "C" {
+    #[doc = " @memberof SqshSuperblock\n @brief Retrieves the start offset of the inode table in an archive.\n\n @param[in] context The superblock context to retrieve the inode table start\n offset from.\n\n @return The start offset of the inode table in the superblock context."]
     pub fn sqsh_superblock_inode_table_start(context: *const SqshSuperblock) -> u64;
 }
 extern "C" {
+    #[doc = " @memberof SqshSuperblock\n @brief Retrieves the start offset of the id table in an archive.\n\n @param[in] context The superblock context to retrieve the id table start\n offset from.\n\n @return The start offset of the id table in the superblock context."]
     pub fn sqsh_superblock_id_table_start(context: *const SqshSuperblock) -> u64;
 }
 extern "C" {
+    #[doc = " @memberof SqshSuperblock\n @brief Retrieves the number of ids in an archive.\n\n @param[in] context The superblock context to retrieve the ids count from.\n\n @return The number of inodes in the superblock context."]
     pub fn sqsh_superblock_id_count(context: *const SqshSuperblock) -> u16;
 }
 extern "C" {
+    #[doc = " @memberof SqshSuperblock\n @brief Retrieves the start offset of the export table in an archive.\n\n @param[in] context The superblock context to retrieve the export table start\n offset from.\n\n @return The start offset of the export table in the superblock context."]
     pub fn sqsh_superblock_export_table_start(context: *const SqshSuperblock) -> u64;
 }
 extern "C" {
+    #[doc = " @memberof SqshSuperblock\n @brief Retrieves the start offset of the xattr id table in an archive.\n\n @param[in] context The superblock context to retrieve the xattr id table\n start offset from.\n\n @return The start offset of the xattr id table in the superblock context."]
     pub fn sqsh_superblock_xattr_id_table_start(context: *const SqshSuperblock) -> u64;
 }
 extern "C" {
+    #[doc = " @memberof SqshSuperblock\n @brief Retrieves the reference of the root inode in a superblock context.\n\n @param[in] context The superblock context to retrieve the root inode\n reference from.\n\n @return The reference of the root inode in the superblock context."]
     pub fn sqsh_superblock_inode_root_ref(context: *const SqshSuperblock) -> u64;
 }
 extern "C" {
+    #[doc = " @memberof SqshSuperblock\n @brief Checks if a superblock context has fragment table.\n\n @param[in] context The superblock context to check.\n\n @return True if the superblock context has a fragment table, false otherwise."]
     pub fn sqsh_superblock_has_fragments(context: *const SqshSuperblock) -> bool;
 }
 extern "C" {
+    #[doc = " @memberof SqshSuperblock\n @brief Checks if a superblock context has an export table.\n\n @param[in] context The superblock context to check.\n\n @return True if the superblock context has an export table, false otherwise."]
     pub fn sqsh_superblock_has_export_table(context: *const SqshSuperblock) -> bool;
 }
 extern "C" {
+    #[doc = " @memberof SqshSuperblock\n @brief Checks if a superblock context has an xattr table.\n\n @param[in] context The superblock context to check.\n\n @return True if the superblock context has an xattr table, false otherwise."]
     pub fn sqsh_superblock_has_xattr_table(context: *const SqshSuperblock) -> bool;
 }
 extern "C" {
+    #[doc = " @memberof SqshSuperblock\n @brief Checks if a superblock context has compression options.\n\n @param[in] context The superblock context to check.\n\n @return True if the superblock context has compression options, false\n otherwise."]
     pub fn sqsh_superblock_has_compression_options(context: *const SqshSuperblock) -> bool;
 }
 extern "C" {
+    #[doc = " @memberof SqshSuperblock\n @brief Retrieves the block size of a superblock context.\n\n @param[in] context The superblock context to retrieve the block size from.\n\n @return The block size of the superblock context."]
     pub fn sqsh_superblock_block_size(context: *const SqshSuperblock) -> u32;
 }
 extern "C" {
+    #[doc = " @memberof SqshSuperblock\n @brief Retrieves the modification time of a superblock context.\n\n @param[in] context The superblock context to retrieve the modification time\n from.\n\n @return The modification time of the superblock context."]
     pub fn sqsh_superblock_modification_time(context: *const SqshSuperblock) -> u32;
 }
 extern "C" {
+    #[doc = " @memberof SqshSuperblock\n @brief Retrieves the number of fragment entries in a superblock context.\n\n @param[in] context The superblock context to retrieve the fragment entry\n count from.\n\n @return The number of fragment entries in the superblock context."]
     pub fn sqsh_superblock_fragment_entry_count(context: *const SqshSuperblock) -> u32;
 }
 extern "C" {
+    #[doc = " @memberof SqshSuperblock\n @brief Retrieves the number of bytes used in a superblock context.\n\n @param[in] context The superblock context to retrieve the bytes used from.\n\n @return The number of bytes used in the superblock context."]
     pub fn sqsh_superblock_bytes_used(context: *const SqshSuperblock) -> u64;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @memberof SqshArchive\n @brief initializes a archive context in heap.\n\n @param[in] source the source to retrieve the archive from\n @param[in] config the configuration for the archive context.\n @param[out] err   Pointer to an int where the error code will be stored.\n\n @return a pointer to the archive context or NULL if an error occurred."]
     pub fn sqsh_archive_open(
-        source: *const ::std::os::raw::c_void,
+        source: *const ::core::ffi::c_void,
         config: *const SqshConfig,
-        err: *mut ::std::os::raw::c_int,
+        err: *mut ::core::ffi::c_int,
     ) -> *mut SqshArchive;
 }
 extern "C" {
+    #[doc = " @memberof SqshArchive\n @brief sqsh_superblock returns the configuration object of the archive\n context.\n\n @param[in] archive the SqshArchive structure.\n\n @return the superblock context."]
     pub fn sqsh_archive_config(archive: *const SqshArchive) -> *const SqshConfig;
 }
 extern "C" {
+    #[doc = " @memberof SqshArchive\n @brief sqsh_superblock returns the superblock context.\n\n @param[in] archive the Sqsh structure.\n\n @return the superblock context."]
     pub fn sqsh_archive_superblock(archive: *const SqshArchive) -> *const SqshSuperblock;
 }
 extern "C" {
+    #[doc = " @memberof SqshArchive\n @brief sqsh_mapper returns the map manager to retrieve chunks of the archive\n file.\n\n @param[in] archive the Sqsh structure.\n\n @return the mapper context."]
     pub fn sqsh_archive_map_manager(archive: *mut SqshArchive) -> *mut SqshMapManager;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @memberof SqshArchive\n @brief Retrieves the id table of a Sqsh instance.\n\n @param[in]  archive    The Sqsh instance to retrieve the id table from.\n @param[out] id_table   Pointer to a struct SqshTable where the id table will\n be stored.\n\n @return 0 on success, a negative value on error."]
     pub fn sqsh_archive_id_table(
         archive: *mut SqshArchive,
         id_table: *mut *mut SqshIdTable,
-    ) -> ::std::os::raw::c_int;
+    ) -> ::core::ffi::c_int;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @memberof SqshArchive\n @brief Retrieves the export table of a Sqsh instance.\n\n @param[in]  archive        The Sqsh instance to retrieve the inode cache\n                            from.\n @param[out] inode_map      Pointer to a struct SqshInodeMap where the\n                            inode cache will be stored.\n\n @return 0 on success, a negative value on error."]
     pub fn sqsh_archive_inode_map(
         archive: *mut SqshArchive,
         inode_map: *mut *mut SqshInodeMap,
-    ) -> ::std::os::raw::c_int;
+    ) -> ::core::ffi::c_int;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @memberof SqshArchive\n @brief Retrieves the export table of a Sqsh instance.\n\n @param[in]  archive           The Sqsh instance to retrieve the export table\n                            from.\n @param[out] export_table   Pointer to a struct SqshTable where the export\n                            table will be stored.\n\n @return 0 on success, a negative value on error."]
     pub fn sqsh_archive_export_table(
         archive: *mut SqshArchive,
         export_table: *mut *mut SqshExportTable,
-    ) -> ::std::os::raw::c_int;
+    ) -> ::core::ffi::c_int;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @memberof SqshArchive\n @brief Retrieves the fragment table of a Sqsh instance.\n\n @param[in]  archive          The Sqsh instance to retrieve the fragment table\n                              from.\n @param[out] fragment_table   Pointer to a struct SqshTable where the export\n                              table will be stored.\n\n @return 0 on success, a negative value on error."]
     pub fn sqsh_archive_fragment_table(
         archive: *mut SqshArchive,
         fragment_table: *mut *mut SqshFragmentTable,
-    ) -> ::std::os::raw::c_int;
+    ) -> ::core::ffi::c_int;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @memberof SqshArchive\n @brief Retrieves the xattr table of a Sqsh instance.\n\n @param[in]  archive       The Sqsh instance to retrieve the xattr table\n                           from.\n @param[out] xattr_table   Pointer to a struct SqshTable where the export\n                           table will be stored.\n\n @return 0 on success, a negative value on error."]
     pub fn sqsh_archive_xattr_table(
         archive: *mut SqshArchive,
         xattr_table: *mut *mut SqshXattrTable,
-    ) -> ::std::os::raw::c_int;
+    ) -> ::core::ffi::c_int;
 }
 extern "C" {
-    pub fn sqsh_archive_close(archive: *mut SqshArchive) -> ::std::os::raw::c_int;
+    #[doc = " @memberof SqshArchive\n @brief Frees the resources used by a Sqsh instance.\n\n @param[in] archive The Sqsh instance to free.\n\n @return 0 on success, a negative value on error."]
+    pub fn sqsh_archive_close(archive: *mut SqshArchive) -> ::core::ffi::c_int;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @memberof SqshCompressionOptions\n @brief Initializes a SqshCompressionOptions struct.\n\n @param[in] sqsh Sqsh context\n @param[out] err Pointer to an int where the error code will be stored.\n\n @return The Initialized file context"]
     pub fn sqsh_compression_options_new(
         sqsh: *mut SqshArchive,
-        err: *mut ::std::os::raw::c_int,
+        err: *mut ::core::ffi::c_int,
     ) -> *mut SqshCompressionOptions;
 }
 extern "C" {
+    #[doc = " @memberof SqshCompressionOptions\n @brief returns the compression level of gzip\n\n @param[in] context the compression options context\n\n @return the compression level of gzip"]
     pub fn sqsh_compression_options_gzip_compression_level(
         context: *const SqshCompressionOptions,
     ) -> u32;
 }
 extern "C" {
+    #[doc = " @memberof SqshCompressionOptions\n @brief returns the compression window size of gzip\n\n @param[in] context the compression options context\n\n @return the compression window size of gzip"]
     pub fn sqsh_compression_options_gzip_window_size(context: *const SqshCompressionOptions)
         -> u16;
 }
 extern "C" {
+    #[doc = " @memberof SqshCompressionOptions\n @brief returns the compression strategy of gzip\n\n @param[in] context the compression options context\n\n @return the compression strategy of gzip"]
     pub fn sqsh_compression_options_gzip_strategies(
         context: *const SqshCompressionOptions,
     ) -> SqshGzipStrategies;
 }
 extern "C" {
+    #[doc = " @memberof SqshCompressionOptions\n @brief returns the dictionary size of xz\n\n @param[in] context the compression options context\n\n @return the dictionary size of xz"]
     pub fn sqsh_compression_options_xz_dictionary_size(
         context: *const SqshCompressionOptions,
     ) -> u32;
 }
 extern "C" {
+    #[doc = " @memberof SqshCompressionOptions\n @brief returns the compression options of xz\n\n @param[in] context the compression options context\n\n @return the compression options of xz"]
     pub fn sqsh_compression_options_xz_filters(
         context: *const SqshCompressionOptions,
     ) -> SqshXzFilters;
 }
 extern "C" {
+    #[doc = " @memberof SqshCompressionOptions\n @brief returns the version of lz4 used\n\n @param[in] context the compression options context\n\n @return the version of lz4 used"]
     pub fn sqsh_compression_options_lz4_version(context: *const SqshCompressionOptions) -> u32;
 }
 extern "C" {
+    #[doc = " @memberof SqshCompressionOptions\n @brief returns the flags of lz4\n\n @param[in] context the compression options context\n\n @return the flags of lz4"]
     pub fn sqsh_compression_options_lz4_flags(context: *const SqshCompressionOptions) -> u32;
 }
 extern "C" {
+    #[doc = " @memberof SqshCompressionOptions\n @brief returns the compression level of zstd\n\n @param[in] context the compression options context\n\n @return the compression level of zstd"]
     pub fn sqsh_compression_options_zstd_compression_level(
         context: *const SqshCompressionOptions,
     ) -> u32;
 }
 extern "C" {
+    #[doc = " @memberof SqshCompressionOptions\n @brief returns the algorithm of lzo\n\n @param[in] context the compression options context\n\n @return the algorithm of lzo"]
     pub fn sqsh_compression_options_lzo_algorithm(
         context: *const SqshCompressionOptions,
     ) -> SqshLzoAlgorithm;
 }
 extern "C" {
+    #[doc = " @memberof SqshCompressionOptions\n @brief returns the compression level of lzo\n\n @param[in] context the compression options context\n\n @return the compression level of lzo"]
     pub fn sqsh_compression_options_lzo_compression_level(
         context: *const SqshCompressionOptions,
     ) -> u32;
 }
 extern "C" {
+    #[doc = " @memberof SqshCompressionOptions\n @brief returns the size of the compression options struct\n\n @param[in] context the compression options context\n\n @return the size of the compression options struct"]
     pub fn sqsh_compression_options_size(context: *const SqshCompressionOptions) -> usize;
 }
 extern "C" {
+    #[doc = " @memberof SqshCompressionOptions\n @brief Frees a SqshCompressionOptions struct.\n\n @param[in] context The file context to free.\n\n @return 0 on success, less than 0 on error"]
     pub fn sqsh_compression_options_free(
         context: *mut SqshCompressionOptions,
-    ) -> ::std::os::raw::c_int;
+    ) -> ::core::ffi::c_int;
 }
 extern "C" {
+    #[doc = " @brief Initializes a SqshFileReader struct.\n @memberof SqshFileReader\n\n @param[in] file The file context to retrieve the file contents from.\n @param[out] err Pointer to an int where the error code will be stored.\n\n @return a new file reader."]
     pub fn sqsh_file_reader_new(
         file: *const SqshFile,
-        err: *mut ::std::os::raw::c_int,
+        err: *mut ::core::ffi::c_int,
     ) -> *mut SqshFileReader;
 }
 extern "C" {
+    #[doc = " @brief Advances the file reader by a certain amount of data and presents\n `size` bytes of data to the user.\n @memberof SqshFileReader\n\n @param[in,out] reader The file reader to skip data in.\n @param[in] offset The offset to skip.\n @param[in] size The size of the data to skip.\n\n @return 0 on success, less than 0 on error."]
     pub fn sqsh_file_reader_advance(
         reader: *mut SqshFileReader,
         offset: sqsh_index_t,
         size: usize,
-    ) -> ::std::os::raw::c_int;
+    ) -> ::core::ffi::c_int;
 }
 extern "C" {
+    #[doc = " @brief Gets a pointer to the current data in the file reader.\n @memberof SqshFileReader\n\n @param[in] reader The file reader to get data from.\n\n @return A pointer to the current data in the file reader."]
     pub fn sqsh_file_reader_data(reader: *const SqshFileReader) -> *const u8;
 }
 extern "C" {
+    #[doc = " @brief Gets the size of the current data in the file reader.\n @memberof SqshFileReader\n\n @param[in] reader The file reader to get data from.\n\n @return The size of the current data in the file reader."]
     pub fn sqsh_file_reader_size(reader: *const SqshFileReader) -> usize;
 }
 extern "C" {
-    pub fn sqsh_file_reader_free(reader: *mut SqshFileReader) -> ::std::os::raw::c_int;
+    #[doc = " @brief Cleans up resources used by a SqshFileReader struct.\n @memberof SqshFileReader\n\n @param[in,out] reader The file reader struct to clean up.\n\n @return 0 on success, less than 0 on error."]
+    pub fn sqsh_file_reader_free(reader: *mut SqshFileReader) -> ::core::ffi::c_int;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @brief Creates a new SqshFileIterator struct and initializes it.\n @memberof SqshFileIterator\n\n @param[in] file The file context to retrieve the file contents from.\n @param[out] err Pointer to an int where the error code will be stored.\n\n @return A pointer to the newly created and initialized SqshFileIterator\n struct."]
     pub fn sqsh_file_iterator_new(
         file: *const SqshFile,
-        err: *mut ::std::os::raw::c_int,
+        err: *mut ::core::ffi::c_int,
     ) -> *mut SqshFileIterator;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @brief Reads a certain amount of data from the file iterator.\n @memberof SqshFileIterator\n\n @param[in,out] iterator The file iterator to read data from.\n @param[in] desired_size The desired size of the data to read. May be more or\n less than the actual size of the data read.\n @param[out] err Pointer to an int where the error code will be stored.\n\n @retval true  When the iterator was advanced\n @retval false When the iterator is at the end and no more entries are\n available or if an error occured."]
     pub fn sqsh_file_iterator_next(
         iterator: *mut SqshFileIterator,
         desired_size: usize,
-        err: *mut ::std::os::raw::c_int,
+        err: *mut ::core::ffi::c_int,
     ) -> bool;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @memberof SqshFileIterator\n @brief Skips blocks until the block containing the offset is reached.\n Note that calling this function will invalidate the data pointer returned by\n sqsh_file_iterator_data().\n\n The offset is relative to the beginning of the current block or, if the\n iterator hasn't been forwarded with previous calls to\n sqsh_file_iterator_skip() or sqsh_file_iterator_next() the beginning of the\n first block.\n\n After calling this function `offset` is updated to the same position relative\n to the new block. See this visualisation:\n\n ```\n current_block: |<--- block 8000 --->|\n                           offset = 10000 --^\n -->  sqsh_file_iterator_skip(i, &offset, 1)\n current_block:                      |<--- block 8000 --->|\n                            offset = 2000 --^\n ```\n\n If libsqsh can map more than one block at once, it will do so until\n `desired_size` is reached. Note that `desired_size` is only a hint and\n libsqsh may return more or less data than requested.\n\n @param[in,out] iterator      The file iterator to skip data in.\n @param[in,out] offset        The offset that is contained in the block to\n skip to.\n @param[in] desired_size      The desired size of the data to read.\n\n @return 0 on success, less than 0 on error."]
     pub fn sqsh_file_iterator_skip(
         iterator: *mut SqshFileIterator,
         offset: *mut sqsh_index_t,
         desired_size: usize,
-    ) -> ::std::os::raw::c_int;
+    ) -> ::core::ffi::c_int;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @brief Gets a pointer to the current data in the file iterator.\n @memberof SqshFileIterator\n\n @param[in] iterator The file iterator to get data from.\n\n @return A pointer to the current data in the file iterator."]
     pub fn sqsh_file_iterator_data(iterator: *const SqshFileIterator) -> *const u8;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @brief Returns the block size of the file iterator.\n @memberof SqshFileIterator\n\n @param[in] iterator The file iterator to get the size from.\n\n @return The size of the data currently in the file iterator."]
     pub fn sqsh_file_iterator_block_size(iterator: *const SqshFileIterator) -> usize;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @brief Gets the size of the data currently in the file iterator.\n @memberof SqshFileIterator\n\n @param[in] iterator The file iterator to get the size from.\n\n @return The size of the data currently in the file iterator."]
     pub fn sqsh_file_iterator_size(iterator: *const SqshFileIterator) -> usize;
 }
 extern "C" {
-    pub fn sqsh_file_iterator_free(iterator: *mut SqshFileIterator) -> ::std::os::raw::c_int;
+    #[doc = " @brief Frees the resources used by a SqshFileIterator struct.\n @memberof SqshFileIterator\n\n @param[in,out] iterator The file iterator to free.\n\n @return 0 on success, less than 0 on error."]
+    pub fn sqsh_file_iterator_free(iterator: *mut SqshFileIterator) -> ::core::ffi::c_int;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @memberof SqshFile\n @brief Initialize the file context from a path.\n\n @param[in] archive The sqsh archive context.\n @param[in] path The path the file or directory.\n @param[out] err Pointer to an int where the error code will be stored.\n\n @return 0 on success, less than 0 on error."]
     pub fn sqsh_open(
         archive: *mut SqshArchive,
-        path: *const ::std::os::raw::c_char,
-        err: *mut ::std::os::raw::c_int,
+        path: *const ::core::ffi::c_char,
+        err: *mut ::core::ffi::c_int,
     ) -> *mut SqshFile;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @memberof SqshFile\n @brief Initialize the file context from a path. This function is identical to\n `sqsh_open()` but if the path is a symlink, the symlink target not resolved.\n\n @param[in] archive The sqsh archive context.\n @param[in] path The path the file or directory.\n @param[out] err Pointer to an int where the error code will be stored.\n\n @return 0 on success, less than 0 on error."]
     pub fn sqsh_lopen(
         archive: *mut SqshArchive,
-        path: *const ::std::os::raw::c_char,
-        err: *mut ::std::os::raw::c_int,
+        path: *const ::core::ffi::c_char,
+        err: *mut ::core::ffi::c_int,
     ) -> *mut SqshFile;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @memberof SqshFile\n @brief Initializes a file context in heap\n\n @param archive The sqsh context to use.\n @param inode_ref The inode reference to initialize the context with.\n @param[out] err Pointer to an int where the error code will be stored.\n\n @return a pointer to the sqsh context or NULL if an error occurred."]
     pub fn sqsh_open_by_ref(
         archive: *mut SqshArchive,
         inode_ref: u64,
-        err: *mut ::std::os::raw::c_int,
+        err: *mut ::core::ffi::c_int,
     ) -> *mut SqshFile;
 }
 extern "C" {
+    #[doc = " @memberof SqshFile\n @brief returns whether the file is an extended structure.\n\n @param[in] context The file context.\n\n @return true if the file is an extended structure."]
     pub fn sqsh_file_is_extended(context: *const SqshFile) -> bool;
 }
 extern "C" {
+    #[doc = " @memberof SqshFile\n @brief Getter for the inode hard link count.\n\n @param[in] context The file context.\n\n @return the amount of hard links to the inode."]
     pub fn sqsh_file_hard_link_count(context: *const SqshFile) -> u32;
 }
 extern "C" {
+    #[doc = " @memberof SqshFile\n @brief Getter for the file size. 0 if the file has no size.\n\n @param[in] context The file context.\n\n @return the file type."]
     pub fn sqsh_file_size(context: *const SqshFile) -> u64;
 }
 extern "C" {
+    #[doc = " @memberof SqshFile\n @brief Getter for the permissions of the file.\n\n @param[in] context The file context.\n\n @return the permissions of the file."]
     pub fn sqsh_file_permission(context: *const SqshFile) -> u16;
 }
 extern "C" {
+    #[doc = " @memberof SqshFile\n @brief Getter for the inode number.\n\n @param[in] context The file context.\n\n @return the inode number."]
     pub fn sqsh_file_inode(context: *const SqshFile) -> u32;
 }
 extern "C" {
+    #[doc = " @memberof SqshFile\n @brief Getter for the file modification time in seconds since epoch.\n\n @param[in] context The file context.\n\n @return the file modification time."]
     pub fn sqsh_file_modified_time(context: *const SqshFile) -> u32;
 }
 extern "C" {
+    #[doc = " @memberof SqshFile\n @brief Getter for the start block of the file content. This is only\n internally used and will be used while retrieving the file content.\n\n @param[in] context The file context.\n\n @return the start block of the file content or UINT64_MAX if the type\n is not SQSH_FILE_TYPE_FILE."]
     pub fn sqsh_file_blocks_start(context: *const SqshFile) -> u64;
 }
 extern "C" {
+    #[doc = " @memberof SqshFile\n @brief Getter for the amount of blocks of the file content. This is only\n internally used and will be used while retrieving the file content.\n\n @param[in] context The file context.\n\n @return the amount of blocks of the file content. If the file is not of\n of type SQSH_FILE_TYPE_FILE, UINT32_MAX will be returned."]
     pub fn sqsh_file_block_count(context: *const SqshFile) -> u32;
 }
 extern "C" {
+    #[doc = " @memberof SqshFile\n @brief Getter the size of a block of the file content. This is only\n internally used and will be used while retrieving the file content.\n\n @param[in] context The file context.\n @param index The index of the block.\n\n @return the size of the block with the index."]
     pub fn sqsh_file_block_size(context: *const SqshFile, index: u32) -> u32;
 }
 extern "C" {
+    #[doc = " @memberof SqshFile\n @brief Checks whether a certain block is compressed.\n\n @param[in] context The file context.\n @param index The index of the block.\n\n @return true if the block is compressed, false otherwise."]
     pub fn sqsh_file_block_is_compressed(context: *const SqshFile, index: u32) -> bool;
 }
 extern "C" {
+    #[doc = " @memberof SqshFile\n @brief retrieve the fragment block index. This is only internally used\n\n and will be used while retrieving the file content.\n @param[in] context The file context.\n\n @return the fragment block index."]
     pub fn sqsh_file_fragment_block_index(context: *const SqshFile) -> u32;
 }
 extern "C" {
+    #[doc = " @memberof SqshFile\n @brief retrieve the fragment block offset. This is only internally used\n and will be used while retrieving the file content.\n\n @param[in] context The file context.\n\n @return the offset inside of the fragment block."]
     pub fn sqsh_file_fragment_block_offset(context: *const SqshFile) -> u32;
 }
 extern "C" {
+    #[doc = " @memberof SqshFile\n @brief retrieve the directory block start. This is only internally used\n and will be used while iterating over the directory entries.\n\n @param[in] context The file context.\n\n @return the directory block start."]
     pub fn sqsh_file_directory_block_start(context: *const SqshFile) -> u32;
 }
 extern "C" {
+    #[doc = " @deprecated Since 1.3.0. Use sqsh_file_directory_block_offset2() instead.\n @memberof SqshFile\n @brief retrieve the directory block offset. This is only internally used\n and will be used while iterating over the directory entries.\n\n @param[in] context The file context.\n\n @return the directory block offset."]
     pub fn sqsh_file_directory_block_offset(context: *const SqshFile) -> u32;
 }
 extern "C" {
+    #[doc = " @memberof SqshFile\n @brief retrieve the directory block offset. This is only internally used\n and will be used while iterating over the directory entries.\n\n @param[in] context The file context.\n\n @return the directory block offset."]
     pub fn sqsh_file_directory_block_offset2(context: *const SqshFile) -> u16;
 }
 extern "C" {
+    #[doc = " @memberof SqshFile\n @brief retrieve the parent inode of the directory.\n\n @param[in] context The file context.\n\n @return the directory block offset."]
     pub fn sqsh_file_directory_parent_inode(context: *const SqshFile) -> u32;
 }
 extern "C" {
+    #[doc = " @memberof SqshFile\n @brief returns true if the file has a fragment block.\n\n @param[in] context The file context.\n\n @return true if the file has a fragment block, false otherwise."]
     pub fn sqsh_file_has_fragment(context: *const SqshFile) -> bool;
 }
 extern "C" {
+    #[doc = " @memberof SqshFile\n @brief returns the type of the file.\n\n @param[in] context The file context.\n\n @return the type of the file."]
     pub fn sqsh_file_type(context: *const SqshFile) -> SqshFileType;
 }
 extern "C" {
-    pub fn sqsh_file_symlink_resolve(context: *mut SqshFile) -> ::std::os::raw::c_int;
+    #[doc = " @memberof SqshFile\n @brief resolves the symlink target. After calling this function the file is\n in place changed to the target of the symlink.\n\n @param[in] context The file context.\n\n @return int 0 on success, less than 0 on error."]
+    pub fn sqsh_file_symlink_resolve(context: *mut SqshFile) -> ::core::ffi::c_int;
 }
 extern "C" {
-    pub fn sqsh_file_symlink_resolve_all(context: *mut SqshFile) -> ::std::os::raw::c_int;
+    #[doc = " @memberof SqshFile\n @brief resolves all symlink target targets until a file is hit. This function\n is similar to sqsh_file_symlink_resolve() but resolves symlinks recursively\n until a file is hit.\n\n @param[in] context The file context.\n\n @return int 0 on success, less than 0 on error."]
+    pub fn sqsh_file_symlink_resolve_all(context: *mut SqshFile) -> ::core::ffi::c_int;
 }
 extern "C" {
-    pub fn sqsh_file_symlink(context: *const SqshFile) -> *const ::std::os::raw::c_char;
+    #[doc = " @memberof SqshFile\n @brief returns the target of a symbolic link. Be aware that the returned\n value is not zero terminated.\n\n To get the length of the target use sqsh_file_symlink_size().\n\n If you need a zero terminated string use sqsh_file_symlink_dup().\n\n @param[in] context The file context.\n\n @return the target of a symbolic link, NULL if the file is not a symbolic\n link."]
+    pub fn sqsh_file_symlink(context: *const SqshFile) -> *const ::core::ffi::c_char;
 }
 extern "C" {
     #[must_use]
-    pub fn sqsh_file_symlink_dup(context: *const SqshFile) -> *mut ::std::os::raw::c_char;
+    #[doc = " @memberof SqshFile\n @brief creates a heap allocated copy of the target of a symbolic link.\n\n The caller is responsible for calling free() on the returned pointer.\n\n The returned string is 0 terminated.\n\n @param[in] context The file context.\n\n @return the target of a symbolic link, NULL if the file is not a symbolic\n link."]
+    pub fn sqsh_file_symlink_dup(context: *const SqshFile) -> *mut ::core::ffi::c_char;
 }
 extern "C" {
+    #[doc = " @memberof SqshFile\n @brief returns the length of the target of a symbolic link in bytes.\n\n @param[in] context The file context.\n\n @return the length of the target of a symbolic link in bytes or 0 if the\n file is not a symbolic link."]
     pub fn sqsh_file_symlink_size(context: *const SqshFile) -> u32;
 }
 extern "C" {
+    #[doc = " @memberof SqshFile\n\n @brief returns the device id of the device inode.\n\n @param[in] context The file context.\n\n @return the device id of the device inode or 0 if the file is not a device."]
     pub fn sqsh_file_device_id(context: *const SqshFile) -> u32;
 }
 extern "C" {
+    #[doc = " @memberof SqshFile\n @brief returns the owner user id of the file.\n\n @param[in] context The file context.\n\n @return the owner uid of the file."]
     pub fn sqsh_file_uid(context: *const SqshFile) -> u32;
 }
 extern "C" {
+    #[doc = " @memberof SqshFile\n @brief returns the owner group id of the file.\n\n @param[in] context The file context.\n\n @return the owner gid of the file."]
     pub fn sqsh_file_gid(context: *const SqshFile) -> u32;
 }
 extern "C" {
+    #[doc = " @memberof SqshFile\n @brief returns the inode reference to this file.\n\n The owner reference is an encoded physical location of the inode inside of\n the archive.\n\n To decode this value use the following code:\n\n ```\n uint64_t ref = sqsh_file_ref(context);\n uint64_t outer_address = ref >> 16;\n uint64_t inner_address = ref & 0xffff;\n ```\n\n The outer address is the physical location of the metablock within the\n archive.\n\n The inner address is the physical location of the inode inside of the\n decompressed metablock.\n\n @param[in] context The file context.\n\n @return the reference to this file."]
     pub fn sqsh_file_inode_ref(context: *const SqshFile) -> u64;
 }
 extern "C" {
+    #[doc = " @memberof SqshFile\n @brief returns index of the extended attribute inside of the xattr table.\n\n @param[in] context The file context.\n\n @return the index of the extended attribute inside of the xattr table."]
     pub fn sqsh_file_xattr_index(context: *const SqshFile) -> u32;
 }
 extern "C" {
-    pub fn sqsh_close(file: *mut SqshFile) -> ::std::os::raw::c_int;
+    #[doc = " @memberof SqshFile\n @brief cleans up an file context and frees the memory.\n\n @param[in] file The file context.\n\n @return int 0 on success, less than 0 on error."]
+    pub fn sqsh_close(file: *mut SqshFile) -> ::core::ffi::c_int;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @memberof SqshDirectoryIterator\n @brief Allocates and initializes a new directory iterator.\n\n @param[in]  file       file context of a directory to iterate over.\n @param[out] err        Pointer to an int where the error code will be stored.\n\n @return The new iterator on success, NULL on error."]
     pub fn sqsh_directory_iterator_new(
         file: *const SqshFile,
-        err: *mut ::std::os::raw::c_int,
+        err: *mut ::core::ffi::c_int,
     ) -> *mut SqshDirectoryIterator;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @memberof SqshDirectoryIterator\n @brief Advances the iterator to the next entry.\n\n @param[in,out] iterator The iterator to advance.\n @param[out]    err      Pointer to an int where the error code will be\n stored.\n\n @retval true When the iterator has been advanced\n @retval false When the iterator has reached the end of the directory or if an\n error occured."]
     pub fn sqsh_directory_iterator_next(
         iterator: *mut SqshDirectoryIterator,
-        err: *mut ::std::os::raw::c_int,
+        err: *mut ::core::ffi::c_int,
     ) -> bool;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @memberof SqshDirectoryIterator\n @brief Looks up an entry by name.\n\n @param[in,out] iterator The iterator to use.\n @param[in]     name     The name of the entry to look up.\n @param[in]     name_len The length of the name.\n\n @return 0 on success, a negative value on error."]
     pub fn sqsh_directory_iterator_lookup(
         iterator: *mut SqshDirectoryIterator,
-        name: *const ::std::os::raw::c_char,
+        name: *const ::core::ffi::c_char,
         name_len: usize,
-    ) -> ::std::os::raw::c_int;
+    ) -> ::core::ffi::c_int;
 }
 extern "C" {
+    #[doc = " @deprecated Since 1.3.0. Use sqsh_directory_iterator_name2() instead.\n @memberof SqshDirectoryIterator\n @brief Retrieves the size of the name of the current entry.\n\n @param[in] iterator The iterator to use.\n\n @return The size of the name on success, a negative value on error."]
     pub fn sqsh_directory_iterator_name_size(iterator: *const SqshDirectoryIterator) -> u16;
 }
 extern "C" {
+    #[doc = " @memberof SqshDirectoryIterator\n @brief Retrieves the inode number of the current entry.\n\n @param[in] iterator The iterator to use.\n\n @return The inode number."]
     pub fn sqsh_directory_iterator_inode(iterator: *const SqshDirectoryIterator) -> u32;
 }
 extern "C" {
+    #[doc = " @deprecated Since 1.2.0. Use sqsh_directory_iterator_inode() instead.\n @memberof SqshDirectoryIterator\n @brief Retrieves the inode number of the current entry.\n\n @param[in] iterator The iterator to use.\n\n @return The inode number."]
     pub fn sqsh_directory_iterator_inode_number(iterator: *const SqshDirectoryIterator) -> u64;
 }
 extern "C" {
+    #[doc = " @memberof SqshDirectoryIterator\n @brief Retrieves the inode reference of the current entry.\n\n @param[in] iterator The iterator to use.\n\n @return The inode reference."]
     pub fn sqsh_directory_iterator_inode_ref(iterator: *const SqshDirectoryIterator) -> u64;
 }
 extern "C" {
+    #[doc = " @memberof SqshDirectoryIterator\n @brief Retrieves the inode type of the current entry.\n\n @param[in] iterator The iterator to use.\n\n @return The inode type on success, SQSH_INODE_TYPE_UNKNOWN on error."]
     pub fn sqsh_directory_iterator_file_type(
         iterator: *const SqshDirectoryIterator,
     ) -> SqshFileType;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @memberof SqshDirectoryIterator\n @brief Loads the inode of the current entry.\n\n @param[in]  iterator The iterator to use.\n @param[out] err  Pointer to an int where the error code will be stored.\n\n @return The loaded inode on success, NULL on error."]
     pub fn sqsh_directory_iterator_open_file(
         iterator: *const SqshDirectoryIterator,
-        err: *mut ::std::os::raw::c_int,
+        err: *mut ::core::ffi::c_int,
     ) -> *mut SqshFile;
 }
 extern "C" {
+    #[doc = " @memberof SqshDirectoryIterator\n @brief Retrieves the name of the current entry.\n\n The returned pointer is allocated internally and only valid until the next\n call of sqsh_directory_iterator_next(). It must not be freed. The returned\n string is not 0 terminated.\n\n @param[in]  iterator  The iterator to use.\n @param[out] len       Pointer to a size_t where the length of the name will\n be stored.\n\n @return The name of the current entry."]
     pub fn sqsh_directory_iterator_name2(
         iterator: *const SqshDirectoryIterator,
         len: *mut usize,
-    ) -> *const ::std::os::raw::c_char;
+    ) -> *const ::core::ffi::c_char;
 }
 extern "C" {
+    #[doc = " @deprecated Since 1.3.0. Use sqsh_directory_iterator_name2() instead.\n @memberof SqshDirectoryIterator\n @brief Retrieves the name of the current entry.\n\n The returned pointer is allocated internally and only valid until the next\n call of sqsh_directory_iterator_next(). It must not be freed. The returned\n string is not 0 terminated. Use sqsh_directory_iterator_name_size() to get\n the size of the value.\n\n @param[in] iterator The iterator to use.\n\n @return The name of the current entry."]
     pub fn sqsh_directory_iterator_name(
         iterator: *const SqshDirectoryIterator,
-    ) -> *const ::std::os::raw::c_char;
+    ) -> *const ::core::ffi::c_char;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @memberof SqshDirectoryIterator\n @brief creates a heap allocated copy of the name of the current entry.\n\n The caller is responsible for calling free() on the returned pointer.\n\n The returned string is 0 terminated.\n\n @param[in]  iterator    The iterator to use.\n\n @return The name of the current entry."]
     pub fn sqsh_directory_iterator_name_dup(
         iterator: *const SqshDirectoryIterator,
-    ) -> *mut ::std::os::raw::c_char;
+    ) -> *mut ::core::ffi::c_char;
 }
 extern "C" {
-    pub fn sqsh_directory_iterator_free(
-        iterator: *mut SqshDirectoryIterator,
-    ) -> ::std::os::raw::c_int;
+    #[doc = " @memberof SqshDirectoryIterator\n @brief Frees the resources used by a directory iterator.\n\n @param[in] iterator The iterator to free.\n\n @return The file name of the current directory entry, NULL if the allocation\n fails. The user is responsible for freeing the memory."]
+    pub fn sqsh_directory_iterator_free(iterator: *mut SqshDirectoryIterator)
+        -> ::core::ffi::c_int;
 }
 extern "C" {
+    #[doc = " @brief checks if a file exists.\n\n @param[in] archive  The sqsh archive context.\n @param[in] path     The path the file or directory.\n @param[out] err     Pointer to an int where the error code will be stored.\n\n @return true if the file exists, false otherwise."]
     pub fn sqsh_easy_file_exists(
         archive: *mut SqshArchive,
-        path: *const ::std::os::raw::c_char,
-        err: *mut ::std::os::raw::c_int,
+        path: *const ::core::ffi::c_char,
+        err: *mut ::core::ffi::c_int,
     ) -> bool;
 }
 extern "C" {
+    #[doc = " @brief retrieves the content of a file.\n\n The content is not null terminated. The size of the content can be retrieved\n with sqsh_file_size. The returned pointer needs to be released with `free()`.\n\n @param[in] archive  The sqsh archive context.\n @param[in] path     The path the file or directory.\n @param[out] err     Pointer to an int where the error code will be stored.\n\n @return The content of the file on success, NULL on error."]
     pub fn sqsh_easy_file_content(
         archive: *mut SqshArchive,
-        path: *const ::std::os::raw::c_char,
-        err: *mut ::std::os::raw::c_int,
+        path: *const ::core::ffi::c_char,
+        err: *mut ::core::ffi::c_int,
     ) -> *mut u8;
 }
 extern "C" {
+    #[doc = " @brief retrieves the size of a file.\n\n @param[in] archive  The sqsh archive context.\n @param[in] path     The path the file or directory.\n @param[out] err     Pointer to an int where the error code will be stored.\n\n @return The size of the file on success, 0 on error."]
     pub fn sqsh_easy_file_size(
         archive: *mut SqshArchive,
-        path: *const ::std::os::raw::c_char,
-        err: *mut ::std::os::raw::c_int,
+        path: *const ::core::ffi::c_char,
+        err: *mut ::core::ffi::c_int,
     ) -> usize;
 }
 extern "C" {
+    #[doc = " @brief retrieves unix permissions of a file.\n\n @param[in] archive  The sqsh archive context.\n @param[in] path     The path the file or directory.\n @param[out] err     Pointer to an int where the error code will be stored.\n\n @return The unix permissions of the file on success, 0 on error."]
     pub fn sqsh_easy_file_permission(
         archive: *mut SqshArchive,
-        path: *const ::std::os::raw::c_char,
-        err: *mut ::std::os::raw::c_int,
+        path: *const ::core::ffi::c_char,
+        err: *mut ::core::ffi::c_int,
     ) -> mode_t;
 }
 extern "C" {
+    #[doc = " @brief retrieves the modification time of a file.\n\n @param[in] archive  The sqsh archive context.\n @param[in] path     The path the file or directory.\n @param[out] err     Pointer to an int where the error code will be stored.\n\n @return The modification time of the file on success, 0 on error."]
     pub fn sqsh_easy_file_mtime(
         archive: *mut SqshArchive,
-        path: *const ::std::os::raw::c_char,
-        err: *mut ::std::os::raw::c_int,
+        path: *const ::core::ffi::c_char,
+        err: *mut ::core::ffi::c_int,
     ) -> time_t;
 }
 extern "C" {
+    #[doc = " @brief retrieves the contents of a directory as a list of file names\n\n The returned list needs to be released with `free()`.\n\n @param[in] archive  The sqsh archive context.\n @param[in] path     The path the file or directory.\n @param[out] err     Pointer to an int where the error code will be stored.\n\n @return A list of files and directories on success, NULL on error."]
     pub fn sqsh_easy_directory_list(
         archive: *mut SqshArchive,
-        path: *const ::std::os::raw::c_char,
-        err: *mut ::std::os::raw::c_int,
-    ) -> *mut *mut ::std::os::raw::c_char;
+        path: *const ::core::ffi::c_char,
+        err: *mut ::core::ffi::c_int,
+    ) -> *mut *mut ::core::ffi::c_char;
 }
 extern "C" {
+    #[doc = " @brief retrieves the contents of a directory as a list of file paths\n\n The returned list needs to be released with `free()`.\n\n @param[in] archive  The sqsh archive context.\n @param[in] path     The path the file or directory.\n @param[out] err     Pointer to an int where the error code will be stored.\n\n @return A list of files and directories on success, NULL on error."]
     pub fn sqsh_easy_directory_list_path(
         archive: *mut SqshArchive,
-        path: *const ::std::os::raw::c_char,
-        err: *mut ::std::os::raw::c_int,
-    ) -> *mut *mut ::std::os::raw::c_char;
+        path: *const ::core::ffi::c_char,
+        err: *mut ::core::ffi::c_int,
+    ) -> *mut *mut ::core::ffi::c_char;
 }
 extern "C" {
+    #[doc = " easy/traversal.c"]
     pub fn sqsh_easy_tree_traversal(
         archive: *mut SqshArchive,
-        path: *const ::std::os::raw::c_char,
-        err: *mut ::std::os::raw::c_int,
-    ) -> *mut *mut ::std::os::raw::c_char;
+        path: *const ::core::ffi::c_char,
+        err: *mut ::core::ffi::c_int,
+    ) -> *mut *mut ::core::ffi::c_char;
 }
 extern "C" {
+    #[doc = " @brief retrieves all xattr keys of a file or directory.\n\n The returned list needs to be released with `free()`.\n\n @param[in]  archive  The sqsh archive context.\n @param[in]  path     The path the file or directory.\n @param[out] err     Pointer to an int where the error code will be stored.\n\n @return A list of xattr keys on success, NULL on error."]
     pub fn sqsh_easy_xattr_keys(
         archive: *mut SqshArchive,
-        path: *const ::std::os::raw::c_char,
-        err: *mut ::std::os::raw::c_int,
-    ) -> *mut *mut ::std::os::raw::c_char;
+        path: *const ::core::ffi::c_char,
+        err: *mut ::core::ffi::c_int,
+    ) -> *mut *mut ::core::ffi::c_char;
 }
 extern "C" {
+    #[doc = " @brief retrieves the value of a xattr key of a file or directory.\n\n The returned pointer needs to be released with `free()`.\n\n @param[in]  archive  The sqsh archive context.\n @param[in]  path     The path the file or directory.\n @param[in]  key      The xattr key.\n @param[out] err     Pointer to an int where the error code will be stored.\n\n @return The value of the given xattr key on success, NULL on error."]
     pub fn sqsh_easy_xattr_get(
         archive: *mut SqshArchive,
-        path: *const ::std::os::raw::c_char,
-        key: *const ::std::os::raw::c_char,
-        err: *mut ::std::os::raw::c_int,
-    ) -> *mut ::std::os::raw::c_char;
+        path: *const ::core::ffi::c_char,
+        key: *const ::core::ffi::c_char,
+        err: *mut ::core::ffi::c_int,
+    ) -> *mut ::core::ffi::c_char;
 }
 extern "C" {
-    pub fn sqsh_perror(error_code: ::std::os::raw::c_int, msg: *const ::std::os::raw::c_char);
+    #[doc = " @brief Print the error message for the given error code.\n\n @param error_code The error code.\n @param msg The message to print before the error message."]
+    pub fn sqsh_perror(error_code: ::core::ffi::c_int, msg: *const ::core::ffi::c_char);
 }
 extern "C" {
     #[must_use]
-    pub fn sqsh_error_str(error_code: ::std::os::raw::c_int) -> *const ::std::os::raw::c_char;
+    #[doc = " @brief Get the error message for the given error code.\n\n This function is thread safe, but the returned string may be overwritten by\n the next call to this function on this thread.\n\n @param error_code The error code.\n @return The error message."]
+    pub fn sqsh_error_str(error_code: ::core::ffi::c_int) -> *const ::core::ffi::c_char;
 }
 extern "C" {
-    pub fn sqsh_mapper_set_user_data(
-        mapper: *mut SqshMapper,
-        user_data: *mut ::std::os::raw::c_void,
-    );
+    #[doc = " @memberof SqshMapper\n @brief Sets the user data for a mapper.\n\n @param[in] mapper The mapper to set the user data for.\n @param[in] user_data The user data to set."]
+    pub fn sqsh_mapper_set_user_data(mapper: *mut SqshMapper, user_data: *mut ::core::ffi::c_void);
 }
 extern "C" {
-    pub fn sqsh_mapper_user_data(mapper: *const SqshMapper) -> *mut ::std::os::raw::c_void;
+    #[doc = " @memberof SqshMapper\n @brief Retrieves the user data from a mapper.\n\n @param[in] mapper The mapper to retrieve the user data from.\n\n @return The user data from the mapper."]
+    pub fn sqsh_mapper_user_data(mapper: *const SqshMapper) -> *mut ::core::ffi::c_void;
 }
 extern "C" {
+    #[doc = " @internal\n @memberof SqshMapper\n @brief Retrieves the size of the input data in a mapper.\n\n @param[in] mapper The mapper to retrieve the size from.\n\n @return The size of the input data in the mapper."]
     pub fn sqsh_mapper_size(mapper: *const SqshMapper) -> usize;
 }
 extern "C" {
+    #[doc = " @internal\n @memberof SqshMapper\n @brief Retrieves the block size for a mapper.\n\n @param[in] mapper The mapper to retrieve the size from.\n\n @return The size of the input data in the mapper."]
     pub fn sqsh_mapper_block_size(mapper: *const SqshMapper) -> usize;
 }
 extern "C" {
+    #[doc = " @brief a mapper that uses curl to download the file."]
     pub static sqsh_mapper_impl_curl: *const SqshMemoryMapperImpl;
 }
 extern "C" {
+    #[doc = " @brief a mapper that uses mmap to map the file into memory."]
     pub static sqsh_mapper_impl_mmap: *const SqshMemoryMapperImpl;
 }
 extern "C" {
+    #[doc = " @brief a mapper that uses a static buffer."]
     pub static sqsh_mapper_impl_static: *const SqshMemoryMapperImpl;
 }
 extern "C" {
-    pub fn sqsh_file_to_stream(file: *const SqshFile, stream: *mut FILE) -> ::std::os::raw::c_int;
+    #[doc = " @memberof SqshFile\n @brief writes data to a file descriptor.\n\n @param[in] file The file context.\n @param[in] stream The descriptor to write the file contents to.\n\n @return The number of bytes read on success, less than 0 on error."]
+    pub fn sqsh_file_to_stream(file: *const SqshFile, stream: *mut FILE) -> ::core::ffi::c_int;
 }
 extern "C" {
+    #[doc = " @memberof SqshTable\n @brief Retrieves an element from the table.\n\n @param[in]  table The table to retrieve the element from.\n @param[in]  index The index of the element to retrieve.\n @param[out] target The buffer to store the element in.\n\n @return 0 on success, a negative value on error."]
     pub fn sqsh_table_get(
         table: *const SqshTable,
         index: sqsh_index_t,
-        target: *mut ::std::os::raw::c_void,
-    ) -> ::std::os::raw::c_int;
+        target: *mut ::core::ffi::c_void,
+    ) -> ::core::ffi::c_int;
 }
 extern "C" {
+    #[doc = " @memberof SqshTable\n @brief Retrieves an element from the table.\n\n @param[in]  table The table to retrieve the element from.\n @param[in]  index The index of the element to retrieve.\n @param[out] id The buffer to store the element in.\n\n @return 0 on success, a negative value on error."]
     pub fn sqsh_id_table_get(
         table: *const SqshIdTable,
         index: sqsh_index_t,
         id: *mut u32,
-    ) -> ::std::os::raw::c_int;
+    ) -> ::core::ffi::c_int;
 }
 extern "C" {
+    #[doc = " @memberof SqshTable\n @brief Retrieves an element from the table.\n\n @param[in]  table The table to retrieve the element from.\n @param[in]  inode The index of the element to retrieve.\n @param[out] inode_ref A pointer to a uint64_t to store the inode reference\n\n @return 0 on success, a negative value on error."]
     pub fn sqsh_export_table_resolve_inode(
         table: *const SqshExportTable,
         inode: u64,
         inode_ref: *mut u64,
-    ) -> ::std::os::raw::c_int;
+    ) -> ::core::ffi::c_int;
 }
 extern "C" {
+    #[doc = " @brief Creates a new SqshPathResolver object at the root inode.\n @memberof SqshPathResolver\n\n @param[in]   archive  The archive to use\n @param[out]  err      Pointer to an int where the error code will be stored.\n\n @return a new file reader."]
     pub fn sqsh_path_resolver_new(
         archive: *mut SqshArchive,
-        err: *mut ::std::os::raw::c_int,
+        err: *mut ::core::ffi::c_int,
     ) -> *mut SqshPathResolver;
 }
 extern "C" {
     #[must_use]
-    pub fn sqsh_path_resolver_up(walker: *mut SqshPathResolver) -> ::std::os::raw::c_int;
+    #[doc = " @brief Moves the walker one level up\n @memberof SqshPathResolver\n\n @param[in,out]   walker  The walker to use\n\n @return 0 on success, less than 0 on error."]
+    pub fn sqsh_path_resolver_up(walker: *mut SqshPathResolver) -> ::core::ffi::c_int;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @memberof SqshPathResolver\n @brief Moves the walker to the next entry int the current directory.\n\n @param[in,out]   walker  The walker to use\n @param[out]      err     Pointer to an int where the error code will be\n stored.\n\n @retval true if the walker was moved to the next entry.\n @retval false if the walker has no more entries to move to or an error\n occured."]
     pub fn sqsh_path_resolver_next(
         walker: *mut SqshPathResolver,
-        err: *mut ::std::os::raw::c_int,
+        err: *mut ::core::ffi::c_int,
     ) -> bool;
 }
 extern "C" {
+    #[doc = " @brief Returns the inode type of the current entry.\n @memberof SqshPathResolver\n\n @param[in]   walker  The walker to use\n\n @return the inode type of the current entry."]
     pub fn sqsh_path_resolver_type(walker: *const SqshPathResolver) -> SqshFileType;
 }
 extern "C" {
-    pub fn sqsh_path_resolver_name(
-        walker: *const SqshPathResolver,
-    ) -> *const ::std::os::raw::c_char;
+    #[doc = " @brief Returns the name of the current entry. This entry is not zero\n terminated.\n @memberof SqshPathResolver\n\n @param[in]   walker  The walker to use\n\n @return the name of the current entry."]
+    pub fn sqsh_path_resolver_name(walker: *const SqshPathResolver) -> *const ::core::ffi::c_char;
 }
 extern "C" {
+    #[doc = " @memberof SqshPathResolver\n @brief Returns the size of the name of the current entry.\n\n @param[in]   walker  The walker to use\n\n @return the size of the name of the current entry."]
     pub fn sqsh_path_resolver_name_size(walker: *const SqshPathResolver) -> u16;
 }
 extern "C" {
     #[must_use]
-    pub fn sqsh_path_resolver_name_dup(
-        walker: *const SqshPathResolver,
-    ) -> *mut ::std::os::raw::c_char;
+    #[doc = " @memberof SqshPathResolver\n @brief creates a heap allocated copy of the name of the current entry.\n\n The caller is responsible for calling free() on the returned pointer.\n\n The returned string is 0 terminated.\n\n @param[in]   walker  The walker to use\n\n @return the name of the current entry."]
+    pub fn sqsh_path_resolver_name_dup(walker: *const SqshPathResolver)
+        -> *mut ::core::ffi::c_char;
 }
 extern "C" {
     #[must_use]
-    pub fn sqsh_path_resolver_revert(walker: *mut SqshPathResolver) -> ::std::os::raw::c_int;
+    #[doc = " @brief reverts the walker to the begining of the current directory.\n @memberof SqshPathResolver\n\n @param[in,out]   walker  The walker to use\n\n @return 0 on success, less than 0 on error."]
+    pub fn sqsh_path_resolver_revert(walker: *mut SqshPathResolver) -> ::core::ffi::c_int;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @brief Looks up an entry in the current directory.\n @memberof SqshPathResolver\n\n @param[in,out]   walker  The walker to use\n @param[in]       name    The name of the entry to look up.\n @param[in]       name_size The size of the name.\n\n @return 0 on success, less than 0 on error."]
     pub fn sqsh_path_resolver_lookup(
         walker: *mut SqshPathResolver,
-        name: *const ::std::os::raw::c_char,
+        name: *const ::core::ffi::c_char,
         name_size: usize,
-    ) -> ::std::os::raw::c_int;
+    ) -> ::core::ffi::c_int;
 }
 extern "C" {
     #[must_use]
-    pub fn sqsh_path_resolver_down(walker: *mut SqshPathResolver) -> ::std::os::raw::c_int;
+    #[doc = " @brief Lets the walker enter the current entry.\n @memberof SqshPathResolver\n\n @param[in,out]   walker  The walker to use\n\n @return 0 on success, less than 0 on error."]
+    pub fn sqsh_path_resolver_down(walker: *mut SqshPathResolver) -> ::core::ffi::c_int;
 }
 extern "C" {
     #[must_use]
-    pub fn sqsh_path_resolver_to_root(walker: *mut SqshPathResolver) -> ::std::os::raw::c_int;
+    #[doc = " @brief Moves the walker to the root directory.\n @memberof SqshPathResolver\n\n @param[in,out]   walker  The walker to use\n\n @return 0 on success, less than 0 on error."]
+    pub fn sqsh_path_resolver_to_root(walker: *mut SqshPathResolver) -> ::core::ffi::c_int;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @brief Returns the inode of the current entry.\n @memberof SqshPathResolver\n\n @param[in,out]   walker  The walker to use\n @param[out]      err     Pointer to an int where the error code will be\n\n @return the inode of the current entry."]
     pub fn sqsh_path_resolver_open_file(
         walker: *const SqshPathResolver,
-        err: *mut ::std::os::raw::c_int,
+        err: *mut ::core::ffi::c_int,
     ) -> *mut SqshFile;
 }
 extern "C" {
+    #[doc = " @brief Returns the inode of the current working directory.\n @memberof SqshPathResolver\n\n @param[in]   walker  The walker to use\n\n @return the inode of the current entry."]
     pub fn sqsh_path_resolver_dir_inode(walker: *const SqshPathResolver) -> u32;
 }
 extern "C" {
+    #[doc = " @brief Returns the inode reference of the current entry.\n @memberof SqshPathResolver\n\n @param[in]   walker  The walker to use\n\n @return the inode reference of the current item the resolver is pointing to."]
     pub fn sqsh_path_resolver_inode_ref(walker: *const SqshPathResolver) -> u64;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @memberof SqshPathResolver\n @brief Resolve a path with the tree walker.\n\n This function will resolve the given path with the tree walker. The base is\n the current directory.\n\n @param[in,out]   walker           The walker to use\n @param[in]       path             The path to resolve.\n @param[in]       follow_symlinks  Whether to follow symlinks.\n\n @return the inode of the current entry."]
     pub fn sqsh_path_resolver_resolve(
         walker: *mut SqshPathResolver,
-        path: *const ::std::os::raw::c_char,
+        path: *const ::core::ffi::c_char,
         follow_symlinks: bool,
-    ) -> ::std::os::raw::c_int;
+    ) -> ::core::ffi::c_int;
 }
 extern "C" {
-    pub fn sqsh_path_resolver_free(reader: *mut SqshPathResolver) -> ::std::os::raw::c_int;
+    #[doc = " @brief Cleans up resources used by a SqshPathResolver struct.\n @memberof SqshPathResolver\n\n @param[in,out] reader The file reader struct to clean up.\n\n @return 0 on success, less than 0 on error."]
+    pub fn sqsh_path_resolver_free(reader: *mut SqshPathResolver) -> ::core::ffi::c_int;
 }
 extern "C" {
+    #[doc = " @deprecated Since 1.2.0. Use sqsh_path_resolver_new() instead.\n @brief Creates a new SqshTreeWalker object at the root inode.\n @memberof SqshTreeWalker\n\n @param[in]   archive  The archive to use\n @param[out]  err      Pointer to an int where the error code will be stored.\n\n @return a new file reader."]
     pub fn sqsh_tree_walker_new(
         archive: *mut SqshArchive,
-        err: *mut ::std::os::raw::c_int,
+        err: *mut ::core::ffi::c_int,
     ) -> *mut SqshTreeWalker;
 }
 extern "C" {
     #[must_use]
-    pub fn sqsh_tree_walker_up(walker: *mut SqshTreeWalker) -> ::std::os::raw::c_int;
+    #[doc = " @deprecated Since 1.2.0. Use sqsh_path_resolver_up() instead.\n @brief Moves the walker one level up\n @memberof SqshTreeWalker\n\n @param[in,out]   walker  The walker to use\n\n @return 0 on success, less than 0 on error."]
+    pub fn sqsh_tree_walker_up(walker: *mut SqshTreeWalker) -> ::core::ffi::c_int;
 }
 extern "C" {
     #[must_use]
-    pub fn sqsh_tree_walker_next(walker: *mut SqshTreeWalker) -> ::std::os::raw::c_int;
+    #[doc = " @deprecated Since 1.2.0. Use sqsh_path_resolver_next() instead.\n @memberof SqshTreeWalker\n @brief Moves the walker to the next entry int the current directory.\n\n This function was deprecated to align the API with other iterator APIs. The\n `sqsh_tree_walker_next2()` uses the same signature as the other iterator.\n\n @param[in,out]   walker  The walker to use\n\n @return 0 on success, less than 0 on error."]
+    pub fn sqsh_tree_walker_next(walker: *mut SqshTreeWalker) -> ::core::ffi::c_int;
 }
 extern "C" {
+    #[doc = " @deprecated Since 1.2.0. Use sqsh_path_resolver_type() instead.\n @brief Returns the inode type of the current entry.\n @memberof SqshTreeWalker\n\n @param[in]   walker  The walker to use\n\n @return the inode type of the current entry."]
     pub fn sqsh_tree_walker_type(walker: *const SqshTreeWalker) -> SqshFileType;
 }
 extern "C" {
-    pub fn sqsh_tree_walker_name(walker: *const SqshTreeWalker) -> *const ::std::os::raw::c_char;
+    #[doc = " @deprecated Since 1.2.0. Use sqsh_path_resolver_name() instead.\n @brief Returns the name of the current entry. This entry is not zero\n terminated.\n @memberof SqshTreeWalker\n\n @param[in]   walker  The walker to use\n\n @return the name of the current entry."]
+    pub fn sqsh_tree_walker_name(walker: *const SqshTreeWalker) -> *const ::core::ffi::c_char;
 }
 extern "C" {
+    #[doc = " @deprecated Since 1.2.0. Use sqsh_path_resolver_name_size() instead.\n @memberof SqshTreeWalker\n @brief Returns the size of the name of the current entry.\n\n @param[in]   walker  The walker to use\n\n @return the size of the name of the current entry."]
     pub fn sqsh_tree_walker_name_size(walker: *const SqshTreeWalker) -> u16;
 }
 extern "C" {
     #[must_use]
-    pub fn sqsh_tree_walker_name_dup(walker: *const SqshTreeWalker) -> *mut ::std::os::raw::c_char;
+    #[doc = " @deprecated Since 1.2.0. Use sqsh_path_resolver_name_dup() instead.\n @memberof SqshTreeWalker\n @brief creates a heap allocated copy of the name of the current entry.\n\n The caller is responsible for calling free() on the returned pointer.\n\n The returned string is 0 terminated.\n\n @param[in]   walker  The walker to use\n\n @return the name of the current entry."]
+    pub fn sqsh_tree_walker_name_dup(walker: *const SqshTreeWalker) -> *mut ::core::ffi::c_char;
 }
 extern "C" {
     #[must_use]
-    pub fn sqsh_tree_walker_revert(walker: *mut SqshTreeWalker) -> ::std::os::raw::c_int;
+    #[doc = " @deprecated Since 1.2.0. Use sqsh_path_resolver_revert() instead.\n @brief reverts the walker to the begining of the current directory.\n @memberof SqshTreeWalker\n\n @param[in,out]   walker  The walker to use\n\n @return 0 on success, less than 0 on error."]
+    pub fn sqsh_tree_walker_revert(walker: *mut SqshTreeWalker) -> ::core::ffi::c_int;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @deprecated Since 1.2.0. Use sqsh_path_resolver_lookup() instead.\n @brief Looks up an entry in the current directory.\n @memberof SqshTreeWalker\n\n @param[in,out]   walker  The walker to use\n @param[in]       name    The name of the entry to look up.\n @param[in]       name_size The size of the name.\n\n @return 0 on success, less than 0 on error."]
     pub fn sqsh_tree_walker_lookup(
         walker: *mut SqshTreeWalker,
-        name: *const ::std::os::raw::c_char,
+        name: *const ::core::ffi::c_char,
         name_size: usize,
-    ) -> ::std::os::raw::c_int;
+    ) -> ::core::ffi::c_int;
 }
 extern "C" {
     #[must_use]
-    pub fn sqsh_tree_walker_down(walker: *mut SqshTreeWalker) -> ::std::os::raw::c_int;
+    #[doc = " @deprecated Since 1.2.0. Use sqsh_path_resolver_down() instead.\n @brief Lets the walker enter the current entry.\n @memberof SqshTreeWalker\n\n @param[in,out]   walker  The walker to use\n\n @return 0 on success, less than 0 on error."]
+    pub fn sqsh_tree_walker_down(walker: *mut SqshTreeWalker) -> ::core::ffi::c_int;
 }
 extern "C" {
     #[must_use]
-    pub fn sqsh_tree_walker_to_root(walker: *mut SqshTreeWalker) -> ::std::os::raw::c_int;
+    #[doc = " @deprecated Since 1.2.0. Use sqsh_path_resolver_to_root() instead.\n @brief Moves the walker to the root directory.\n @memberof SqshTreeWalker\n\n @param[in,out]   walker  The walker to use\n\n @return 0 on success, less than 0 on error."]
+    pub fn sqsh_tree_walker_to_root(walker: *mut SqshTreeWalker) -> ::core::ffi::c_int;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @deprecated Since 1.2.0. Use sqsh_path_resolver_open_file() instead.\n @brief Returns the inode of the current entry.\n @memberof SqshTreeWalker\n\n @param[in,out]   walker  The walker to use\n @param[out]      err     Pointer to an int where the error code will be\n\n @return the inode of the current entry."]
     pub fn sqsh_tree_walker_open_file(
         walker: *const SqshTreeWalker,
-        err: *mut ::std::os::raw::c_int,
+        err: *mut ::core::ffi::c_int,
     ) -> *mut SqshFile;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @deprecated Since 1.2.0. Use sqsh_path_resolver_open_file() instead.\n @memberof SqshTreeWalker\n @brief Resolve a path with the tree walker.\n\n This function will resolve the given path with the tree walker. The base is\n the current directory.\n\n @param[in,out]   walker           The walker to use\n @param[in]       path             The path to resolve.\n @param[in]       follow_symlinks  Whether to follow symlinks.\n\n @return the inode of the current entry."]
     pub fn sqsh_tree_walker_resolve(
         walker: *mut SqshTreeWalker,
-        path: *const ::std::os::raw::c_char,
+        path: *const ::core::ffi::c_char,
         follow_symlinks: bool,
-    ) -> ::std::os::raw::c_int;
+    ) -> ::core::ffi::c_int;
 }
 extern "C" {
-    pub fn sqsh_tree_walker_free(reader: *mut SqshTreeWalker) -> ::std::os::raw::c_int;
+    #[doc = " @deprecated Since 1.2.0. Use sqsh_path_resolver_free() instead.\n @brief Cleans up resources used by a SqshTreeWalker struct.\n @memberof SqshTreeWalker\n\n @param[in,out] reader The file reader struct to clean up.\n\n @return 0 on success, less than 0 on error."]
+    pub fn sqsh_tree_walker_free(reader: *mut SqshTreeWalker) -> ::core::ffi::c_int;
 }
 extern "C" {
+    #[doc = " @brief Creates a new SqshTreeTraversal object at the root inode.\n @memberof SqshTreeTraversal\n\n @param[in]   file     the base inode to start from.\n @param[out]  err      Pointer to an int where the error code will be\n stored.\n\n @return a new file reader."]
     pub fn sqsh_tree_traversal_new(
         file: *const SqshFile,
-        err: *mut ::std::os::raw::c_int,
+        err: *mut ::core::ffi::c_int,
     ) -> *mut SqshTreeTraversal;
 }
 extern "C" {
+    #[doc = " @brief Sets the maximum depth of the traversal.\n @memberof SqshTreeTraversal\n\n @param[in]   traversal  The traversal to use\n @param[in]   max_depth  The maximum depth to traverse."]
     pub fn sqsh_tree_traversal_set_max_depth(traversal: *mut SqshTreeTraversal, max_depth: usize);
 }
 extern "C" {
     #[must_use]
+    #[doc = " @memberof SqshTreeTraversal\n @brief Moves the traversal to the next entry int the current directory.\n\n @param[in,out]   traversal  The traversal to use\n @param[out]      err Pointer to an int where the error code will be stored.\n\n @return 0 on success, less than 0 on error."]
     pub fn sqsh_tree_traversal_next(
         traversal: *mut SqshTreeTraversal,
-        err: *mut ::std::os::raw::c_int,
+        err: *mut ::core::ffi::c_int,
     ) -> bool;
 }
 extern "C" {
+    #[doc = " @brief Returns the inode type of the current entry.\n @memberof SqshTreeTraversal\n\n @param[in]   traversal  The traversal to use\n\n @return the inode type of the current entry."]
     pub fn sqsh_tree_traversal_type(traversal: *const SqshTreeTraversal) -> SqshFileType;
 }
 extern "C" {
+    #[doc = " @memberof SqshTreeTraversal\n @brief returns the state of the traversal.\n\n @param[in,out]   traversal  The traversal to use\n\n @return 0 on success, less than 0 on error."]
     pub fn sqsh_tree_traversal_state(traversal: *const SqshTreeTraversal)
         -> SqshTreeTraversalState;
 }
 extern "C" {
+    #[doc = " @memberof SqshTreeTraversal\n @brief Returns the name of the current entry. This entry is not zero\n terminated. The function will return an emptry string for the uppermost\n object.\n\n @param[in]   traversal  The traversal to use\n @param[out]  len        Pointer to a size_t where the length of the name will\n be stored.\n\n @return the name of the current entry."]
     pub fn sqsh_tree_traversal_name(
         traversal: *const SqshTreeTraversal,
         len: *mut usize,
-    ) -> *const ::std::os::raw::c_char;
+    ) -> *const ::core::ffi::c_char;
 }
 extern "C" {
+    #[doc = " @brief Returns the name of the current entry. This entry is not zero\n terminated.\n @memberof SqshTreeTraversal\n\n @param[in]   traversal  The traversal to use\n\n @return the name of the current entry."]
     pub fn sqsh_tree_traversal_path_dup(
         traversal: *const SqshTreeTraversal,
-    ) -> *mut ::std::os::raw::c_char;
+    ) -> *mut ::core::ffi::c_char;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @memberof SqshTreeTraversal\n @brief creates a heap allocated copy of the name of the current entry.\n\n The caller is responsible for calling free() on the returned pointer.\n\n The returned string is 0 terminated.\n\n @param[in]   traversal  The traversal to use\n\n @return the name of the current entry."]
     pub fn sqsh_tree_traversal_name_dup(
         traversal: *const SqshTreeTraversal,
-    ) -> *mut ::std::os::raw::c_char;
+    ) -> *mut ::core::ffi::c_char;
 }
 extern "C" {
+    #[doc = " @brief Returns the path segment at a given index.\n @memberof SqshTreeTraversal\n\n @param[in,out]   traversal  The traversal to use\n\n @return the inode of the current entry."]
     pub fn sqsh_tree_traversal_depth(traversal: *const SqshTreeTraversal) -> usize;
 }
 extern "C" {
+    #[doc = " @brief Returns the length of the path segment at a given index.\n @memberof SqshTreeTraversal\n\n @param[in,out]   traversal  The traversal to use\n @param[out]      len        Pointer to a size_t where the length of the name\n will be stored.\n @param[in]       index      The index of the path segment.\n\n @return the inode of the current entry."]
     pub fn sqsh_tree_traversal_path_segment(
         traversal: *const SqshTreeTraversal,
         len: *mut usize,
         index: sqsh_index_t,
-    ) -> *const ::std::os::raw::c_char;
+    ) -> *const ::core::ffi::c_char;
 }
 extern "C" {
+    #[doc = " @brief Gets the underlying directory iterator pointing to the current entry.\n\n @param[in]   traversal  The traversal to use\n\n @return the inode of the current entry."]
     pub fn sqsh_tree_traversal_iterator(
         traversal: *const SqshTreeTraversal,
     ) -> *const SqshDirectoryIterator;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @brief Returns the inode of the current entry.\n @memberof SqshTreeTraversal\n\n @param[in,out]   traversal  The traversal to use\n @param[out]      err     Pointer to an int where the error code will be\n\n @return the inode of the current entry."]
     pub fn sqsh_tree_traversal_open_file(
         traversal: *const SqshTreeTraversal,
-        err: *mut ::std::os::raw::c_int,
+        err: *mut ::core::ffi::c_int,
     ) -> *mut SqshFile;
 }
 extern "C" {
-    pub fn sqsh_tree_traversal_free(traversal: *mut SqshTreeTraversal) -> ::std::os::raw::c_int;
+    #[doc = " @memberof SqshTreeTraversal\n\n @param[in,out] traversal The file traversal struct to clean up.\n\n @return 0 on success, less than 0 on error."]
+    pub fn sqsh_tree_traversal_free(traversal: *mut SqshTreeTraversal) -> ::core::ffi::c_int;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @memberof SqshXattrIterator\n @brief Allocates and initializes a new xattr iterator.\n\n @param[in]  file   The file context to iterate through xattrs.\n @param[out] err    Pointer to an int where the error code will be stored.\n\n @return The new iterator on success, NULL on error."]
     pub fn sqsh_xattr_iterator_new(
         file: *const SqshFile,
-        err: *mut ::std::os::raw::c_int,
+        err: *mut ::core::ffi::c_int,
     ) -> *mut SqshXattrIterator;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @memberof SqshXattrIterator\n @brief Advances the iterator to the next xattr.\n\n @param[in,out] iterator The iterator to advance.\n @param[out]    err      Pointer to an int where the error code will be\n stored.\n\n @retval true  When the iterator was advanced.\n @retval false When the end of the xattrs list was reached or an error\n occured."]
     pub fn sqsh_xattr_iterator_next(
         iterator: *mut SqshXattrIterator,
-        err: *mut ::std::os::raw::c_int,
+        err: *mut ::core::ffi::c_int,
     ) -> bool;
 }
 extern "C" {
+    #[doc = " @memberof SqshXattrIterator\n @brief Retrieves the type of the current xattr.\n\n @param[in] iterator The iterator to use.\n\n @return The type of the current xattr."]
     pub fn sqsh_xattr_iterator_type(iterator: *const SqshXattrIterator) -> u16;
 }
 extern "C" {
+    #[doc = " @memberof SqshXattrIterator\n @brief Checks if the current xattr is indirect.\n\n @param[in] iterator The iterator to use.\n\n @return true if the xattr is indirect, false otherwise."]
     pub fn sqsh_xattr_iterator_is_indirect(iterator: *const SqshXattrIterator) -> bool;
 }
 extern "C" {
+    #[doc = " @memberof SqshXattrIterator\n @brief Retrieves the prefix of the current xattr.\n\n There are three possible prefixes that can be returned:\n\n - \"user.\"\n - \"trusted.\"\n - \"security.\"\n\n The returned pointer is staticly allocated and must not be freed.\n\n @param[in] iterator The iterator to use.\n\n @return The null terminated prefix of the current xattr. The returned pointer\n is staticly allocated and must not be freed."]
     pub fn sqsh_xattr_iterator_prefix(
         iterator: *const SqshXattrIterator,
-    ) -> *const ::std::os::raw::c_char;
+    ) -> *const ::core::ffi::c_char;
 }
 extern "C" {
+    #[doc = " @memberof SqshXattrIterator\n @brief Retrieves the size of the prefix of the current xattr.\n\n @param[in] iterator The iterator to use.\n\n @return The size of the prefix of the current xattr."]
     pub fn sqsh_xattr_iterator_prefix_size(iterator: *const SqshXattrIterator) -> u16;
 }
 extern "C" {
+    #[doc = " @memberof SqshXattrIterator\n @brief Retrieves the name of the current xattr excluding the prefix.\n\n The returned pointer is allocated internally and only valid until the next\n call to sqsh_xattr_iterator_next(). It must not be freed. The string is not 0\n terminated. Use sqsh_xattr_iterator_name_size() to get the size of the name.\n\n @param[in] iterator The iterator to use.\n\n @return The name of the current xattr."]
     pub fn sqsh_xattr_iterator_name(
         iterator: *const SqshXattrIterator,
-    ) -> *const ::std::os::raw::c_char;
+    ) -> *const ::core::ffi::c_char;
 }
 extern "C" {
+    #[doc = " @memberof SqshXattrIterator\n @brief Retrieves the size of the name of the current xattr.\n\n @param[in] iterator The iterator to use.\n\n @return The size of the name of the current xattr."]
     pub fn sqsh_xattr_iterator_name_size(iterator: *const SqshXattrIterator) -> u16;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @memberof SqshXattrIterator\n @brief Looks up an xattr by name.\n\n @param[in] iterator The iterator to use.\n @param[in] name     The name to lookup\n\n @return 0 if the xattr was found, a negative value otherwise."]
     pub fn sqsh_xattr_iterator_lookup(
         iterator: *mut SqshXattrIterator,
-        name: *const ::std::os::raw::c_char,
-    ) -> ::std::os::raw::c_int;
+        name: *const ::core::ffi::c_char,
+    ) -> ::core::ffi::c_int;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @memberof SqshXattrIterator\n @brief Compares the full name of the current xattr with a given 0-terminated\n name.\n\n @param[in] iterator The iterator to use.\n @param[in] name     The name to compare with.\n\n @return 0 if the names match, a negative value if the current xattr's name\n         is less than the given name, a positive value if the current xattr's\n         name is greater than the given name."]
     pub fn sqsh_xattr_iterator_fullname_cmp(
         iterator: *const SqshXattrIterator,
-        name: *const ::std::os::raw::c_char,
-    ) -> ::std::os::raw::c_int;
+        name: *const ::core::ffi::c_char,
+    ) -> ::core::ffi::c_int;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @memberof SqshXattrIterator\n @brief creates a heap allocated copy of the full name of the current entry.\n\n The caller is responsible for calling free() on the returned pointer.\n\n The returned string is 0 terminated.\n\n @param[in]  iterator        The iterator to use.\n\n @return The full name of the current xattr on success, NULL if the allocation\n fails."]
     pub fn sqsh_xattr_iterator_fullname_dup(
         iterator: *const SqshXattrIterator,
-    ) -> *mut ::std::os::raw::c_char;
+    ) -> *mut ::core::ffi::c_char;
 }
 extern "C" {
     #[must_use]
+    #[doc = " @memberof SqshXattrIterator\n @brief creates a heap allocated copy of the value of the current entry.\n\n The caller is responsible for calling free() on the returned pointer.\n\n The returned string is 0 terminated.\n\n\n @param[in]  iterator    The iterator to use.\n\n @return The value of the current xattr on success, NULL if the allocation\n fails."]
     pub fn sqsh_xattr_iterator_value_dup(
         iterator: *const SqshXattrIterator,
-    ) -> *mut ::std::os::raw::c_char;
+    ) -> *mut ::core::ffi::c_char;
 }
 extern "C" {
+    #[doc = " @memberof SqshXattrIterator\n @brief Retrieves the value of the current xattr.\n\n The returned pointer is allocated internally and only valid until the next\n call to sqsh_xattr_iterator_next(). It must not be freed. The string is not 0\n terminated. Use sqsh_xattr_iterator_value_size() to get the size of the\n value.\n\n @param[in] iterator The iterator to use.\n\n @return The value of the current xattr. The returned pointer is allocated\n internally and only valid until the next call to sqsh_xattr_iterator_next().\n It must not be freed."]
     pub fn sqsh_xattr_iterator_value(
         iterator: *const SqshXattrIterator,
-    ) -> *const ::std::os::raw::c_char;
+    ) -> *const ::core::ffi::c_char;
 }
 extern "C" {
+    #[doc = " @memberof SqshXattrIterator\n @brief Retrieves the size of the value of the current xattr.\n\n @param[in] iterator The iterator to use.\n\n @return The size of the value of the current xattr."]
     pub fn sqsh_xattr_iterator_value_size2(iterator: *const SqshXattrIterator) -> u32;
 }
 extern "C" {
+    #[doc = " @memberof SqshXattrIterator\n @brief Retrieves the size of the value of the current xattr.\n @deprecated Since 1.3.0. Use sqsh_xattr_iterator_value_size2() instead.\n\n @param[in] iterator The iterator to use.\n\n @return The size of the value of the current xattr."]
     pub fn sqsh_xattr_iterator_value_size(iterator: *const SqshXattrIterator) -> u16;
 }
 extern "C" {
-    pub fn sqsh_xattr_iterator_free(iterator: *mut SqshXattrIterator) -> ::std::os::raw::c_int;
+    #[doc = " @memberof SqshXattrIterator\n @brief Frees the resources used by an xattr iterator.\n\n @param[in] iterator The iterator to free.\n\n @return 0 on success, a negative value on error."]
+    pub fn sqsh_xattr_iterator_free(iterator: *mut SqshXattrIterator) -> ::core::ffi::c_int;
 }

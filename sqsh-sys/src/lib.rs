@@ -1,5 +1,9 @@
-#![allow(non_camel_case_types)]
+#![no_std]
+
 // Ensure zlib linked in
 extern crate flate2;
 
-include!("bindings.rs");
+#[allow(non_camel_case_types)]
+mod bindings;
+
+pub use bindings::*;
