@@ -1,4 +1,4 @@
-use crate::{error, Archive, File};
+use crate::{error, Archive, File, FileType};
 use bstr::BStr;
 use sqsh_sys as ffi;
 use std::fmt;
@@ -131,6 +131,11 @@ impl<'traversal, 'archive> Entry<'traversal, 'archive> {
         Ok(unsafe { File::new(file) })
     }
 
+    pub fn file_type(self) -> FileType {
+        let file_type = unsafe { ffi::sqsh_tree_traversal_type(self.inner) };
+        FileType::try_from(file_type).unwrap()
+    }
+
     /// The directory entry for this entry. This will be present for everything but the root entry.
     pub fn directory_entry(self) -> Option<crate::directory::DirectoryEntry<'traversal, 'archive>> {
         let iterator = unsafe { ffi::sqsh_tree_traversal_iterator(self.inner) };
@@ -165,6 +170,7 @@ impl fmt::Debug for Entry<'_, '_> {
             .field("state", &self.state())
             .field("depth", &self.depth())
             .field("path", &self.path())
+            .field("file_type", &self.file_type())
             .finish_non_exhaustive()
     }
 }
