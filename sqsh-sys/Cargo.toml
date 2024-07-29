@@ -7,11 +7,26 @@ edition = "2021"
 
 [dependencies]
 libc = "0.2"
-flate2 = { version = "1.0", features = ["zlib-ng-compat"] }
+libz-sys = { version = "1.1", default-features = false, features = ["libc"], optional = true }
+lz4-sys = { version = "1.10", optional = true }
+lzma-sys = { version = "0.1", optional = true }
+zstd-sys = { version = "2.0", default-features = false, optional = true }
+
+[features]
+default = ["zlib-ng", "lz4", "lzma", "zstd"]
+zlib = ["dep:libz-sys"]
+lz4 = ["dep:lz4-sys"]
+lzma = ["dep:lzma-sys"]
+zstd = ["dep:zstd-sys"]
+
+# As an optimization, use zlib-ng instead of zlib standard
+zlib-ng = ["zlib", "libz-sys/zlib-ng"]
+static = ["libz-sys?/static", "lzma-sys?/static"]
 
 [build-dependencies]
 cc = "1.0"
 walkdir = "2.3"
+pkg-config = "0.3"
 
 [lib]
 # Some doc comments from bindgen contains code examples that are not valid Rust code

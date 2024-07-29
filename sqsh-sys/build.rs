@@ -1,3 +1,4 @@
+use std::env;
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 
@@ -27,13 +28,41 @@ fn main() {
 
     let extra_includes = roots.iter().map(|p| p.join("include")).collect::<Vec<_>>();
 
-    cc::Build::new()
+    let mut build = cc::Build::new();
+    build
         .include(sqsh_tools.join("include"))
         .includes(extra_includes)
         .files(c_files)
         .flag("-pthread")
         .std("c11")
-        .warnings(true)
-        .define("CONFIG_ZLIB", None)
-        .compile("sqsh");
+        .warnings(true);
+    if cfg!(feature = "zlib") {
+        if let Some(include) = env::var_os("DEP_Z_INCLUDE") {
+            build.include(include);
+        }
+        build.define("CONFIG_ZLIB", None);
+    }
+    if cfg!(feature = "lz4") {
+        if let Some(include) = env::var_os("DEP_LZ4_INCLUDE") {
+            build.include(include);
+        }
+        build.define("CONFIG_LZ4", None);
+    }
+    if cfg!(feature = "lzma") {
+        if let Some(include) = env::var_os("DEP_LZMA_INCLUDE") {
+            build.include(include);
+        } else if let Ok(library) = pkg_config::probe_library("liblzma") {
+            // lzma-sys defaults to using pkg-config, but it doesn't expose the DEP_LZMA_INCLUDE
+            // var unless it builds it
+            build.includes(library.include_paths);
+        }
+        build.define("CONFIG_LZMA", None);
+    }
+    if cfg!(feature = "zstd") {
+        if let Some(include) = env::var_os("DEP_ZSTD_INCLUDE") {
+            build.include(include);
+        }
+        build.define("CONFIG_ZSTD", None);
+    }
+    build.compile("sqsh");
 }
