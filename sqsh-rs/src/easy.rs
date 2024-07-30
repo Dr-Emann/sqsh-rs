@@ -46,6 +46,6 @@ impl Archive<'_> {
         if err != 0 {
             return Err(error::new(err));
         }
-        Ok(Permissions::from_bits_retain(raw_permissions))
+        Ok(Permissions::from_bits_retain(raw_permissions as u16))
     }
 }
