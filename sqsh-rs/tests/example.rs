@@ -5,6 +5,8 @@ use std::fmt::Write;
 use std::io::{BufRead, Read};
 use std::path::Path;
 
+mod all;
+
 const ARCHIVE_PATH: &str = "tests/data/test.sqsh";
 
 fn archive() -> Archive<'static> {

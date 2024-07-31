@@ -1,0 +1,47 @@
+---
+source: sqsh-rs/tests/all/path_resolver.rs
+expression: resolver
+---
+PathResolver {
+    current_name: Some(
+        "short.file",
+    ),
+    current_file_type: Some(
+        File,
+    ),
+    current_dir_inode: Inode(
+        20,
+    ),
+    current_dir_inode_ref: InodeRef(
+        0x0000_00000000_0295,
+    ),
+    current_file: Ok(
+        File {
+            file_type: Some(
+                File,
+            ),
+            permissions: Permissions(
+                UserRead | GroupRead | OtherRead,
+            ),
+            inode_ref: InodeRef(
+                0x0000_00000000_0295,
+            ),
+            is_extended: false,
+            hard_link_count: 1,
+            size: 4,
+            inode: Inode(
+                22,
+            ),
+            parent_inode: Inode(
+                4294967295,
+            ),
+            modified_time: 1000,
+            symlink_path: None,
+            device_id: 4294967295,
+            uid: 64000,
+            gid: 64000,
+            xattr_id: 4294967295,
+        },
+    ),
+    ..
+}

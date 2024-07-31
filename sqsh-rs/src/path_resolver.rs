@@ -1,5 +1,5 @@
 use crate::archive::Archive;
-use crate::{error, File, FileType};
+use crate::{error, File, FileType, Inode, InodeRef};
 use bstr::BStr;
 use sqsh_sys as ffi;
 use std::ffi::{c_char, CStr, CString};
@@ -49,6 +49,9 @@ impl<'archive> PathResolver<'archive> {
     }
 
     /// Attempt to move the resolver up to the parent directory.
+    ///
+    /// On success, the resolver will be positioned immediately before the first
+    /// entry in the parent directory.
     pub fn up(&mut self) -> error::Result<()> {
         let err = unsafe { ffi::sqsh_path_resolver_up(self.inner.as_ptr()) };
         if err == 0 {
@@ -145,6 +148,17 @@ impl<'archive> PathResolver<'archive> {
         FileType::try_from(raw_file_type).ok()
     }
 
+    /// Returns the inode number of the current directory
+    pub fn current_dir_inode(&self) -> Inode {
+        let inode_num = unsafe { ffi::sqsh_path_resolver_dir_inode(self.inner.as_ptr()) };
+        inode_num.try_into().unwrap()
+    }
+
+    /// Returns an inode reference of the current directory
+    pub fn current_dir_inode_ref(&self) -> InodeRef {
+        InodeRef(unsafe { ffi::sqsh_path_resolver_inode_ref(self.inner.as_ptr()) })
+    }
+
     /// Get the name of the current entry.
     ///
     /// This is borrows into the resolver itself: the following will not compile:
@@ -176,6 +190,8 @@ impl fmt::Debug for PathResolver<'_> {
         f.debug_struct("PathResolver")
             .field("current_name", &self.current_name())
             .field("current_file_type", &self.current_file_type())
+            .field("current_dir_inode", &self.current_dir_inode())
+            .field("current_dir_inode_ref", &self.current_dir_inode_ref())
             .field("current_file", &current)
             .finish_non_exhaustive()
     }
