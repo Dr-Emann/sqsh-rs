@@ -21,6 +21,7 @@ pub struct IdTable<'archive> {
 }
 
 impl<'archive> IdTable<'archive> {
+    #[must_use]
     pub fn get(&self, index: usize) -> Option<u32> {
         let mut id = 0;
         let err = unsafe { ffi::sqsh_id_table_get(self.inner, index, &mut id) };

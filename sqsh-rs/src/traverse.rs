@@ -53,6 +53,7 @@ pub enum State {
 }
 
 impl State {
+    #[must_use]
     pub fn is_second_visit(self) -> bool {
         self == Self::DirectorySecond
     }
@@ -96,6 +97,7 @@ impl<'traversal, 'archive> Entry<'traversal, 'archive> {
     /// The depth of this entry.
     ///
     /// The root entry has a depth of 0.
+    #[must_use]
     pub fn depth(self) -> usize {
         unsafe { ffi::sqsh_tree_traversal_depth(self.inner) }
     }
@@ -106,6 +108,7 @@ impl<'traversal, 'archive> Entry<'traversal, 'archive> {
     /// there are no path segments.
     ///
     /// The root entry has an empty name.
+    #[must_use]
     pub fn name(self) -> &'traversal BStr {
         let mut len = 0;
         let ptr = unsafe { ffi::sqsh_tree_traversal_name(self.inner, &mut len) };
@@ -116,6 +119,7 @@ impl<'traversal, 'archive> Entry<'traversal, 'archive> {
     /// The path of this entry.
     ///
     /// This will be the relative path from the root of the traversal to this entry.
+    #[must_use]
     pub fn path(self) -> Path<'traversal> {
         Path::new(self)
     }
@@ -131,12 +135,14 @@ impl<'traversal, 'archive> Entry<'traversal, 'archive> {
         Ok(unsafe { File::new(file) })
     }
 
+    #[must_use]
     pub fn file_type(self) -> FileType {
         let file_type = unsafe { ffi::sqsh_tree_traversal_type(self.inner) };
         FileType::try_from(file_type).unwrap()
     }
 
     /// The directory entry for this entry. This will be present for everything but the root entry.
+    #[must_use]
     pub fn directory_entry(self) -> Option<crate::directory::DirectoryEntry<'traversal, 'archive>> {
         let iterator = unsafe { ffi::sqsh_tree_traversal_iterator(self.inner) };
         if iterator.is_null() {
@@ -145,6 +151,7 @@ impl<'traversal, 'archive> Entry<'traversal, 'archive> {
         Some(unsafe { crate::directory::DirectoryEntry::new(&*iterator) })
     }
 
+    #[must_use]
     pub fn state(self) -> State {
         let state = unsafe { ffi::sqsh_tree_traversal_state(self.inner) };
         match state {
@@ -186,6 +193,7 @@ impl<'traversal> Path<'traversal> {
     ///
     /// For example, if the current entry is `foo/bar/baz`,
     /// the path segments are `["foo", "bar", "baz"]`.
+    #[must_use]
     pub fn segments(self) -> PathSegments<'traversal> {
         PathSegments::new(self.entry)
     }
@@ -201,9 +209,9 @@ impl fmt::Display for Path<'_> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut segments = self.segments();
         if let Some(segment) = segments.next() {
-            write!(f, "{}", segment)?;
+            write!(f, "{segment}")?;
             for segment in segments {
-                write!(f, "/{}", segment)?;
+                write!(f, "/{segment}")?;
             }
         }
         Ok(())

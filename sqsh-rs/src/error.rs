@@ -31,6 +31,7 @@ impl Error {
         f(CStr::from_ptr(s))
     }
 
+    #[must_use]
     pub fn io_error_kind(&self) -> io::ErrorKind {
         let Self(err) = *self;
         if err.0 < ffi::SqshError::SQSH_ERROR_SECTION_START.0 {
@@ -58,6 +59,7 @@ impl Error {
         }
     }
 
+    #[must_use]
     pub fn as_io_error(&self) -> Option<io::Error> {
         let Self(err) = *self;
         if err.0 < ffi::SqshError::SQSH_ERROR_SECTION_START.0 {
@@ -67,6 +69,7 @@ impl Error {
         }
     }
 
+    #[must_use]
     pub fn into_io_error(self) -> io::Error {
         match self.as_io_error() {
             Some(err) => err,

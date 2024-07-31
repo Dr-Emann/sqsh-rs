@@ -71,7 +71,7 @@ impl<'file> XattrEntry<'file> {
     /// Retrieves the type of the current entry.
     pub fn kind(&self) -> Option<XattrType> {
         let file_type = unsafe { ffi::sqsh_xattr_iterator_type(self.inner.as_ptr()) };
-        let file_type = ffi::SqshXattrType(file_type as _);
+        let file_type = ffi::SqshXattrType(u32::from(file_type));
         XattrType::try_from(file_type).ok()
     }
 }

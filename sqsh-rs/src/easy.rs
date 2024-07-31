@@ -30,6 +30,7 @@ impl Archive<'_> {
     }
 
     /// Check if anything exists at the given path
+    #[must_use]
     pub fn exists(&self, path: &str) -> bool {
         let path = match CString::new(path) {
             Ok(path) => path,

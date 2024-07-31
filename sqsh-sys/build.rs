@@ -23,7 +23,7 @@ fn main() {
         .flat_map(|p| WalkDir::new(p).into_iter().filter_entry(is_source_entry))
         .map(Result::unwrap)
         .filter(|e| !e.file_type().is_dir() && e.path().extension().unwrap_or_default() == "c")
-        .map(|e| e.into_path())
+        .map(walkdir::DirEntry::into_path)
         .collect();
 
     let extra_includes = roots.iter().map(|p| p.join("include")).collect::<Vec<_>>();

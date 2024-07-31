@@ -13,7 +13,7 @@ args=(
   --default-alias-style type_alias
   --enable-function-attribute-detection
   --blocklist-type 'FILE|mode_t|fpos_t|time_t|__.*'
-  --raw-line 'use libc::{FILE, mode_t, time_t};'
+  --raw-line 'use libc::{mode_t, time_t, FILE};'
   --use-core
   --sort-semantically
   submodules/sqsh-tools/include/sqsh.h

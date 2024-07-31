@@ -68,45 +68,53 @@ impl<'archive> File<'archive> {
     }
 
     /// Returns the type of the file.
+    #[must_use]
     pub fn file_type(&self) -> Option<FileType> {
         let raw_file_type = unsafe { ffi::sqsh_file_type(self.inner.as_ptr()) };
         FileType::try_from(raw_file_type).ok()
     }
 
     /// Returns the permissions of the file.
+    #[must_use]
     pub fn permissions(&self) -> Permissions {
         let raw_permissions = unsafe { ffi::sqsh_file_permission(self.inner.as_ptr()) };
         Permissions::from_bits_retain(raw_permissions)
     }
 
     /// Returns the inode reference of the file.
+    #[must_use]
     pub fn inode_ref(&self) -> InodeRef {
         let inode_ref = unsafe { ffi::sqsh_file_inode_ref(self.inner.as_ptr()) };
         InodeRef(inode_ref)
     }
 
     /// Returns whether the file is an extended structure
+    #[must_use]
     pub fn is_extended(&self) -> bool {
         unsafe { ffi::sqsh_file_is_extended(self.inner.as_ptr()) }
     }
 
     /// Getter for the inode hard link count
+    #[must_use]
     pub fn hard_link_count(&self) -> u32 {
         unsafe { ffi::sqsh_file_hard_link_count(self.inner.as_ptr()) }
     }
 
     /// Getter for the file size. 0 if the file has no size.
+    #[must_use]
     pub fn size(&self) -> u64 {
         unsafe { ffi::sqsh_file_size(self.inner.as_ptr()) }
     }
 
     /// Getter for the inode number.
+    #[must_use]
     pub fn inode(&self) -> Inode {
         let inode_num = unsafe { ffi::sqsh_file_inode(self.inner.as_ptr()) };
         inode_num.try_into().unwrap()
     }
 
     /// Getter for the inode number of the parent directory.
+    #[must_use]
     pub fn parent_inode(&self) -> Inode {
         let inode_num = unsafe { ffi::sqsh_file_directory_parent_inode(self.inner.as_ptr()) };
         inode_num.try_into().unwrap()
@@ -140,6 +148,7 @@ impl<'archive> File<'archive> {
     /// Getter for the modification time.
     ///
     /// Returns the number of seconds since the Unix epoch.
+    #[must_use]
     pub fn modified_time(&self) -> u32 {
         unsafe { ffi::sqsh_file_modified_time(self.inner.as_ptr()) }
     }
@@ -147,6 +156,7 @@ impl<'archive> File<'archive> {
     /// Symbolic link target path.
     ///
     /// If this file is not a symbolic link, this will return `None`.
+    #[must_use]
     pub fn symlink_path(&self) -> Option<&BStr> {
         let path_ptr = unsafe { ffi::sqsh_file_symlink(self.inner.as_ptr()) };
         if path_ptr.is_null() {
@@ -159,21 +169,25 @@ impl<'archive> File<'archive> {
     }
 
     /// Returns the device id of the device inode.
+    #[must_use]
     pub fn device_id(&self) -> u32 {
         unsafe { ffi::sqsh_file_device_id(self.inner.as_ptr()) }
     }
 
     /// Returns the owner user id of the file.
+    #[must_use]
     pub fn uid(&self) -> u32 {
         unsafe { ffi::sqsh_file_uid(self.inner.as_ptr()) }
     }
 
     /// Returns the owner group id of the file.
+    #[must_use]
     pub fn gid(&self) -> u32 {
         unsafe { ffi::sqsh_file_gid(self.inner.as_ptr()) }
     }
 
     /// Returns index of the extended attribute inside of the xattr table.
+    #[must_use]
     pub fn xattr_id(&self) -> u32 {
         unsafe { ffi::sqsh_file_xattr_index(self.inner.as_ptr()) }
     }

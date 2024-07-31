@@ -20,6 +20,7 @@ impl<'file> Reader<'file> {
         }
     }
 
+    #[must_use]
     pub fn block_size(&self) -> usize {
         unsafe { ffi::sqsh_file_iterator_block_size(self.inner.as_ptr()) }
     }

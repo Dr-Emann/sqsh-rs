@@ -8,6 +8,7 @@ pub struct InodeRef(pub u64);
 pub struct Inode(pub(crate) NonZeroU32);
 
 impl Inode {
+    #[must_use]
     pub fn get(self) -> u32 {
         self.0.get()
     }
@@ -23,10 +24,7 @@ impl fmt::Debug for InodeRef {
         let lower = self.0 & 0xFFFF;
 
         f.debug_tuple("InodeRef")
-            .field(&format_args!(
-                "0x{:04X}_{:08X}_{:04X}",
-                upper, middle, lower
-            ))
+            .field(&format_args!("0x{upper:04X}_{middle:08X}_{lower:04X}"))
             .finish()
     }
 }

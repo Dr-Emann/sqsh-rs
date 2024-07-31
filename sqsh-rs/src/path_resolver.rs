@@ -143,18 +143,21 @@ impl<'archive> PathResolver<'archive> {
     }
 
     /// Returns the file type of the current entry.
+    #[must_use]
     pub fn current_file_type(&self) -> Option<FileType> {
         let raw_file_type = unsafe { ffi::sqsh_path_resolver_type(self.inner.as_ptr()) };
         FileType::try_from(raw_file_type).ok()
     }
 
     /// Returns the inode number of the current directory
+    #[must_use]
     pub fn current_dir_inode(&self) -> Inode {
         let inode_num = unsafe { ffi::sqsh_path_resolver_dir_inode(self.inner.as_ptr()) };
         inode_num.try_into().unwrap()
     }
 
     /// Returns an inode reference of the current directory
+    #[must_use]
     pub fn current_dir_inode_ref(&self) -> InodeRef {
         InodeRef(unsafe { ffi::sqsh_path_resolver_inode_ref(self.inner.as_ptr()) })
     }
@@ -172,6 +175,7 @@ impl<'archive> PathResolver<'archive> {
     /// // Name is invalidated by moving the resolver
     /// println!("{:?}", name);
     /// ```
+    #[must_use]
     pub fn current_name(&self) -> Option<&BStr> {
         let size = unsafe { ffi::sqsh_path_resolver_name_size(self.inner.as_ptr()) };
         let name = unsafe { ffi::sqsh_path_resolver_name(self.inner.as_ptr()) };
