@@ -1,24 +1,23 @@
 use crate::traverse::Traversal;
+use crate::utils::small_c_string::run_with_cstr;
 use crate::{
     error, Archive, DirectoryIterator, FileType, Inode, InodeRef, Permissions, Reader,
     XattrIterator,
 };
 use bstr::BStr;
 use sqsh_sys as ffi;
-use std::ffi::{CStr, CString};
+use std::ffi::CStr;
 use std::fmt;
 use std::ptr::NonNull;
 
 /// Methods for opening files on an archive.
 impl Archive<'_> {
     pub fn open(&self, path: &str) -> error::Result<File<'_>> {
-        let path = CString::new(path)?;
-        self.open_raw(&path)
+        run_with_cstr(path, |path| self.open_raw(path))
     }
 
     pub fn open_nofollow(&self, path: &str) -> error::Result<File<'_>> {
-        let path = CString::new(path)?;
-        self.open_raw_nofollow(&path)
+        run_with_cstr(path, |path| self.open_raw_nofollow(path))
     }
 
     pub fn open_raw(&self, path: &CStr) -> error::Result<File<'_>> {

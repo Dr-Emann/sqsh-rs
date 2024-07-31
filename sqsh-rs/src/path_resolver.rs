@@ -1,8 +1,9 @@
 use crate::archive::Archive;
+use crate::utils::small_c_string::run_with_cstr;
 use crate::{error, File, FileType, Inode, InodeRef};
 use bstr::BStr;
 use sqsh_sys as ffi;
-use std::ffi::{c_char, CStr, CString};
+use std::ffi::{c_char, CStr};
 use std::fmt;
 use std::ptr::NonNull;
 
@@ -124,8 +125,7 @@ impl<'archive> PathResolver<'archive> {
     ///
     /// The path is resolved relative to the current directory.
     pub fn resolve_path(&mut self, path: &str, follow_symlinks: bool) -> error::Result<()> {
-        let path = CString::new(path)?;
-        self.resolve_path_raw(&path, follow_symlinks)
+        run_with_cstr(path, |path| self.resolve_path_raw(path, follow_symlinks))
     }
 
     /// Resolve a path with the resolver.

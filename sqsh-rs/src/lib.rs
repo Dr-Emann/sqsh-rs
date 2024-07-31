@@ -11,6 +11,7 @@ mod path_resolver;
 mod reader;
 mod superblock;
 pub mod traverse;
+mod utils;
 mod xattr;
 
 pub use crate::archive::Archive;
@@ -26,11 +27,11 @@ pub use crate::reader::Reader;
 pub use crate::superblock::{Compression, Superblock};
 pub use crate::xattr::XattrIterator;
 
+use crate::utils::small_c_string::run_with_cstr;
 use bitflags::bitflags;
 use sqsh_sys as ffi;
-use std::ffi::{c_void, CString};
+use std::ffi::c_void;
 use std::fmt::Debug;
-use std::os::unix::ffi::OsStrExt;
 use std::path::Path;
 
 pub unsafe trait Source<'a> {
@@ -41,7 +42,7 @@ pub unsafe trait Source<'a> {
 
     fn size(&self) -> u64;
 
-    fn with_source_pointer<O, F>(&self, f: F) -> O
+    fn with_source_pointer<O, F>(&self, f: F) -> Result<O>
     where
         F: FnOnce(*const c_void) -> O;
 }
@@ -55,11 +56,11 @@ unsafe impl<'a> Source<'a> for &'a [u8] {
         self.len().try_into().unwrap()
     }
 
-    fn with_source_pointer<O, F>(&self, f: F) -> O
+    fn with_source_pointer<O, F>(&self, f: F) -> Result<O>
     where
         F: FnOnce(*const c_void) -> O,
     {
-        f(self.as_ptr().cast())
+        Ok(f(self.as_ptr().cast()))
     }
 }
 
@@ -72,12 +73,13 @@ unsafe impl Source<'static> for &Path {
         0
     }
 
-    fn with_source_pointer<O, F>(&self, f: F) -> O
+    fn with_source_pointer<O, F>(&self, f: F) -> Result<O>
     where
         F: FnOnce(*const c_void) -> O,
     {
-        let path = CString::new(self.as_os_str().as_bytes()).unwrap();
-        f(path.as_ptr().cast())
+        run_with_cstr(self.as_os_str().as_encoded_bytes(), |cstr| {
+            Ok(f(cstr.as_ptr().cast()))
+        })
     }
 }
 

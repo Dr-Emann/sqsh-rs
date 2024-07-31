@@ -52,7 +52,7 @@ impl<'a> Archive<'a> {
         };
         let archive = source.with_source_pointer(|source_ptr| unsafe {
             ffi::sqsh_archive_open(source_ptr, &config, &mut err)
-        });
+        })?;
         match NonNull::new(archive) {
             Some(archive) => Ok(Self {
                 inner: archive,

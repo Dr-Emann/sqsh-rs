@@ -1,8 +1,8 @@
 use sqsh_sys as ffi;
-use std::ffi::CString;
 use std::io::BufRead;
 use std::ptr;
 
+use crate::utils::small_c_string::run_with_cstr;
 use crate::{error, Archive, Error, Permissions};
 
 /// High level "easy" methods for interacting with the archive.
@@ -32,21 +32,26 @@ impl Archive<'_> {
     /// Check if anything exists at the given path
     #[must_use]
     pub fn exists(&self, path: &str) -> bool {
-        let path = match CString::new(path) {
-            Ok(path) => path,
-            Err(_) => return false,
-        };
-        unsafe { ffi::sqsh_easy_file_exists(self.inner.as_ptr(), path.as_ptr(), ptr::null_mut()) }
+        run_with_cstr(path, |path| unsafe {
+            Ok(ffi::sqsh_easy_file_exists(
+                self.inner.as_ptr(),
+                path.as_ptr(),
+                ptr::null_mut(),
+            ))
+        })
+        .unwrap_or(false)
     }
 
     pub fn permissions(&self, path: &str) -> error::Result<Permissions> {
-        let path = CString::new(path)?;
-        let mut err = 0;
-        let raw_permissions =
-            unsafe { ffi::sqsh_easy_file_permission(self.inner.as_ptr(), path.as_ptr(), &mut err) };
-        if err != 0 {
-            return Err(error::new(err));
-        }
-        Ok(Permissions::from_bits_retain(raw_permissions as u16))
+        run_with_cstr(path, |path| {
+            let mut err = 0;
+            let raw_permissions = unsafe {
+                ffi::sqsh_easy_file_permission(self.inner.as_ptr(), path.as_ptr(), &mut err)
+            };
+            if err != 0 {
+                return Err(error::new(err));
+            }
+            Ok(Permissions::from_bits_retain(raw_permissions as u16))
+        })
     }
 }
