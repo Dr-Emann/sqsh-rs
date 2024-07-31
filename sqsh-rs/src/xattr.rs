@@ -1,6 +1,7 @@
 use crate::{error, File};
 use bstr::BStr;
 use sqsh_sys as ffi;
+use std::fmt;
 use std::ptr::NonNull;
 
 pub struct XattrIterator<'file> {
@@ -82,6 +83,16 @@ impl<'file> Drop for XattrIterator<'file> {
     }
 }
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub struct UnknownXattrType(ffi::SqshXattrType);
+
+impl fmt::Display for UnknownXattrType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("unknown xattr type")
+    }
+}
+impl std::error::Error for UnknownXattrType {}
+
 pub enum XattrType {
     User,
     Trusted,
@@ -89,14 +100,14 @@ pub enum XattrType {
 }
 
 impl TryFrom<ffi::SqshXattrType> for XattrType {
-    type Error = ();
+    type Error = UnknownXattrType;
 
     fn try_from(value: ffi::SqshXattrType) -> Result<Self, Self::Error> {
         match value {
             ffi::SqshXattrType::SQSH_XATTR_USER => Ok(Self::User),
             ffi::SqshXattrType::SQSH_XATTR_TRUSTED => Ok(Self::Trusted),
             ffi::SqshXattrType::SQSH_XATTR_SECURITY => Ok(Self::Security),
-            _ => Err(()),
+            other => Err(UnknownXattrType(other)),
         }
     }
 }
