@@ -8,9 +8,8 @@ pub struct XattrIterator<'file> {
     _marker: std::marker::PhantomData<&'file File<'file>>,
 }
 
-pub struct XattrEntry<'file> {
-    inner: NonNull<ffi::SqshXattrIterator>,
-    _marker: std::marker::PhantomData<&'file XattrIterator<'file>>,
+pub struct XattrEntry<'it> {
+    inner: &'it ffi::SqshXattrIterator,
 }
 
 impl<'file> XattrIterator<'file> {
@@ -29,8 +28,7 @@ impl<'file> XattrIterator<'file> {
         let did_advance = unsafe { ffi::sqsh_xattr_iterator_next(self.inner.as_ptr(), &mut err) };
         if err == 0 {
             Ok(did_advance.then_some(XattrEntry {
-                inner: self.inner,
-                _marker: std::marker::PhantomData,
+                inner: unsafe { self.inner.as_ref() },
             }))
         } else {
             Err(error::new(err))
@@ -41,36 +39,36 @@ impl<'file> XattrIterator<'file> {
 impl<'file> XattrEntry<'file> {
     /// Retrieves the prefix of the current entry.
     pub fn prefix(&self) -> &'static BStr {
-        let size = unsafe { ffi::sqsh_xattr_iterator_prefix_size(self.inner.as_ptr()) };
-        let data = unsafe { ffi::sqsh_xattr_iterator_prefix(self.inner.as_ptr()) };
+        let size = unsafe { ffi::sqsh_xattr_iterator_prefix_size(self.inner) };
+        let data = unsafe { ffi::sqsh_xattr_iterator_prefix(self.inner) };
         let bytes = unsafe { std::slice::from_raw_parts(data.cast::<u8>(), usize::from(size)) };
         BStr::new(bytes)
     }
 
     /// Retrieves the name of the current entry.
     pub fn name(&self) -> &BStr {
-        let size = unsafe { ffi::sqsh_xattr_iterator_name_size(self.inner.as_ptr()) };
-        let data = unsafe { ffi::sqsh_xattr_iterator_name(self.inner.as_ptr()) };
+        let size = unsafe { ffi::sqsh_xattr_iterator_name_size(self.inner) };
+        let data = unsafe { ffi::sqsh_xattr_iterator_name(self.inner) };
         let bytes = unsafe { std::slice::from_raw_parts(data.cast::<u8>(), usize::from(size)) };
         BStr::new(bytes)
     }
 
     /// Retrieves the value of the current entry.
     pub fn value(&self) -> &BStr {
-        let size = unsafe { ffi::sqsh_xattr_iterator_value_size(self.inner.as_ptr()) };
-        let data = unsafe { ffi::sqsh_xattr_iterator_value(self.inner.as_ptr()) };
+        let size = unsafe { ffi::sqsh_xattr_iterator_value_size(self.inner) };
+        let data = unsafe { ffi::sqsh_xattr_iterator_value(self.inner) };
         let bytes = unsafe { std::slice::from_raw_parts(data.cast::<u8>(), usize::from(size)) };
         BStr::new(bytes)
     }
 
     /// Retrieves whether the current entry is indirect.
     pub fn is_indirect(&self) -> bool {
-        unsafe { ffi::sqsh_xattr_iterator_is_indirect(self.inner.as_ptr()) }
+        unsafe { ffi::sqsh_xattr_iterator_is_indirect(self.inner) }
     }
 
     /// Retrieves the type of the current entry.
     pub fn kind(&self) -> Option<XattrType> {
-        let file_type = unsafe { ffi::sqsh_xattr_iterator_type(self.inner.as_ptr()) };
+        let file_type = unsafe { ffi::sqsh_xattr_iterator_type(self.inner) };
         let file_type = ffi::SqshXattrType(u32::from(file_type));
         XattrType::try_from(file_type).ok()
     }
