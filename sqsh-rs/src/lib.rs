@@ -9,6 +9,7 @@ mod inode;
 mod inode_map;
 mod path_resolver;
 mod reader;
+mod source;
 mod superblock;
 pub mod traverse;
 mod utils;
@@ -27,61 +28,9 @@ pub use crate::reader::Reader;
 pub use crate::superblock::{Compression, Superblock};
 pub use crate::xattr::XattrIterator;
 
-use crate::utils::small_c_string::run_with_cstr;
 use bitflags::bitflags;
 use sqsh_sys as ffi;
-use std::ffi::c_void;
 use std::fmt::Debug;
-use std::path::Path;
-
-pub unsafe trait Source<'a> {
-    /// Represents the addressable size of the source in bytes
-    ///
-    /// Only really useful for slice-based sources, files know their own length
-    fn source_mapper(&self) -> *const ffi::SqshMemoryMapperImpl;
-
-    fn size(&self) -> u64;
-
-    fn with_source_pointer<O, F>(&self, f: F) -> Result<O>
-    where
-        F: FnOnce(*const c_void) -> O;
-}
-
-unsafe impl<'a> Source<'a> for &'a [u8] {
-    fn source_mapper(&self) -> *const ffi::SqshMemoryMapperImpl {
-        unsafe { ffi::sqsh_mapper_impl_static }
-    }
-
-    fn size(&self) -> u64 {
-        self.len().try_into().unwrap()
-    }
-
-    fn with_source_pointer<O, F>(&self, f: F) -> Result<O>
-    where
-        F: FnOnce(*const c_void) -> O,
-    {
-        Ok(f(self.as_ptr().cast()))
-    }
-}
-
-unsafe impl Source<'static> for &Path {
-    fn source_mapper(&self) -> *const ffi::SqshMemoryMapperImpl {
-        unsafe { ffi::sqsh_mapper_impl_mmap }
-    }
-
-    fn size(&self) -> u64 {
-        0
-    }
-
-    fn with_source_pointer<O, F>(&self, f: F) -> Result<O>
-    where
-        F: FnOnce(*const c_void) -> O,
-    {
-        run_with_cstr(self.as_os_str().as_encoded_bytes(), |cstr| {
-            Ok(f(cstr.as_ptr().cast()))
-        })
-    }
-}
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum FileType {

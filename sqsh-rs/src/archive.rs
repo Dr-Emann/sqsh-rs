@@ -1,4 +1,5 @@
-use crate::{error, File, Source};
+use crate::source::Source;
+use crate::{error, File};
 use sqsh_sys as ffi;
 use std::marker::PhantomData;
 use std::mem;
