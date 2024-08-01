@@ -8,6 +8,10 @@ pub struct InodeRef(pub u64);
 pub struct Inode(pub(crate) NonZeroU32);
 
 impl Inode {
+    pub fn new(value: u32) -> Result<Self, ZeroInode> {
+        NonZeroU32::new(value).map(Self).ok_or(ZeroInode)
+    }
+
     #[must_use]
     pub fn get(self) -> u32 {
         self.0.get()
@@ -41,6 +45,6 @@ impl TryFrom<u32> for Inode {
     type Error = ZeroInode;
 
     fn try_from(value: u32) -> Result<Self, Self::Error> {
-        NonZeroU32::new(value).map(Self).ok_or(ZeroInode)
+        Self::new(value)
     }
 }
