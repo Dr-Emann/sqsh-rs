@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1](https://github.com/Dr-Emann/sqsh-rs/compare/sqsh-rs-v0.1.0...sqsh-rs-v0.1.1) - 2024-08-01
+
+### Added
+- impl From<sqsh::Error> for std::io::Error
+
+### Fixed
+- avoid deprecated sqsh_xattr_iterator_value_size fn
+
+### Other
+- Add readme, with example test
+- release
+
 ## [0.1.0](https://github.com/Dr-Emann/sqsh-rs/releases/tag/sqsh-rs-v0.1.0) - 2024-08-01
 
 ### Other

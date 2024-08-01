@@ -521,7 +521,7 @@ checksum = "1de1d4f81173b03af4c0cbed3c898f6bff5b870e4a7f5d6f4057d62a7a4b686e"
 
 [[package]]
 name = "sqsh-rs"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "bitflags",
  "bstr",
@@ -532,7 +532,7 @@ dependencies = [
 
 [[package]]
 name = "sqsh-sys"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "cc",
  "libc",
