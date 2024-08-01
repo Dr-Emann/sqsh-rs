@@ -1,4 +1,4 @@
-# Sqsh-rs [![Crates.io](https://img.shields.io/crates/v/sqsh-rs)](https://crates.io/crates/sqsh-rs) [![Docs.rs](https://docs.rs/sqsh-rs/badge.svg)](https://docs.rs/sqsh-rs) [![License](https://img.shields.io/crates/l/sqsh-rs)](/LICENSE)
+# Sqsh-rs [![Crates.io](https://img.shields.io/crates/v/sqsh-rs)](https://crates.io/crates/sqsh-rs) [![Docs.rs](https://docs.rs/sqsh-rs/badge.svg)](https://docs.rs/sqsh-rs) [![License](https://img.shields.io/crates/l/sqsh-rs)](https://github.com/Dr-Emann/sqsh-rs/blob/main/LICENSE)
 
 A Rust wrapper for the [libsqsh] library.
 
