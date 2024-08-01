@@ -84,6 +84,12 @@ impl From<std::ffi::NulError> for Error {
     }
 }
 
+impl From<Error> for io::Error {
+    fn from(err: Error) -> Self {
+        err.into_io_error()
+    }
+}
+
 impl Debug for Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         unsafe { self.with_str(|s| Debug::fmt(s, f)) }
