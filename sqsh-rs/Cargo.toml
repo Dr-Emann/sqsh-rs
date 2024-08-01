@@ -7,6 +7,7 @@ authors = ["Zachary Dremann <dremann@gmail.com>"]
 categories = ["api-bindings"]
 keywords = ["sqsh", "libsqsh", "compression", "archive"]
 repository = "https://github.com/Dr-Emann/sqsh-rs"
+readme = "../README.md"
 
 edition = "2021"
 rust-version = "1.74.0"
