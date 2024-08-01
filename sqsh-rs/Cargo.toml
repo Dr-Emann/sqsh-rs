@@ -1,7 +1,7 @@
 [package]
 name = "sqsh-rs"
 description = "A Rust wrapper around the libsqsh library"
-version = "0.1.1"
+version = "0.1.2"
 license = "BSD-2-Clause"
 authors = ["Zachary Dremann <dremann@gmail.com>"]
 categories = ["api-bindings"]
