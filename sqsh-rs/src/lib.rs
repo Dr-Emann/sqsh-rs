@@ -25,6 +25,7 @@ pub use crate::inode::{Inode, InodeRef, ZeroInode};
 pub use crate::inode_map::InodeMap;
 pub use crate::path_resolver::PathResolver;
 pub use crate::reader::Reader;
+pub use crate::source::Source;
 pub use crate::superblock::{Compression, Superblock};
 pub use crate::xattr::XattrIterator;
 

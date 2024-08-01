@@ -104,7 +104,7 @@ impl<'traversal, 'archive> Entry<'traversal, 'archive> {
 
     /// The name of this entry.
     ///
-    /// This is the same as the last [path segment][Self::path_segments], or an empty string if
+    /// This is the same as the last [path segment][Self::path], or an empty string if
     /// there are no path segments.
     ///
     /// The root entry has an empty name.

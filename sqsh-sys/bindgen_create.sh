@@ -1,8 +1,10 @@
 #!/bin/bash
 
+set -e
+
 cd "$(dirname "$0")" || exit 1
 
-if ! [ -d submodules/sqsh-tools/includ ]; then
+if ! [ -d submodules/sqsh-tools/include ]; then
   git submodule update --init --recursive || exit $?
 fi
 
