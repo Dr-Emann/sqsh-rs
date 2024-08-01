@@ -11,8 +11,17 @@ fn main() {
     let submodules_dir = Path::new("submodules");
     println!("cargo:rerun-if-changed={}", submodules_dir.display());
     let sqsh_tools = submodules_dir.join("sqsh-tools");
+    let cextras = submodules_dir.join("cextras");
+    if !sqsh_tools.join("include").exists() {
+        panic!("sqsh-tools submodule is not initialized. Run `git submodule update --init --recursive`");
+    }
+    if !cextras.join("include").exists() {
+        panic!(
+            "cextras submodule is not initialized. Run `git submodule update --init --recursive`"
+        );
+    }
     let roots = [
-        submodules_dir.join("cextras"),
+        cextras,
         sqsh_tools.join("common"),
         sqsh_tools.join("libsqsh"),
     ];
