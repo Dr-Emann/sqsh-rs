@@ -1,7 +1,17 @@
 [package]
 name = "sqsh-sys"
+description = "Low-level bindings to the libsqsh library"
 version = "0.2.0"
+license = "BSD-2"
+authors = ["Zachary Dremann <dremann@gmail.com>"]
+categories = ["external-ffi-bindings", "no-std"]
+keywords = ["sqsh", "libsqsh", "compression", "archive"]
+repository = "https://github.com/Dr-Emann/sqsh-rs"
+
 edition = "2021"
+rust-version = "1.72.0"
+
+links = "sqsh"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -13,7 +23,7 @@ lzma-sys = { version = "0.1", optional = true }
 zstd-sys = { version = "2.0", default-features = false, optional = true }
 
 [features]
-default = ["zlib-ng", "lz4", "lzma", "zstd"]
+default = ["zlib", "lz4", "lzma", "zstd"]
 zlib = ["dep:libz-sys"]
 lz4 = ["dep:lz4-sys"]
 lzma = ["dep:lzma-sys"]
@@ -31,3 +41,8 @@ pkg-config = "0.3"
 [lib]
 # Some doc comments from bindgen contains code examples that are not valid Rust code
 doctest = false
+
+[package.metadata.docs.rs]
+# Might as well speed up the build process by only including zlib
+no-default-features = true
+features = ["zlib"]

@@ -26,11 +26,14 @@ fn main() {
         .map(walkdir::DirEntry::into_path)
         .collect();
 
+    let include_dir = sqsh_tools.join("include");
+    println!("cargo:include={}", include_dir.display());
+
     let extra_includes = roots.iter().map(|p| p.join("include")).collect::<Vec<_>>();
 
     let mut build = cc::Build::new();
     build
-        .include(sqsh_tools.join("include"))
+        .include(include_dir)
         .includes(extra_includes)
         .files(c_files)
         .flag("-pthread")

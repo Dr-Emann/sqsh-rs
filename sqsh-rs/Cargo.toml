@@ -1,15 +1,35 @@
 [package]
 name = "sqsh-rs"
+description = "A Rust wrapper around the libsqsh library"
 version = "0.1.0"
+license = "BSD-2"
+authors = ["Zachary Dremann <dremann@gmail.com>"]
+categories = ["api-bindings"]
+keywords = ["sqsh", "libsqsh", "compression", "archive"]
+repository = "https://github.com/Dr-Emann/sqsh-rs"
+
 edition = "2021"
+rust-version = "1.74.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[features]
+default = ["zlib", "lz4", "lzma", "zstd"]
+zlib = ["sqsh-sys/zlib"]
+lz4 = ["sqsh-sys/lz4"]
+lzma = ["sqsh-sys/lzma"]
+zstd = ["sqsh-sys/zstd"]
 
 [dependencies]
 bitflags = "2.3"
 bstr = "1.5"
 libc = "0.2"
-sqsh-sys = { path = "../sqsh-sys", version = "0.2" }
+sqsh-sys = { path = "../sqsh-sys", version = "0.2", default-features = false }
 
 [dev-dependencies]
 insta = "1.30"
+
+[package.metadata.docs.rs]
+# Might as well speed up the build process by only including zlib
+no-default-features = true
+features = ["zlib"]
