@@ -7,7 +7,7 @@ mod sealed {
     use sqsh_sys as ffi;
     use std::ffi::c_void;
 
-    pub unsafe trait SourceData<'a> {
+    pub trait SourceData<'a> {
         /// Represents the addressable size of the source in bytes
         ///
         /// Only really useful for slice-based sources, files know their own length
@@ -27,7 +27,7 @@ pub trait Source<'a>: sealed::SourceData<'a> {}
 
 impl<'a, S: sealed::SourceData<'a>> Source<'a> for S {}
 
-unsafe impl<'a> sealed::SourceData<'a> for &'a [u8] {
+impl<'a> sealed::SourceData<'a> for &'a [u8] {
     fn source_mapper(&self) -> *const ffi::SqshMemoryMapperImpl {
         unsafe { ffi::sqsh_mapper_impl_static }
     }
@@ -44,7 +44,7 @@ unsafe impl<'a> sealed::SourceData<'a> for &'a [u8] {
     }
 }
 
-unsafe impl sealed::SourceData<'static> for &Path {
+impl sealed::SourceData<'static> for &Path {
     fn source_mapper(&self) -> *const ffi::SqshMemoryMapperImpl {
         unsafe { ffi::sqsh_mapper_impl_mmap }
     }
