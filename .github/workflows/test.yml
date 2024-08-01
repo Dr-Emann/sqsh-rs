@@ -2,8 +2,6 @@ name: Test
 
 on:
   pull_request:
-    branches:
-      - "release-plz-*"
   push:
     branches:
       - main
@@ -22,3 +20,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
       - name: Run cargo test
         run: cargo test
+      - name: Run cargo fmt
+        run: cargo fmt -- --check
+      - name: Run cargo clippy
+        run: cargo clippy -- -D warnings
