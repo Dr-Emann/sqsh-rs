@@ -2,7 +2,7 @@
 name = "sqsh-rs"
 description = "A Rust wrapper around the libsqsh library"
 version = "0.1.0"
-license = "BSD-2"
+license = "BSD-2-Clause"
 authors = ["Zachary Dremann <dremann@gmail.com>"]
 categories = ["api-bindings"]
 keywords = ["sqsh", "libsqsh", "compression", "archive"]

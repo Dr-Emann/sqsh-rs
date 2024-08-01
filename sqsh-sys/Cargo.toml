@@ -2,7 +2,7 @@
 name = "sqsh-sys"
 description = "Low-level bindings to the libsqsh library"
 version = "0.2.0"
-license = "BSD-2"
+license = "BSD-2-Clause"
 authors = ["Zachary Dremann <dremann@gmail.com>"]
 categories = ["external-ffi-bindings", "no-std"]
 keywords = ["sqsh", "libsqsh", "compression", "archive"]
