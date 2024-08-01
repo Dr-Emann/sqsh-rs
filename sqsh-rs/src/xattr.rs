@@ -56,9 +56,11 @@ impl<'file> XattrEntry<'file> {
 
     /// Retrieves the value of the current entry.
     pub fn value(&self) -> &BStr {
-        let size = unsafe { ffi::sqsh_xattr_iterator_value_size(self.inner) };
+        let size = unsafe { ffi::sqsh_xattr_iterator_value_size2(self.inner) };
         let data = unsafe { ffi::sqsh_xattr_iterator_value(self.inner) };
-        let bytes = unsafe { std::slice::from_raw_parts(data.cast::<u8>(), usize::from(size)) };
+        let bytes = unsafe {
+            std::slice::from_raw_parts(data.cast::<u8>(), usize::try_from(size).unwrap())
+        };
         BStr::new(bytes)
     }
 
