@@ -12,13 +12,13 @@ mod inode_map;
 mod path_resolver;
 mod reader;
 mod source;
-mod superblock;
+pub mod superblock;
 pub mod traverse;
 mod utils;
 mod xattr;
 
 pub use crate::archive::Archive;
-pub use crate::directory::DirectoryIterator;
+pub use crate::directory::{DirectoryEntry, DirectoryIterator};
 pub use crate::error::{Error, Result};
 pub use crate::export_table::ExportTable;
 pub use crate::file::File;
@@ -29,7 +29,7 @@ pub use crate::path_resolver::PathResolver;
 pub use crate::reader::Reader;
 pub use crate::source::Source;
 pub use crate::superblock::{Compression, Superblock};
-pub use crate::xattr::XattrIterator;
+pub use crate::xattr::{UnknownXattrType, XattrEntry, XattrIterator, XattrType};
 
 use bitflags::bitflags;
 use sqsh_sys as ffi;
