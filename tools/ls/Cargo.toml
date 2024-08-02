@@ -1,0 +1,13 @@
+[package]
+name = "sqsh-ls"
+description = "Example implementation of an ls command for sqsh files"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+color-eyre = { version = "0.6", default-features = false, features = ["track-caller"] }
+bstr = "1.10.0"
+clap = { version = "4.5", features = ["derive"] }
+jiff = "0.1.4"
+sqsh-rs = { version = "0.1", path = "../../sqsh-rs" }
