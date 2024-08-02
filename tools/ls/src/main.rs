@@ -1,6 +1,6 @@
 use bstr::BStr;
 use clap::Parser;
-use color_eyre::eyre::{eyre, OptionExt, WrapErr};
+use color_eyre::eyre::{OptionExt, WrapErr};
 use sqsh_rs::traverse::Entry;
 use sqsh_rs::{Archive, FileType};
 use std::fmt::Write as _;
