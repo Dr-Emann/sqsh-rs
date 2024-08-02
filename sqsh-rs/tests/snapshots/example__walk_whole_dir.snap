@@ -16,4 +16,5 @@ expression: names
     "socket",
     "socket2",
     "subdir",
+    "weird",
 ]

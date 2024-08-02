@@ -89,4 +89,23 @@ expression: trees
             ),
         ],
     ),
+    Directory(
+        "weird",
+        [
+            Directory(
+                " ",
+                [
+                    Directory(
+                        "😭",
+                        [
+                            Directory(
+                                "*)(&^%$#@!",
+                                [],
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    ),
 ]

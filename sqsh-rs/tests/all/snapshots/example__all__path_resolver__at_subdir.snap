@@ -10,7 +10,7 @@ PathResolver {
         Directory,
     ),
     current_dir_inode: Inode(
-        23,
+        27,
     ),
     current_dir_inode_ref: InodeRef(
         0x0000_00000000_02B5,
@@ -33,7 +33,7 @@ PathResolver {
                 20,
             ),
             parent_inode: Inode(
-                23,
+                27,
             ),
             modified_time: 1000,
             symlink_path: None,

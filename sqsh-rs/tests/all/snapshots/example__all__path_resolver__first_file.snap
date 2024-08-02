@@ -10,7 +10,7 @@ PathResolver {
         File,
     ),
     current_dir_inode: Inode(
-        23,
+        27,
     ),
     current_dir_inode_ref: InodeRef(
         0x0000_00000000_0000,

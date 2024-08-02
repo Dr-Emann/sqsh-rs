@@ -8,10 +8,10 @@ PathResolver {
         Directory,
     ),
     current_dir_inode: Inode(
-        24,
+        28,
     ),
     current_dir_inode_ref: InodeRef(
-        0x0000_00000000_02D5,
+        0x0000_00000000_0355,
     ),
     current_file: Ok(
         File {
@@ -22,16 +22,16 @@ PathResolver {
                 UserRead | UserWrite | UserExec,
             ),
             inode_ref: InodeRef(
-                0x0000_00000000_02D5,
+                0x0000_00000000_0355,
             ),
             is_extended: false,
-            hard_link_count: 6,
-            size: 216,
+            hard_link_count: 7,
+            size: 229,
             inode: Inode(
-                23,
+                27,
             ),
             parent_inode: Inode(
-                24,
+                28,
             ),
             modified_time: 1000,
             symlink_path: None,

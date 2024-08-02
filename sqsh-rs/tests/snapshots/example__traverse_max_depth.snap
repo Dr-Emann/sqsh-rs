@@ -30,5 +30,7 @@ Some(DirectoryEntry { file_type: Some(Socket), name: "socket", inode: Inode(19),
 Some(DirectoryEntry { file_type: Some(Socket), name: "socket2", inode: Inode(19), inode_ref: InodeRef(0x0000_00000000_0261), .. })
 /subdir Normal 1
 Some(DirectoryEntry { file_type: Some(Directory), name: "subdir", inode: Inode(20), inode_ref: InodeRef(0x0000_00000000_02B5), .. })
+/weird Normal 1
+Some(DirectoryEntry { file_type: Some(Directory), name: "weird", inode: Inode(23), inode_ref: InodeRef(0x0000_00000000_0335), .. })
 / DirectorySecond 0
 None
