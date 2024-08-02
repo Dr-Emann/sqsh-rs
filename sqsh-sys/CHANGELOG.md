@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2](https://github.com/Dr-Emann/sqsh-rs/compare/sqsh-sys-v0.2.1...sqsh-sys-v0.2.2) - 2024-08-02
+
+### Fixed
+- error with a sensible message if submodules are missing
+
 ## [0.2.1](https://github.com/Dr-Emann/sqsh-rs/compare/sqsh-sys-v0.2.0...sqsh-sys-v0.2.1) - 2024-08-01
 
 ### Other

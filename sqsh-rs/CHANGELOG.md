@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4](https://github.com/Dr-Emann/sqsh-rs/compare/sqsh-rs-v0.1.3...sqsh-rs-v0.1.4) - 2024-08-02
+
+### Added
+- implement Display for Permissions
+
+### Other
+- add some weird file names to test squashfs file
+
 ## [0.1.3](https://github.com/Dr-Emann/sqsh-rs/compare/sqsh-rs-v0.1.2...sqsh-rs-v0.1.3) - 2024-08-01
 
 ### Fixed
