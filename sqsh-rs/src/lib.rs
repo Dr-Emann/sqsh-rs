@@ -30,10 +30,12 @@ pub use crate::reader::Reader;
 pub use crate::source::Source;
 pub use crate::superblock::{Compression, Superblock};
 pub use crate::xattr::{UnknownXattrType, XattrEntry, XattrIterator, XattrType};
+use std::fmt;
 
 use bitflags::bitflags;
 use sqsh_sys as ffi;
 use std::fmt::Debug;
+use std::ops::Deref;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum FileType {
@@ -84,6 +86,107 @@ bitflags! {
         const OtherRW = Self::OtherRead.bits() | Self::OtherWrite.bits();
         const OtherRWX = Self::OtherRW.bits() | Self::OtherExec.bits();
 
+        const SetUID = 0o4000;
+        const SetGID = 0o2000;
+        const Sticky = 0o1000;
+
         const _ = !0;
+    }
+}
+
+#[derive(Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct PermissionsStr([u8; 3 * 3]);
+
+impl Deref for PermissionsStr {
+    type Target = str;
+
+    fn deref(&self) -> &Self::Target {
+        self.as_str()
+    }
+}
+
+impl PermissionsStr {
+    pub fn as_str(&self) -> &str {
+        // SAFETY: The `PermissionsStr` will contain only ascii.
+        unsafe { std::str::from_utf8_unchecked(&self.0) }
+    }
+}
+
+impl fmt::Display for PermissionsStr {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl fmt::Debug for PermissionsStr {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_tuple("PermissionsStr")
+            .field(&self.as_str())
+            .finish()
+    }
+}
+
+impl fmt::Display for Permissions {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&self.to_str())
+    }
+}
+
+impl Permissions {
+    pub const fn to_str(self) -> PermissionsStr {
+        let mut bytes = [0xFF; 3 * 3];
+
+        bytes[0] = if self.contains(Self::UserRead) {
+            b'r'
+        } else {
+            b'-'
+        };
+        bytes[1] = if self.contains(Self::UserWrite) {
+            b'w'
+        } else {
+            b'-'
+        };
+        bytes[2] = match (self.contains(Self::SetUID), self.contains(Self::UserExec)) {
+            (true, true) => b's',
+            (true, false) => b'S',
+            (false, true) => b'x',
+            (false, false) => b'-',
+        };
+
+        bytes[3] = if self.contains(Self::GroupRead) {
+            b'r'
+        } else {
+            b'-'
+        };
+        bytes[4] = if self.contains(Self::GroupWrite) {
+            b'w'
+        } else {
+            b'-'
+        };
+        bytes[5] = match (self.contains(Self::SetGID), self.contains(Self::GroupExec)) {
+            (true, true) => b's',
+            (true, false) => b'S',
+            (false, true) => b'x',
+            (false, false) => b'-',
+        };
+
+        bytes[6] = if self.contains(Self::OtherRead) {
+            b'r'
+        } else {
+            b'-'
+        };
+        bytes[7] = if self.contains(Self::OtherWrite) {
+            b'w'
+        } else {
+            b'-'
+        };
+        bytes[8] = match (self.contains(Self::Sticky), self.contains(Self::OtherExec)) {
+            (true, true) => b't',
+            (true, false) => b'T',
+            (false, true) => b'x',
+            (false, false) => b'-',
+        };
+
+        PermissionsStr(bytes)
     }
 }
