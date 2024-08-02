@@ -68,5 +68,21 @@ Some(DirectoryEntry { file_type: Some(File), name: "one.file", inode: Inode(21),
 Some(DirectoryEntry { file_type: Some(File), name: "short.file", inode: Inode(22), inode_ref: InodeRef(0x0000_00000000_0295), .. })
 /subdir DirectorySecond 1
 Some(DirectoryEntry { file_type: Some(Directory), name: "subdir", inode: Inode(20), inode_ref: InodeRef(0x0000_00000000_02B5), .. })
+/weird DirectoryFirst 1
+Some(DirectoryEntry { file_type: Some(Directory), name: "weird", inode: Inode(23), inode_ref: InodeRef(0x0000_00000000_0335), .. })
+/weird/  DirectoryFirst 2
+Some(DirectoryEntry { file_type: Some(Directory), name: " ", inode: Inode(24), inode_ref: InodeRef(0x0000_00000000_0315), .. })
+/weird/ /😭 DirectoryFirst 3
+Some(DirectoryEntry { file_type: Some(Directory), name: "😭", inode: Inode(25), inode_ref: InodeRef(0x0000_00000000_02F5), .. })
+/weird/ /😭/*)(&^%$#@! DirectoryFirst 4
+Some(DirectoryEntry { file_type: Some(Directory), name: "*)(&^%$#@!", inode: Inode(26), inode_ref: InodeRef(0x0000_00000000_02D5), .. })
+/weird/ /😭/*)(&^%$#@! DirectorySecond 4
+Some(DirectoryEntry { file_type: Some(Directory), name: "*)(&^%$#@!", inode: Inode(26), inode_ref: InodeRef(0x0000_00000000_02D5), .. })
+/weird/ /😭 DirectorySecond 3
+Some(DirectoryEntry { file_type: Some(Directory), name: "😭", inode: Inode(25), inode_ref: InodeRef(0x0000_00000000_02F5), .. })
+/weird/  DirectorySecond 2
+Some(DirectoryEntry { file_type: Some(Directory), name: " ", inode: Inode(24), inode_ref: InodeRef(0x0000_00000000_0315), .. })
+/weird DirectorySecond 1
+Some(DirectoryEntry { file_type: Some(Directory), name: "weird", inode: Inode(23), inode_ref: InodeRef(0x0000_00000000_0335), .. })
 / DirectorySecond 0
 None
