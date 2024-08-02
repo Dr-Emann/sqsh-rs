@@ -1,4 +1,4 @@
 [workspace]
-members = ["sqsh-sys", "sqsh-rs", "xtask"]
+members = ["sqsh-sys", "sqsh-rs", "xtask", "tools/*"]
 
 resolver = "2"
