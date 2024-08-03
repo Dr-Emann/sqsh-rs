@@ -34,9 +34,7 @@ zlib-ng = ["zlib", "libz-sys/zlib-ng"]
 static = ["libz-sys?/static", "lzma-sys?/static"]
 
 [build-dependencies]
-cc = "1.0"
-walkdir = "2.3"
-pkg-config = "0.3"
+meson-next = "1.2.3"
 
 [lib]
 # Some doc comments from bindgen contains code examples that are not valid Rust code
