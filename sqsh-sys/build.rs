@@ -1,80 +1,41 @@
+use meson_next::{build, Config};
+use std::collections::HashMap;
 use std::env;
-use std::path::{Path, PathBuf};
-use walkdir::WalkDir;
-
-fn is_source_entry(entry: &walkdir::DirEntry) -> bool {
-    // Skip any codegen directories
-    entry.file_name() != "codegen"
-}
+use std::path::PathBuf;
 
 fn main() {
-    let submodules_dir = Path::new("submodules");
-    println!("cargo:rerun-if-changed={}", submodules_dir.display());
-    let sqsh_tools = submodules_dir.join("sqsh-tools");
-    let cextras = submodules_dir.join("cextras");
-    if !sqsh_tools.join("include").exists() {
-        panic!("sqsh-tools submodule is not initialized. Run `git submodule update --init --recursive`");
-    }
-    if !cextras.join("include").exists() {
-        panic!(
-            "cextras submodule is not initialized. Run `git submodule update --init --recursive`"
-        );
-    }
-    let roots = [
-        cextras,
-        sqsh_tools.join("common"),
-        sqsh_tools.join("libsqsh"),
-    ];
-    let c_files: Vec<PathBuf> = roots
-        .iter()
-        .flat_map(|p| [p.join("src"), p.join("lib")])
-        .filter(|p| p.exists())
-        .flat_map(|p| WalkDir::new(p).into_iter().filter_entry(is_source_entry))
-        .map(Result::unwrap)
-        .filter(|e| !e.file_type().is_dir() && e.path().extension().unwrap_or_default() == "c")
-        .map(walkdir::DirEntry::into_path)
-        .collect();
-
-    let include_dir = sqsh_tools.join("include");
-    println!("cargo:include={}", include_dir.display());
-
-    let extra_includes = roots.iter().map(|p| p.join("include")).collect::<Vec<_>>();
-
-    let mut build = cc::Build::new();
-    build
-        .include(include_dir)
-        .includes(extra_includes)
-        .files(c_files)
-        .flag("-pthread")
-        .std("c11")
-        .warnings(true);
-    if cfg!(feature = "zlib") {
-        if let Some(include) = env::var_os("DEP_Z_INCLUDE") {
-            build.include(include);
-        }
-        build.define("CONFIG_ZLIB", None);
-    }
-    if cfg!(feature = "lz4") {
-        if let Some(include) = env::var_os("DEP_LZ4_INCLUDE") {
-            build.include(include);
-        }
-        build.define("CONFIG_LZ4", None);
-    }
-    if cfg!(feature = "lzma") {
-        if let Some(include) = env::var_os("DEP_LZMA_INCLUDE") {
-            build.include(include);
-        } else if let Ok(library) = pkg_config::probe_library("liblzma") {
-            // lzma-sys defaults to using pkg-config, but it doesn't expose the DEP_LZMA_INCLUDE
-            // var unless it builds it
-            build.includes(library.include_paths);
-        }
-        build.define("CONFIG_LZMA", None);
-    }
-    if cfg!(feature = "zstd") {
-        if let Some(include) = env::var_os("DEP_ZSTD_INCLUDE") {
-            build.include(include);
-        }
-        build.define("CONFIG_ZSTD", None);
-    }
-    build.compile("sqsh");
+    let build_path = PathBuf::from(env::var("OUT_DIR").unwrap()).join("build");
+    let build_path = build_path.to_str().unwrap();
+    let options = HashMap::from([
+        ("default_library", "static"),
+        ("tools", "false"),
+        (
+            "lz4",
+            cfg!(feature = "lz4")
+                .then_some("enabled")
+                .unwrap_or("disabled"),
+        ),
+        (
+            "lzma",
+            cfg!(feature = "lzma")
+                .then_some("enabled")
+                .unwrap_or("disabled"),
+        ),
+        (
+            "zlib",
+            cfg!(feature = "zlib")
+                .then_some("enabled")
+                .unwrap_or("disabled"),
+        ),
+        (
+            "zstd",
+            cfg!(feature = "zstd")
+                .then_some("enabled")
+                .unwrap_or("disabled"),
+        ),
+    ]);
+    let config = Config::new().options(options);
+    println!("cargo:rustc-link-lib=static=sqsh");
+    println!("cargo:rustc-link-search=native={}/libsqsh", build_path);
+    build("sqsh-tools", build_path, config);
 }
