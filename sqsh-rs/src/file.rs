@@ -213,7 +213,7 @@ impl<'archive> File<'archive> {
     }
 
     /// Returns a new reader for the file.
-    pub fn reader(&self) -> error::Result<Reader<'_>> {
+    pub fn reader(&self) -> error::Result<Reader<'archive>> {
         let mut err = 0;
         let iterator = unsafe { ffi::sqsh_file_iterator_new(self.inner.as_ptr(), &mut err) };
         let iterator = match NonNull::new(iterator) {
@@ -223,7 +223,7 @@ impl<'archive> File<'archive> {
         Ok(unsafe { Reader::new(iterator) })
     }
 
-    pub fn traversal(&self) -> error::Result<Traversal> {
+    pub fn traversal(&self) -> error::Result<Traversal<'archive>> {
         let mut err = 0;
         let traversal = unsafe { ffi::sqsh_tree_traversal_new(self.inner.as_ptr(), &mut err) };
         let traversal = match NonNull::new(traversal) {
