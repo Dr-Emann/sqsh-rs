@@ -262,4 +262,3 @@ impl<'archive> Drop for File<'archive> {
 }
 
 unsafe impl<'archive> Send for File<'archive> {}
-unsafe impl<'archive> Sync for File<'archive> {}

@@ -99,7 +99,6 @@ impl<'archive> BufRead for Reader<'archive> {
 }
 
 unsafe impl Send for Reader<'_> {}
-unsafe impl Sync for Reader<'_> {}
 
 impl<'archive> Drop for Reader<'archive> {
     fn drop(&mut self) {
