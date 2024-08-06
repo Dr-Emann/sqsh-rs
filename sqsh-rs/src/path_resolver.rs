@@ -202,7 +202,6 @@ impl fmt::Debug for PathResolver<'_> {
 }
 
 unsafe impl<'archive> Send for PathResolver<'archive> {}
-unsafe impl<'archive> Sync for PathResolver<'archive> {}
 
 impl Drop for PathResolver<'_> {
     fn drop(&mut self) {

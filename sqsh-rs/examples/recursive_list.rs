@@ -2,7 +2,7 @@ use bstr::{BStr, ByteVec};
 use sqsh_rs::{Archive, DirectoryIterator};
 use std::env;
 
-fn visit_directory(path_so_far: &BStr, mut iter: DirectoryIterator<'_, '_>) -> sqsh_rs::Result<()> {
+fn visit_directory(path_so_far: &BStr, mut iter: DirectoryIterator<'_>) -> sqsh_rs::Result<()> {
     while let Some(entry) = iter.advance()? {
         let name = entry.name();
         let mut path = path_so_far.to_owned();
