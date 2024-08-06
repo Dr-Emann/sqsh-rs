@@ -1,13 +1,13 @@
-use crate::{error, File, FileType, Inode, InodeRef};
+use crate::{error, Archive, File, FileType, Inode, InodeRef};
 use bstr::BStr;
 use sqsh_sys as ffi;
 use std::ffi::c_char;
 use std::fmt;
 use std::ptr::NonNull;
 
-pub struct DirectoryIterator<'file, 'archive> {
+pub struct DirectoryIterator<'archive> {
     inner: NonNull<ffi::SqshDirectoryIterator>,
-    _marker: std::marker::PhantomData<&'file File<'archive>>,
+    _marker: std::marker::PhantomData<&'archive Archive<'archive>>,
 }
 
 #[derive(Clone, Copy)]
@@ -15,10 +15,10 @@ pub struct DirectoryEntry<'dir, 'archive> {
     inner: &'dir ffi::SqshDirectoryIterator,
     // Because 'dir is shorter (a subtype) of 'file, and we don't need 'file, we use
     // 'dir as the first parameter to DirectoryIterator
-    _marker: std::marker::PhantomData<&'dir DirectoryIterator<'dir, 'archive>>,
+    _marker: std::marker::PhantomData<&'dir DirectoryIterator<'archive>>,
 }
 
-impl<'file, 'archive> DirectoryIterator<'file, 'archive> {
+impl<'archive> DirectoryIterator<'archive> {
     pub(crate) unsafe fn new(inner: NonNull<ffi::SqshDirectoryIterator>) -> Self {
         Self {
             inner,
@@ -65,7 +65,7 @@ impl<'file, 'archive> DirectoryIterator<'file, 'archive> {
     }
 }
 
-impl Drop for DirectoryIterator<'_, '_> {
+impl Drop for DirectoryIterator<'_> {
     fn drop(&mut self) {
         unsafe {
             ffi::sqsh_directory_iterator_free(self.inner.as_ptr());
