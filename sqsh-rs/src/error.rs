@@ -7,7 +7,7 @@ use std::fmt::{Debug, Display, Formatter};
 use std::io;
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
-pub struct Error(pub(crate) ffi::SqshError);
+pub struct Error(pub ffi::SqshError);
 
 pub type Result<T, E = Error> = std::result::Result<T, E>;
 
@@ -76,6 +76,11 @@ impl Error {
             None => io::Error::new(self.io_error_kind(), self),
         }
     }
+
+    #[must_use]
+    pub(crate) fn to_ffi_result(self) -> c_int {
+        -(self.0 .0 as c_int)
+    }
 }
 
 impl From<std::ffi::NulError> for Error {
@@ -87,6 +92,18 @@ impl From<std::ffi::NulError> for Error {
 impl From<Error> for io::Error {
     fn from(err: Error) -> Self {
         err.into_io_error()
+    }
+}
+
+impl From<ffi::SqshError> for Error {
+    fn from(err: ffi::SqshError) -> Self {
+        Self(err)
+    }
+}
+
+impl From<std::num::TryFromIntError> for Error {
+    fn from(_: std::num::TryFromIntError) -> Self {
+        Self(ffi::SqshError::SQSH_ERROR_INTEGER_OVERFLOW)
     }
 }
 

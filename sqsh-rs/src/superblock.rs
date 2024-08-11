@@ -4,6 +4,7 @@ use sqsh_sys as ffi;
 use std::fmt;
 use std::ptr::NonNull;
 
+/// The type of compression used in an archive.
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Compression {
     id: ffi::SqshSuperblockCompressionId,
@@ -59,6 +60,7 @@ impl fmt::Debug for Compression {
     }
 }
 
+/// Information about the compression options used in an archive.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum CompressionOptions {
     Gzip {
@@ -237,6 +239,7 @@ impl Archive<'_> {
     }
 }
 
+/// Information about the layout and statistics about an archive.
 #[derive(Copy, Clone)]
 pub struct Superblock<'archive> {
     inner: &'archive ffi::SqshSuperblock,

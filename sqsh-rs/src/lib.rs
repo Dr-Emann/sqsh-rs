@@ -11,7 +11,7 @@ mod inode;
 mod inode_map;
 mod path_resolver;
 mod reader;
-mod source;
+pub mod source;
 pub mod superblock;
 pub mod traverse;
 mod utils;
@@ -33,7 +33,7 @@ pub use crate::xattr::{UnknownXattrType, XattrEntry, XattrIterator, XattrType};
 use std::fmt;
 
 use bitflags::bitflags;
-use sqsh_sys as ffi;
+pub use sqsh_sys as ffi;
 use std::fmt::Debug;
 use std::ops::Deref;
 

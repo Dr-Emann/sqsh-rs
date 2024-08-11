@@ -1,6 +1,9 @@
-use crate::source::Source;
-use crate::{error, File};
+use crate::source::SourceVtable;
+use crate::utils::small_c_string::run_with_cstr;
+use crate::{error, File, Source};
 use sqsh_sys as ffi;
+use sqsh_sys::SqshMemoryMapperImpl;
+use std::ffi::c_void;
 use std::marker::PhantomData;
 use std::mem;
 use std::path::Path;
@@ -25,35 +28,29 @@ impl Archive<'static> {
     }
 
     fn _new(path: &Path) -> error::Result<Self> {
-        Self::with_source(path)
+        run_with_cstr(path.as_os_str().as_encoded_bytes(), |path| unsafe {
+            Self::new_raw_simple(&*ffi::sqsh_mapper_impl_mmap, 0, path.as_ptr().cast())
+        })
     }
 }
 
 impl<'a> Archive<'a> {
     pub fn from_slice(data: &'a [u8]) -> error::Result<Self> {
-        Self::with_source(data)
+        unsafe {
+            Self::new_raw_simple(
+                &*ffi::sqsh_mapper_impl_static,
+                data.len(),
+                data.as_ptr().cast(),
+            )
+        }
     }
 }
 
 impl<'a> Archive<'a> {
-    pub fn with_source<S>(source: S) -> error::Result<Self>
-    where
-        S: Source<'a>,
-    {
+    unsafe fn new_raw(config: &ffi::SqshConfig, source_ptr: *const c_void) -> error::Result<Self> {
         let mut err = 0;
-        let config = ffi::SqshConfig {
-            archive_offset: 0,
-            source_size: source.size(),
-            source_mapper: source.source_mapper(),
-            mapper_block_size: 0,
-            mapper_lru_size: 0,
-            compression_lru_size: 0,
-            max_symlink_depth: 0,
-            _reserved: unsafe { mem::zeroed() },
-        };
-        let archive = source.with_source_pointer(|source_ptr| unsafe {
-            ffi::sqsh_archive_open(source_ptr, &config, &mut err)
-        })?;
+        let archive = ffi::sqsh_archive_open(source_ptr, config, &mut err);
+
         match NonNull::new(archive) {
             Some(archive) => Ok(Self {
                 inner: archive,
@@ -61,6 +58,30 @@ impl<'a> Archive<'a> {
             }),
             None => Err(error::new(err)),
         }
+    }
+
+    unsafe fn new_raw_simple(
+        source_mapper: &'a SqshMemoryMapperImpl,
+        size: usize,
+        source_ptr: *const c_void,
+    ) -> error::Result<Self> {
+        let config = ffi::SqshConfig {
+            archive_offset: 0,
+            source_size: size.try_into().unwrap(),
+            source_mapper,
+            mapper_block_size: 0,
+            mapper_lru_size: 0,
+            compression_lru_size: 0,
+            max_symlink_depth: 0,
+            _reserved: unsafe { mem::zeroed() },
+        };
+        Self::new_raw(&config, source_ptr)
+    }
+
+    pub fn with_source<S: Source + 'a>(source: S) -> error::Result<Self> {
+        let vtable: &'a SourceVtable<S> = &const { SourceVtable::new() };
+        let source_ptr = crate::source::to_ptr(source);
+        unsafe { Self::new_raw_simple(vtable.mapper_impl(), 0, source_ptr) }
     }
 
     pub fn root(&self) -> error::Result<File<'_>> {
