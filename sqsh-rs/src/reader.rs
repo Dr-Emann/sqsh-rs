@@ -1,17 +1,17 @@
-use crate::{error, Error, File};
+use crate::{error, Archive, Error};
 use sqsh_sys as ffi;
 use std::io;
 use std::io::BufRead;
 use std::marker::PhantomData;
 use std::ptr::NonNull;
 
-pub struct Reader<'file> {
+pub struct Reader<'archive> {
     inner: NonNull<ffi::SqshFileIterator>,
     consumed: usize,
-    _marker: PhantomData<&'file File<'file>>,
+    _marker: PhantomData<&'archive Archive<'archive>>,
 }
 
-impl<'file> Reader<'file> {
+impl<'archive> Reader<'archive> {
     pub(crate) unsafe fn new(inner: NonNull<ffi::SqshFileIterator>) -> Self {
         Self {
             inner,
@@ -78,7 +78,7 @@ impl<'file> Reader<'file> {
     }
 }
 
-impl<'file> io::Read for Reader<'file> {
+impl<'archive> io::Read for Reader<'archive> {
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
         let src = self.fill_buf()?;
         let len = src.len().min(buf.len());
@@ -88,7 +88,7 @@ impl<'file> io::Read for Reader<'file> {
     }
 }
 
-impl<'file> BufRead for Reader<'file> {
+impl<'archive> BufRead for Reader<'archive> {
     fn fill_buf(&mut self) -> io::Result<&[u8]> {
         self.fill_buf_raw().map_err(Error::into_io_error)
     }
@@ -98,10 +98,9 @@ impl<'file> BufRead for Reader<'file> {
     }
 }
 
-unsafe impl<'file> Send for Reader<'file> {}
-unsafe impl<'file> Sync for Reader<'file> {}
+unsafe impl Send for Reader<'_> {}
 
-impl<'file> Drop for Reader<'file> {
+impl<'archive> Drop for Reader<'archive> {
     fn drop(&mut self) {
         unsafe { ffi::sqsh_file_iterator_free(self.inner.as_ptr()) };
     }

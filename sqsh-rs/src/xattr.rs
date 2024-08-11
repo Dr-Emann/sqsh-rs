@@ -1,19 +1,19 @@
-use crate::{error, File};
+use crate::{error, Archive};
 use bstr::BStr;
 use sqsh_sys as ffi;
 use std::fmt;
 use std::ptr::NonNull;
 
-pub struct XattrIterator<'file> {
+pub struct XattrIterator<'archive> {
     inner: NonNull<ffi::SqshXattrIterator>,
-    _marker: std::marker::PhantomData<&'file File<'file>>,
+    _marker: std::marker::PhantomData<&'archive Archive<'archive>>,
 }
 
 pub struct XattrEntry<'it> {
     inner: &'it ffi::SqshXattrIterator,
 }
 
-impl<'file> XattrIterator<'file> {
+impl<'archive> XattrIterator<'archive> {
     pub(crate) unsafe fn new(inner: NonNull<ffi::SqshXattrIterator>) -> Self {
         Self {
             inner,
@@ -37,7 +37,7 @@ impl<'file> XattrIterator<'file> {
     }
 }
 
-impl<'file> XattrEntry<'file> {
+impl<'it> XattrEntry<'it> {
     /// Retrieves the prefix of the current entry.
     pub fn prefix(&self) -> &'static BStr {
         let size = unsafe { ffi::sqsh_xattr_iterator_prefix_size(self.inner) };

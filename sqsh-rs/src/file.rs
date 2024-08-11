@@ -192,7 +192,7 @@ impl<'archive> File<'archive> {
     }
 
     /// Returns an iterator over the directory entries of the file.
-    pub fn as_dir(&self) -> error::Result<DirectoryIterator<'_, 'archive>> {
+    pub fn as_dir(&self) -> error::Result<DirectoryIterator<'archive>> {
         let mut err = 0;
         let dir_iter = unsafe { ffi::sqsh_directory_iterator_new(self.inner.as_ptr(), &mut err) };
         let dir_iter = match NonNull::new(dir_iter) {
@@ -202,7 +202,7 @@ impl<'archive> File<'archive> {
         Ok(unsafe { DirectoryIterator::new(dir_iter) })
     }
 
-    pub fn xattrs(&self) -> error::Result<XattrIterator<'_>> {
+    pub fn xattrs(&self) -> error::Result<XattrIterator<'archive>> {
         let mut err = 0;
         let xattr_iter = unsafe { ffi::sqsh_xattr_iterator_new(self.inner.as_ptr(), &mut err) };
         let xattr_iter = match NonNull::new(xattr_iter) {
@@ -213,7 +213,7 @@ impl<'archive> File<'archive> {
     }
 
     /// Returns a new reader for the file.
-    pub fn reader(&self) -> error::Result<Reader<'_>> {
+    pub fn reader(&self) -> error::Result<Reader<'archive>> {
         let mut err = 0;
         let iterator = unsafe { ffi::sqsh_file_iterator_new(self.inner.as_ptr(), &mut err) };
         let iterator = match NonNull::new(iterator) {
@@ -223,7 +223,7 @@ impl<'archive> File<'archive> {
         Ok(unsafe { Reader::new(iterator) })
     }
 
-    pub fn traversal(&self) -> error::Result<Traversal> {
+    pub fn traversal(&self) -> error::Result<Traversal<'archive>> {
         let mut err = 0;
         let traversal = unsafe { ffi::sqsh_tree_traversal_new(self.inner.as_ptr(), &mut err) };
         let traversal = match NonNull::new(traversal) {
@@ -262,4 +262,3 @@ impl<'archive> Drop for File<'archive> {
 }
 
 unsafe impl<'archive> Send for File<'archive> {}
-unsafe impl<'archive> Sync for File<'archive> {}
