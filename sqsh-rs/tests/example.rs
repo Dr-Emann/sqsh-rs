@@ -1,9 +1,8 @@
-use bstr::{BString, ByteSlice};
+use bstr::BString;
 use sqsh_rs::traverse::Traversal;
 use sqsh_rs::{Archive, DirectoryIterator, FileType, Permissions};
 use std::fmt::Write;
 use std::io::{BufRead, Read};
-use std::path::Path;
 
 mod all;
 
@@ -22,13 +21,6 @@ fn open_archive() {
 fn mem_open_archive() {
     let data = std::fs::read(ARCHIVE_PATH).unwrap();
     let _archive = Archive::from_slice(&data).unwrap();
-}
-
-#[test]
-fn open_by_source() {
-    let _path_archive = Archive::with_source(Path::new(ARCHIVE_PATH)).unwrap();
-    let data = std::fs::read(ARCHIVE_PATH).unwrap();
-    let _mem_archive = Archive::with_source(&data[..]).unwrap();
 }
 
 #[test]
@@ -190,6 +182,7 @@ fn walk_whole_dir() {
 #[test]
 fn recursive_directory() {
     #[derive(Debug)]
+    #[allow(dead_code)]
     enum Tree {
         File(BString),
         Directory(BString, Vec<Tree>),

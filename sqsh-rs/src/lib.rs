@@ -11,7 +11,7 @@ mod inode;
 mod inode_map;
 mod path_resolver;
 mod reader;
-pub mod source;
+mod source;
 pub mod superblock;
 pub mod traverse;
 mod utils;

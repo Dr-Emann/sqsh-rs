@@ -39,6 +39,12 @@ impl<S: Source> Default for SourceVtable<S> {
     }
 }
 
+/// A trait for mapping sections of an archive into memory.
+///
+/// # Safety
+///
+/// Implementors must ensure that the `map` function returns a valid pointer to a buffer of `size`
+/// bytes, and that the buffer remains valid until the `unmap` function is called.
 pub unsafe trait Source {
     const BLOCK_SIZE_HINT: usize;
 
