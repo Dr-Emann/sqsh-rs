@@ -23,12 +23,14 @@ impl Inode {
         NonZeroU32::new(value).map(Self).ok_or(ZeroInode)
     }
 
+    /// The one-based index of the inode.
     #[must_use]
-    pub fn get(self) -> u32 {
+    pub fn index(self) -> u32 {
         self.0.get()
     }
 }
 
+/// An error indicating that an inode number was zero.
 #[derive(Debug, Copy, Clone)]
 pub struct ZeroInode;
 
