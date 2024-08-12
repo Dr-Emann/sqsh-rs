@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0](https://github.com/Dr-Emann/sqsh-rs/compare/sqsh-rs-v0.1.4...sqsh-rs-v0.2.0) - 2024-08-12
+
+### Added
+- [**breaking**] renamed `Inode::get` to `Inode::index`
+- allow custom sources implemented in rust
+
+### Other
+- extra tests
+- add more rustdocs
+- fixup tests
+
 ## [0.1.4](https://github.com/Dr-Emann/sqsh-rs/compare/sqsh-rs-v0.1.3...sqsh-rs-v0.1.4) - 2024-08-02
 
 ### Added
