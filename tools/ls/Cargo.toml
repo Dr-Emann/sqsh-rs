@@ -10,4 +10,4 @@ color-eyre = { version = "0.6", default-features = false, features = ["track-cal
 bstr = "1.10.0"
 clap = { version = "4.5", features = ["derive"] }
 jiff = "0.1.4"
-sqsh-rs = { version = "0.1", path = "../../sqsh-rs" }
+sqsh-rs = { version = "0.2", path = "../../sqsh-rs" }
