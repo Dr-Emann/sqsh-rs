@@ -46,6 +46,9 @@ impl<S: Source> Default for SourceVtable<S> {
 /// Implementors must ensure that the `map` function returns a valid pointer to a buffer of `size`
 /// bytes, and that the buffer remains valid until the `unmap` function is called.
 pub unsafe trait Source {
+    /// The default block size if one is not passed explicitly.
+    ///
+    /// Must not be 0.
     const BLOCK_SIZE_HINT: usize;
 
     /// Retrieve the size of the archive.

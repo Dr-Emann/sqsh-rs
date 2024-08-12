@@ -12,14 +12,19 @@ use std::ptr::NonNull;
 
 /// Methods for opening files on an archive.
 impl Archive<'_> {
+    /// Open a file by path.
+    ///
+    /// This will follow symlinks. Use [`Self::open_nofollow`] to avoid following symlinks.
     pub fn open(&self, path: &str) -> error::Result<File<'_>> {
         run_with_cstr(path, |path| self.open_raw(path))
     }
 
+    /// Open a file by path without following symlinks.
     pub fn open_nofollow(&self, path: &str) -> error::Result<File<'_>> {
         run_with_cstr(path, |path| self.open_raw_nofollow(path))
     }
 
+    /// Open a file using a raw path (a CStr)
     pub fn open_raw(&self, path: &CStr) -> error::Result<File<'_>> {
         let mut err = 0;
         let file = unsafe { ffi::sqsh_open(self.inner.as_ptr(), path.as_ptr(), &mut err) };
@@ -31,6 +36,7 @@ impl Archive<'_> {
         Ok(unsafe { File::new(file) })
     }
 
+    /// Open a file using a raw path (a CStr) without following symlinks.
     pub fn open_raw_nofollow(&self, path: &CStr) -> error::Result<File<'_>> {
         let mut err = 0;
         let file = unsafe { ffi::sqsh_lopen(self.inner.as_ptr(), path.as_ptr(), &mut err) };
@@ -42,6 +48,7 @@ impl Archive<'_> {
         Ok(unsafe { File::new(file) })
     }
 
+    /// Open a file by inode reference.
     pub fn open_ref(&self, inode_ref: InodeRef) -> error::Result<File<'_>> {
         let mut err = 0;
         let file = unsafe { ffi::sqsh_open_by_ref(self.inner.as_ptr(), inode_ref.0, &mut err) };
@@ -53,6 +60,11 @@ impl Archive<'_> {
     }
 }
 
+/// A file in a squashfs archive.
+///
+/// Note that directories, symlinks, and other special files are also represented as `File`.
+///
+/// Files are created from an `Archive` with e.g. [`Archive::open`].
 pub struct File<'archive> {
     inner: NonNull<ffi::SqshFile>,
     _marker: std::marker::PhantomData<&'archive Archive<'archive>>,
@@ -81,6 +93,8 @@ impl<'archive> File<'archive> {
     }
 
     /// Returns the inode reference of the file.
+    ///
+    /// This can for example be used to re-open the file with [`Archive::open_ref`].
     #[must_use]
     pub fn inode_ref(&self) -> InodeRef {
         let inode_ref = unsafe { ffi::sqsh_file_inode_ref(self.inner.as_ptr()) };
@@ -192,6 +206,8 @@ impl<'archive> File<'archive> {
     }
 
     /// Returns an iterator over the directory entries of the file.
+    ///
+    /// If the file is not a directory, this will return an error.
     pub fn as_dir(&self) -> error::Result<DirectoryIterator<'_, 'archive>> {
         let mut err = 0;
         let dir_iter = unsafe { ffi::sqsh_directory_iterator_new(self.inner.as_ptr(), &mut err) };
@@ -202,6 +218,7 @@ impl<'archive> File<'archive> {
         Ok(unsafe { DirectoryIterator::new(dir_iter) })
     }
 
+    /// Returns an iterator over the extended attributes of the file.
     pub fn xattrs(&self) -> error::Result<XattrIterator<'_>> {
         let mut err = 0;
         let xattr_iter = unsafe { ffi::sqsh_xattr_iterator_new(self.inner.as_ptr(), &mut err) };
@@ -223,6 +240,9 @@ impl<'archive> File<'archive> {
         Ok(unsafe { Reader::new(iterator) })
     }
 
+    /// Returns a new traversal for the file.
+    ///
+    /// A traversal is used to recursively traverse the file tree starting from this file/directory.
     pub fn traversal(&self) -> error::Result<Traversal> {
         let mut err = 0;
         let traversal = unsafe { ffi::sqsh_tree_traversal_new(self.inner.as_ptr(), &mut err) };

@@ -9,6 +9,7 @@ use std::mem;
 use std::path::Path;
 use std::ptr::NonNull;
 
+/// A squashfs filesystem archive.
 #[derive(Debug)]
 pub struct Archive<'a> {
     pub(crate) inner: NonNull<ffi::SqshArchive>,
@@ -19,7 +20,9 @@ pub struct Archive<'a> {
 unsafe impl<'a> Send for Archive<'a> {}
 unsafe impl<'a> Sync for Archive<'a> {}
 
-impl Archive<'static> {
+/// Ways to create an archive.
+impl<'a> Archive<'a> {
+    /// Open a squashfs archive from a file.
     pub fn new<P>(path: P) -> error::Result<Self>
     where
         P: AsRef<Path>,
@@ -32,9 +35,8 @@ impl Archive<'static> {
             Self::new_raw_simple(&*ffi::sqsh_mapper_impl_mmap, 0, path.as_ptr().cast())
         })
     }
-}
 
-impl<'a> Archive<'a> {
+    /// Open a squashfs archive from a slice of data.
     pub fn from_slice(data: &'a [u8]) -> error::Result<Self> {
         unsafe {
             Self::new_raw_simple(
@@ -44,9 +46,7 @@ impl<'a> Archive<'a> {
             )
         }
     }
-}
 
-impl<'a> Archive<'a> {
     unsafe fn new_raw(config: &ffi::SqshConfig, source_ptr: *const c_void) -> error::Result<Self> {
         let mut err = 0;
         let archive = ffi::sqsh_archive_open(source_ptr, config, &mut err);
@@ -78,12 +78,16 @@ impl<'a> Archive<'a> {
         Self::new_raw(&config, source_ptr)
     }
 
+    /// Open a squashfs archive from a custom source.
     pub fn with_source<S: Source + 'a>(source: S) -> error::Result<Self> {
         let vtable: &'a SourceVtable<S> = &const { SourceVtable::new() };
         let source_ptr = crate::source::to_ptr(source);
         unsafe { Self::new_raw_simple(vtable.mapper_impl(), 0, source_ptr) }
     }
+}
 
+impl<'a> Archive<'a> {
+    /// Open the root directory of the archive.
     pub fn root(&self) -> error::Result<File<'_>> {
         let superblock = self.superblock();
         let inode_ref = superblock.root_inode_ref();

@@ -107,6 +107,7 @@ impl<'dir, 'archive> DirectoryEntry<'dir, 'archive> {
         InodeRef(unsafe { ffi::sqsh_directory_iterator_inode_ref(self.inner) })
     }
 
+    /// Open the current entry as a file.
     pub fn open(&self) -> error::Result<File<'archive>> {
         let mut err = 0;
         let file = unsafe { ffi::sqsh_directory_iterator_open_file(self.inner, &mut err) };

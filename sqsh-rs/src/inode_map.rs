@@ -16,6 +16,13 @@ impl Archive<'_> {
     }
 }
 
+/// A map of inodes to inode references.
+///
+/// This is used to look up inode references by inode number.
+///
+/// Note that this may or may not be a complete map of all inodes in the archive: if
+/// an export table is present, this will contain all inodes, but if not, this will only contain
+/// inodes that have been visited.
 pub struct InodeMap<'archive> {
     inner: &'archive ffi::SqshInodeMap,
 }

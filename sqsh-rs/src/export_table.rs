@@ -16,6 +16,10 @@ impl Archive<'_> {
     }
 }
 
+/// A mapping from inode numbers to inode references.
+///
+/// A squashfs archive can optionally contain an export table, which maps inode numbers to inode
+/// references.
 pub struct ExportTable<'archive> {
     inner: &'archive ffi::SqshExportTable,
 }
