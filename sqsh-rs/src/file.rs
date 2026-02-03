@@ -243,7 +243,7 @@ impl<'archive> File<'archive> {
     /// Returns a new traversal for the file.
     ///
     /// A traversal is used to recursively traverse the file tree starting from this file/directory.
-    pub fn traversal(&self) -> error::Result<Traversal> {
+    pub fn traversal(&self) -> error::Result<Traversal<'_>> {
         let mut err = 0;
         let traversal = unsafe { ffi::sqsh_tree_traversal_new(self.inner.as_ptr(), &mut err) };
         let traversal = match NonNull::new(traversal) {

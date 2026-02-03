@@ -31,22 +31,17 @@ impl<'file> Reader<'file> {
         n = n.saturating_add(self.consumed.try_into().unwrap());
         self.consumed = 0;
 
-        // Loop because we want a 64 bit offset, but need to skip in usize chunks.
-        while n > 0 {
-            let n_usize: usize = n.try_into().unwrap_or(usize::MAX);
-            n -= n_usize as u64;
-
-            let mut offset_remaining = n_usize;
-            let err = unsafe {
-                ffi::sqsh_file_iterator_skip(self.inner.as_ptr(), &mut offset_remaining, usize::MAX)
-            };
-
-            if err != 0 {
-                return Err(error::new(err));
-            }
-            debug_assert!(self.current_chunk_size() >= offset_remaining);
-            self.consume(offset_remaining);
+        let mut offset_remaining = n;
+        let err = unsafe {
+            ffi::sqsh_file_iterator_skip2(self.inner.as_ptr(), &mut offset_remaining, usize::MAX)
+        };
+        if err != 0 {
+            return Err(error::new(err));
         }
+        // remaining offset must fit in a usize, it must be in a single block
+        let offset_remaining = offset_remaining.try_into().unwrap();
+        debug_assert!(self.current_chunk_size() >= offset_remaining);
+        self.consume(offset_remaining);
 
         Ok(())
     }

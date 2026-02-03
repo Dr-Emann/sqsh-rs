@@ -14,13 +14,11 @@ unsafe impl Source for ReadSource {
     // Be mean: only read one byte at a time
     const BLOCK_SIZE_HINT: usize = 1;
 
-    fn size(&mut self) -> sqsh_rs::Result<usize> {
-        Ok(self.file.seek(SeekFrom::End(0)).unwrap() as usize)
+    fn size(&mut self) -> sqsh_rs::Result<u64> {
+        Ok(self.file.seek(SeekFrom::End(0)).unwrap())
     }
 
-    unsafe fn map(&mut self, offset: usize, size: usize) -> sqsh_rs::Result<*mut u8> {
-        let offset = u64::try_from(offset)?;
-
+    unsafe fn map(&mut self, offset: u64, size: usize) -> sqsh_rs::Result<*mut u8> {
         let mut buf = vec![0; size].into_boxed_slice();
         self.file
             .seek(SeekFrom::Start(offset))

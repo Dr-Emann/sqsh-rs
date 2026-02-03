@@ -29,7 +29,7 @@ impl<'archive> ExportTable<'archive> {
     pub fn resolve_inode(&self, inode: Inode) -> error::Result<InodeRef> {
         let mut inode_ref = 0;
         let res = unsafe {
-            ffi::sqsh_export_table_resolve_inode(self.inner, inode.index().into(), &mut inode_ref)
+            ffi::sqsh_export_table_resolve_inode2(self.inner, inode.index(), &mut inode_ref)
         };
         if res != 0 {
             return Err(error::new(res));

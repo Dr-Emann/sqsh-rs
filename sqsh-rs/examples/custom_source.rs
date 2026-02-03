@@ -10,18 +10,15 @@ struct FileReadSource {
 unsafe impl Source for FileReadSource {
     const BLOCK_SIZE_HINT: usize = 1024 * 1024;
 
-    fn size(&mut self) -> sqsh_rs::Result<usize> {
+    fn size(&mut self) -> sqsh_rs::Result<u64> {
         let size = self
             .file
             .seek(std::io::SeekFrom::End(0))
             .map_err(|_| sqsh_rs::ffi::SqshError::SQSH_ERROR_MAPPER_INIT)?;
-        let size: usize = size.try_into()?;
         Ok(size)
     }
 
-    unsafe fn map(&mut self, offset: usize, size: usize) -> sqsh_rs::Result<*mut u8> {
-        let offset = u64::try_from(offset)?;
-
+    unsafe fn map(&mut self, offset: u64, size: usize) -> sqsh_rs::Result<*mut u8> {
         let mut buf = vec![0; size].into_boxed_slice();
         self.file
             .seek(std::io::SeekFrom::Start(offset))

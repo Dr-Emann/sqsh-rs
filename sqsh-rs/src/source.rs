@@ -21,8 +21,10 @@ impl<S: Source> SourceVtable<S> {
         );
         let imp = ffi::SqshMemoryMapperImpl {
             block_size_hint,
-            init: Some(init::<S>),
-            map: Some(map::<S>),
+            init: None,
+            map: None,
+            init2: Some(init2::<S>),
+            map2: Some(map2::<S>),
             unmap: Some(unmap::<S>),
             cleanup: Some(cleanup::<S>),
         };
@@ -52,7 +54,7 @@ pub unsafe trait Source {
     const BLOCK_SIZE_HINT: usize;
 
     /// Retrieve the size of the archive.
-    fn size(&mut self) -> crate::error::Result<usize>;
+    fn size(&mut self) -> crate::error::Result<u64>;
 
     /// Map a section of a source into memory.
     ///
@@ -71,7 +73,7 @@ pub unsafe trait Source {
     /// `map` must never be called for the same offset and size while the buffer is still mapped.
     /// The function must return a pointer to a buffer of `size` bytes.
     /// The buffer must remain valid until the `unmap` function is called.
-    unsafe fn map(&mut self, offset: usize, size: usize) -> crate::error::Result<*mut u8>;
+    unsafe fn map(&mut self, offset: u64, size: usize) -> crate::error::Result<*mut u8>;
 
     /// Unmap a section of a source from memory.
     ///
@@ -94,10 +96,10 @@ pub(crate) fn to_ptr<S: Source>(source: S) -> *mut c_void {
     s_ptr.cast()
 }
 
-extern "C" fn init<S: Source>(
+extern "C" fn init2<S: Source>(
     mapper: *mut SqshMapper,
     input: *const c_void,
-    size: *mut usize,
+    size: *mut u64,
 ) -> c_int {
     let input = input.cast_mut();
     unsafe {
@@ -120,9 +122,9 @@ extern "C" fn cleanup<S: Source>(mapper: *mut SqshMapper) -> c_int {
     0
 }
 
-extern "C" fn map<S: Source>(
+extern "C" fn map2<S: Source>(
     mapper: *const SqshMapper,
-    offset: usize,
+    offset: u64,
     size: usize,
     ptr: *mut *mut u8,
 ) -> c_int {

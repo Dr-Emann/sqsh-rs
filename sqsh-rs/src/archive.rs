@@ -5,7 +5,7 @@ use sqsh_sys as ffi;
 use sqsh_sys::SqshMemoryMapperImpl;
 use std::ffi::c_void;
 use std::marker::PhantomData;
-use std::mem;
+use std::mem::MaybeUninit;
 use std::path::Path;
 use std::ptr::NonNull;
 
@@ -65,17 +65,10 @@ impl<'a> Archive<'a> {
         size: usize,
         source_ptr: *const c_void,
     ) -> error::Result<Self> {
-        let config = ffi::SqshConfig {
-            archive_offset: 0,
-            source_size: size.try_into().unwrap(),
-            source_mapper,
-            mapper_block_size: 0,
-            mapper_lru_size: 0,
-            compression_lru_size: 0,
-            max_symlink_depth: 0,
-            _reserved: unsafe { mem::zeroed() },
-        };
-        Self::new_raw(&config, source_ptr)
+        let mut config: MaybeUninit<ffi::SqshConfig> = MaybeUninit::zeroed();
+        (*config.as_mut_ptr()).source_mapper = source_mapper;
+        (*config.as_mut_ptr()).source_size = size.try_into().unwrap();
+        Self::new_raw(config.assume_init_ref(), source_ptr)
     }
 
     /// Open a squashfs archive from a custom source.
