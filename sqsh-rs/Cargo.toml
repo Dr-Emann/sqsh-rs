@@ -1,7 +1,7 @@
 [package]
 name = "sqsh-rs"
 description = "A Rust wrapper around the libsqsh library"
-version = "0.2.0"
+version = "0.2.1"
 license = "BSD-2-Clause"
 authors = ["Zachary Dremann <dremann@gmail.com>"]
 categories = ["api-bindings"]
@@ -25,7 +25,7 @@ zstd = ["sqsh-sys/zstd"]
 bitflags = "2.3"
 bstr = "1.5"
 libc = "0.2"
-sqsh-sys = { path = "../sqsh-sys", version = "0.2", default-features = false }
+sqsh-sys = { path = "../sqsh-sys", version = "0.3", default-features = false }
 
 [dev-dependencies]
 insta = "1.30"
