@@ -62,7 +62,7 @@ fn main() -> color_eyre::Result<()> {
 fn update_cextras(submodules_dir: &Path, rev: &str) -> color_eyre::Result<()> {
     let cextras = submodules_dir.join("cextras");
     fetch_git_tags(&cextras)?;
-    checkout_git(&cextras, &rev)?;
+    checkout_git(&cextras, rev)?;
     Ok(())
 }
 
